@@ -5,7 +5,7 @@
 
 ## Kontext
 
-Das Konzept (`CAM_Scanner_Konzept.md`) ist framework-agnostisch geschrieben —
+Das Konzept ([docs/concept.md](concept.md)) ist framework-agnostisch geschrieben —
 es nennt nur OpenCV.js, Canvas API, pdf-lib, Web Share API, optional
 onnxruntime-web. Beim Bootstrap musste ein konkreter Frontend-Stack gewählt
 werden.

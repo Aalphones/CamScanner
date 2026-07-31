@@ -4,8 +4,9 @@
 
 Clientseitiger PWA-Dokumentenscanner: Kamera → Kantenerkennung → Perspektiv-
 korrektur → Bildoptimierung → Multi-Page-PDF → Teilen. Kein Backend, kein
-Login. Voller Kontext: [docs/PROJECT.md](docs/PROJECT.md). Konzept-Quelle
-(Detail-Pipeline, ONNX-Modelle, Pre-/Post-Processing-Code): [CAM_Scanner_Konzept.md](CAM_Scanner_Konzept.md).
+Login. Voller Kontext: [docs/PROJECT.md](docs/PROJECT.md). Technisches
+Konzept-Dokument (Detail-Pipeline, ONNX-Modelle, Pre-/Post-Processing-Code):
+[docs/concept.md](docs/concept.md).
 
 ## Code finden — erst hier, dann greppen
 
