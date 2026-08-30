@@ -9,15 +9,15 @@
 
 ## Regeln
 
-- Neue Features bekommen Unit-Tests für die nicht-triviale Logik (Kanten-
-  erkennung-Wrapper, Perspektivkorrektur-Aufruf, PDF-Zusammenbau,
-  Page-Buffer-State) — reine Template-/Styling-Komponenten ohne Logik
-  brauchen keinen Test-Overkill
-- **Bildverarbeitung testen ohne echte Kamera:** OpenCV.js/ONNX-Aufrufe hinter
-  einem Service kapseln (siehe `angular.md` → Critical Rules #6) und in
-  Unit-Tests mocken — kein echter `getUserMedia`-Stream in Tests
-- Nach jeder Code-Änderung: zugehörige Tests laufen lassen, Failures fixen,
-  bevor weitergemacht wird
+- **Automatisierte Tests gibt es nur für reine Rechen-Funktionen ohne Kamera,
+  Canvas oder OpenCV** — konkret `core/geometry.ts`. Ein Test, der nur prüft,
+  ob ein Mock aufgerufen wurde, sichert nichts ab — deshalb gibt es hier keine
+  Mock-Tests für OpenCV.js/Kamera/Canvas-Services.
+- **Alles andere** (Kamera-Zugriff, Kantenerkennung, Perspektivkorrektur,
+  PDF-Zusammenbau, Page-Buffer-State) wird über die Smoke-Checkliste des
+  jeweiligen Plans **manuell** abgenommen — der User prüft am realen Gerät.
+- Nach jeder Code-Änderung an `core/geometry.ts`: zugehörige Tests laufen
+  lassen, Failures fixen, bevor weitergemacht wird.
 
 ## Critical Rules
 

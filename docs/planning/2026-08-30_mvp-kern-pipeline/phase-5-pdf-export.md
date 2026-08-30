@@ -9,7 +9,7 @@ Sitzung zurück.
 ## Kontext — vorher lesen
 
 - `README.md` dieses Plans — Kontrakt (`buildPdf`, `downloadBlob`)
-- `src/app/core/scan-session.service.ts`
+- `src/app/core/scan-session.ts`
 - `docs/PROJECT.md` — Nicht-Ziele (nichts verlässt das Gerät)
 
 ## Entscheidungen (nicht neu verhandeln)
@@ -65,7 +65,7 @@ Sitzung zurück.
 
 ## Doc-Updates
 
-- [ ] `docs/code-map.md`: Feature-Zeile `result`, `core/pdf.service.ts`,
+- [ ] `docs/code-map.md`: Feature-Zeile `result`, `core/pdf.ts`,
       `core/file-save.ts` — Tabelle danach vollständig für Meilenstein 1
 - [ ] `docs/glossary.md`: Eintrag „Page Buffer" auf den Stand bringen (in M1
       existiert nur eine Seite, der Service ist aber schon auf eine Liste

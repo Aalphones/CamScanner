@@ -8,7 +8,7 @@ Bild.
 
 - `README.md` dieses Plans — Kontrakt-Sektion (`Quad`, `detect`)
 - `docs/concept.md` Kapitel 4.2
-- `src/app/core/opencv-loader.service.ts`, `src/app/core/geometry.ts`
+- `src/app/core/opencv-loader.ts`, `src/app/core/geometry.ts`
 - `docs/conventions/testing.md` (in Phase 1 gekürzt — getestet wird nur
   `geometry.ts`)
 
@@ -84,7 +84,7 @@ vergessene Mats sind ein Leck, das nach ein paar Scans den Tab abschießt.
       verkleinerter Kopie, Ecken-Reihenfolge als projektweite Konvention,
       Zustands-Übergabe zwischen Bildschirmen über `ScanSessionService` statt
       Router-State (Router-State überlebt kein Neuladen und ist nicht typisiert)
-- [ ] `docs/code-map.md`: `core/document-detection.service.ts`, `core/geometry.ts`
+- [ ] `docs/code-map.md`: `core/document-detection.ts`, `core/geometry.ts`
 - [ ] `docs/glossary.md`: Einträge „Quad" und „Kantenerkennungs-Schwellwerte"
 
 ## Report-Back

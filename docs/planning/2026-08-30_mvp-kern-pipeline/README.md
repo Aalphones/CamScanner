@@ -13,7 +13,7 @@ ihn unverändert weiterverwenden kann.
 
 | # | Phase | Rating | Status |
 |---|---|---|---|
-| 1 | [OpenCV-Fundament & Gerüst](phase-1-opencv-fundament.md) | heikel | pending |
+| 1 | [OpenCV-Fundament & Gerüst](phase-1-opencv-fundament.md) | heikel | complete |
 | 2 | [Kamera & Aufnahme](phase-2-kamera-aufnahme.md) | standard | pending |
 | 3 | [Kantenerkennung & Geometrie](phase-3-erkennung-geometrie.md) | heikel | pending |
 | 4 | [Ecken-Korrektur & Begradigung](phase-4-ecken-begradigung.md) | standard | pending |
@@ -46,7 +46,7 @@ export type Quad = readonly [Point, Point, Point, Point];
 ```
 
 ```ts
-// src/app/core/scan-session.service.ts  (providedIn: 'root')
+// src/app/core/scan-session.ts  (@Service(), providedIn root)
 sourceFrame:  Signal<ImageBitmap | null>   // Standbild in voller Auflösung
 corners:      Signal<Quad | null>          // in sourceFrame-Koordinaten
 warpedPage:   Signal<Blob | null>          // begradigte Seite, image/jpeg
@@ -57,21 +57,25 @@ reset(): void                              // gibt ImageBitmap frei (close())
 ```
 
 ```ts
-// src/app/core/opencv-loader.service.ts
+// src/app/core/opencv-loader.ts
 load(): Promise<OpenCv>                    // idempotent, cached
 
-// src/app/core/document-detection.service.ts
+// src/app/core/document-detection.ts
 detect(source: ImageBitmap): Promise<Quad | null>   // null = nichts gefunden
 
-// src/app/core/perspective.service.ts
+// src/app/core/perspective.ts
 warp(source: ImageBitmap, corners: Quad): Promise<Blob>   // image/jpeg
 
-// src/app/core/pdf.service.ts
+// src/app/core/pdf.ts
 buildPdf(pages: readonly Blob[]): Promise<Blob>     // Liste! (M2 nutzt sie)
 
 // src/app/core/file-save.ts
 downloadBlob(blob: Blob, fileName: string): void
 ```
+
+**Dateinamen ohne `.service.ts`-Infix** (Kontrakt-Korrektur aus Phase 1, siehe
+ADR-002): `ng generate service` legt in Angular 22 keinen Typ-Suffix mehr an —
+konsistent mit dem 2025-Namensstil, der Komponenten schon betraf.
 
 **Bildschirm-Fluss:** `/capture` → `/crop` → `/result`. Jede Route außer
 `/capture` prüft über einen Guard, ob der nötige Zustand da ist, und schickt

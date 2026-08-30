@@ -17,7 +17,7 @@
 | Build | `@angular/build` (esbuild), `ng build` |
 | Lint | `angular-eslint` (`ng lint`) |
 | Selector-Prefix | `cam` (in `angular.json` gepinnt) |
-| File-Naming | 2025-Style: kein `.component.`-Infix (`capture.ts`, nicht `capture.component.ts`) |
+| File-Naming | 2025-Style: kein Typ-Infix — weder `.component.` noch `.service.` (`capture.ts`, `opencv-loader.ts`, nicht `capture.component.ts`/`opencv-loader.service.ts`). Bestätigt durch `ng generate service` in Angular 22, das den Suffix von selbst weglässt. |
 
 ## Project Layout
 

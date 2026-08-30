@@ -9,7 +9,7 @@ Nutzer justiert nach, und „Übernehmen" erzeugt das begradigte Blatt.
 ## Kontext — vorher lesen
 
 - `README.md` dieses Plans — Kontrakt (`Quad`, `warp`, `ScanSessionService`)
-- `src/app/core/geometry.ts`, `src/app/core/document-detection.service.ts`
+- `src/app/core/geometry.ts`, `src/app/core/document-detection.ts`
 - `docs/conventions/angular.md` — Critical Rules 1, 3, 4
 
 ## Bildschirm-Struktur (freihändig, verbindlich als Abnahme-Punkt)
@@ -73,7 +73,7 @@ wird:
 
 ## Doc-Updates
 
-- [ ] `docs/code-map.md`: Feature-Zeile `crop`, `core/perspective.service.ts`,
+- [ ] `docs/code-map.md`: Feature-Zeile `crop`, `core/perspective.ts`,
       `core/scan-session.guard.ts`
 
 ## Report-Back

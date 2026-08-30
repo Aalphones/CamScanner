@@ -10,7 +10,7 @@ Auslöser legt ein Standbild in voller Auflösung in die Sitzung und wechselt au
 
 - `docs/conventions/angular.md` — besonders Critical Rules 1, 4, 6
 - `README.md` dieses Plans — Kontrakt-Sektion (`ScanSessionService`)
-- `src/app/core/scan-session.service.ts` (aus Phase 1)
+- `src/app/core/scan-session.ts` (aus Phase 1)
 
 ## Entscheidungen (nicht neu verhandeln)
 
@@ -21,7 +21,7 @@ Auslöser legt ein Standbild in voller Auflösung in die Sitzung und wechselt au
   scheitert.
 - Der Zustand der Kamera ist ein Signal mit genau diesen Werten:
   `'idle' | 'starting' | 'running' | 'denied' | 'insecure' | 'unavailable'`.
-  Als const-asserted Union in `camera.service.ts`, keine losen Strings.
+  Als const-asserted Union in `camera.ts`, keine losen Strings.
 
 ## Abnahme-Kriterien
 
@@ -40,7 +40,7 @@ Auslöser legt ein Standbild in voller Auflösung in die Sitzung und wechselt au
 
 ## Checkliste
 
-- [ ] `ng generate service core/camera` → `src/app/core/camera.service.ts`
+- [ ] `ng generate service core/camera` → `src/app/core/camera.ts`
       - `state: Signal<CameraState>` (Union oben)
       - `start(video: HTMLVideoElement): Promise<void>` — prüft zuerst
         `window.isSecureContext` (falsch → `'insecure'`, kein `getUserMedia`),
@@ -68,6 +68,6 @@ Auslöser legt ein Standbild in voller Auflösung in die Sitzung und wechselt au
 
 ## Doc-Updates
 
-- [ ] `docs/code-map.md`: Feature-Zeile `capture` + `core/camera.service.ts`
+- [ ] `docs/code-map.md`: Feature-Zeile `capture` + `core/camera.ts`
 
 ## Report-Back

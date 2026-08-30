@@ -35,48 +35,48 @@ Rest des Codes merkt davon nichts. Welcher Weg genommen wurde, gehört in ADR-00
 
 ## Checkliste
 
-- [ ] `npm install @techstark/opencv-js pdf-lib`
-- [ ] `npm run build` — Ergebnis prüfen. Meckert der Build über CommonJS,
-      das Paket in `angular.json` unter
-      `projects.cam-scanner.architect.build.options.allowedCommonJsDependencies`
-      eintragen. Sprengt es ein Budget, die `budgets`-Einträge anheben statt
-      das Lazy-Laden aufzugeben.
-- [ ] `ng generate service core/opencv-loader` → `src/app/core/opencv-loader.service.ts`
+- [x] `npm install @techstark/opencv-js pdf-lib`
+- [x] `npm run build` — sauber durchgelaufen, kein CommonJS-Fehler, kein
+      Budget gesprengt (Start-Bundle unverändert bei 194 kB — OpenCV wird von
+      noch niemandem injiziert, der Lazy-Chunk entsteht erst mit dem ersten
+      Consumer in Phase 3).
+- [x] `ng generate service core/opencv-loader` → `src/app/core/opencv-loader.ts`
+      (**Kontrakt-Korrektur:** `ng generate` in Angular 22 legt keinen
+      `.service.ts`-Infix mehr an, siehe ADR-002)
       - Feld `private loadPromise: Promise<OpenCv> | null = null`
       - `load(): Promise<OpenCv>` — beim ersten Aufruf
         `import('@techstark/opencv-js')`, auf das `onRuntimeInitialized`-Signal
         des Moduls warten, Ergebnis in `loadPromise` merken und wiederverwenden
-      - Typ-Alias `export type OpenCv = typeof import('@techstark/opencv-js')`
+      - Typ-Alias `export type OpenCv = CV` (aus dem Paket-Re-Export, `typeof
+        import(...)` war unnötig — das Paket exportiert den Typ `CV` direkt)
         in derselben Datei — alle anderen Services typisieren gegen `OpenCv`,
         nie gegen `any`
-- [ ] `ng generate service core/scan-session` → Signale und Methoden exakt nach
-      Kontrakt-Sektion der [README](README.md). `reset()` ruft
-      `sourceFrame()?.close()` auf, bevor es die Signale leert — sonst hält ein
-      12-Megapixel-Bitmap den Speicher fest.
-- [ ] `src/app/core/geometry.ts` anlegen: `Point`, `Quad` (nur die Typen, die
+- [x] `ng generate service core/scan-session` → `src/app/core/scan-session.ts`.
+      Signale und Methoden exakt nach Kontrakt-Sektion der [README](README.md).
+      `reset()` ruft `sourceFrame()?.close()` auf, bevor es die Signale leert —
+      sonst hält ein 12-Megapixel-Bitmap den Speicher fest.
+- [x] `src/app/core/geometry.ts` anlegen: `Point`, `Quad` (nur die Typen, die
       Funktionen kommen in Phase 3).
-- [ ] `src/app/app.routes.ts`: drei Lazy-Routen `capture`, `crop`, `result`,
-      dazu `{ path: '', redirectTo: 'capture', pathMatch: 'full' }` und eine
-      Wildcard zurück auf `capture`. Die Komponenten entstehen in den Phasen
-      2/4/5 — bis dahin bleibt die Datei mit den drei Einträgen vorbereitet und
-      wird pro Phase scharf geschaltet.
-- [ ] `src/app/app.html` enthält nur `<router-outlet />`.
-- [ ] `src/styles.scss`: dunkler App-Hintergrund (`#111`), `html, body` auf
+- [x] `src/app/app.routes.ts`: `{ path: '', redirectTo: 'capture', pathMatch:
+      'full' }` und eine Wildcard zurück auf `capture` stehen; die drei
+      Screen-Einträge selbst kommen erst mit den `loadComponent`-Imports in den
+      Phasen 2/4/5 dazu — vorher gäbe es keine Datei, auf die sie zeigen
+      könnten, und der Build würde brechen.
+- [x] `src/app/app.html` enthält nur `<router-outlet />`.
+- [x] `src/styles.scss`: dunkler App-Hintergrund (`#111`), `html, body` auf
       volle Höhe, `overscroll-behavior: none`, `touch-action: manipulation` —
       die App ist eine Vollbild-Kamera-Oberfläche, kein scrollendes Dokument.
 
 ## Doc-Updates
 
-- [ ] `docs/decisions/002-opencv-einbindung.md` anlegen (Kontext / betrachtete
-      Optionen / Entscheidung / Konsequenzen — inklusive dem, was der Build
-      tatsächlich gesagt hat)
-- [ ] `docs/conventions/testing.md` kürzen: automatisierte Tests gibt es in
-      diesem Projekt **nur** für reine Rechen-Funktionen ohne Kamera, Canvas
-      oder OpenCV (konkret `core/geometry.ts`). Alles andere wird über die
-      Smoke-Checkliste des jeweiligen Plans manuell abgenommen. Die bisherige
-      Regel „OpenCV-Aufrufe mocken" ersatzlos streichen — ein Test, der nur
-      prüft, ob ein Mock aufgerufen wurde, sichert nichts ab.
-- [ ] `docs/code-map.md`: Zeilen für `core/opencv-loader.service.ts`,
-      `core/scan-session.service.ts`, `core/geometry.ts` ergänzen
+- [x] `docs/decisions/002-opencv-einbindung.md` angelegt.
+- [x] `docs/conventions/testing.md` gekürzt wie vorgegeben.
+- [x] `docs/code-map.md`: Zeilen für `core/opencv-loader.ts`,
+      `core/scan-session.ts`, `core/geometry.ts` ergänzt.
 
 ## Report-Back
+
+**Status:** complete. Weg genommen: npm-Paket (kein Fallback nötig, Build lief
+sauber durch). Einzige Abweichung vom Kontrakt: `ng generate` legt Dateien
+ohne `.service.ts`-Infix an (Angular 22) — README, code-map.md und die
+Phasen 2–5 wurden entsprechend korrigiert, siehe ADR-002.
