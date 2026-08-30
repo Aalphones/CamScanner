@@ -40,7 +40,7 @@ Auslöser legt ein Standbild in voller Auflösung in die Sitzung und wechselt au
 
 ## Checkliste
 
-- [ ] `ng generate service core/camera` → `src/app/core/camera.ts`
+- [x] `ng generate service core/camera` → `src/app/core/camera.ts`
       - `state: Signal<CameraState>` (Union oben)
       - `start(video: HTMLVideoElement): Promise<void>` — prüft zuerst
         `window.isSecureContext` (falsch → `'insecure'`, kein `getUserMedia`),
@@ -50,7 +50,7 @@ Auslöser legt ein Standbild in voller Auflösung in die Sitzung und wechselt au
       - `stop(): void` — alle Tracks stoppen, `srcObject` leeren
       - Kein `navigator`-Zugriff außerhalb dieses Service (Regel 6 der
         Angular-Conventions)
-- [ ] `ng generate component features/capture` → `capture.ts/.html/.scss`
+- [x] `ng generate component features/capture` → `capture.ts/.html/.scss`
       - `ChangeDetectionStrategy.OnPush`, `inject()`
       - `<video autoplay playsinline muted>` — `playsinline` ist auf iOS
         zwingend, sonst öffnet Safari den Vollbild-Player
@@ -58,16 +58,30 @@ Auslöser legt ein Standbild in voller Auflösung in die Sitzung und wechselt au
       - Auslöser-Klick: `captureFrame()` → `scanSession.setSourceFrame(...)` →
         `stop()` → `router.navigate(['/crop'])`
       - Während der Aufnahme ist der Auslöser deaktiviert (schützt vor Doppel-Tap)
-- [ ] Layout in `capture.scss`, BEM-Klassen: `.capture`, `.capture__video`,
+- [x] Layout in `capture.scss`, BEM-Klassen: `.capture`, `.capture__video`,
       `.capture__shutter`, `.capture__hint`. `:host` direkt stylen, kein
       Wrapper-Element.
-- [ ] Erst-Nutzer-Hinweis über dem Bild, dezent und einzeilig: „Dokument
+- [x] Erst-Nutzer-Hinweis über dem Bild, dezent und einzeilig: „Dokument
       formatfüllend ins Bild halten". Bleibt dauerhaft stehen — er kostet nichts
       und beantwortet die einzige offene Frage dieses Bildschirms.
-- [ ] Route `capture` in `app.routes.ts` scharf schalten.
+- [x] Route `capture` in `app.routes.ts` scharf schalten.
 
 ## Doc-Updates
 
-- [ ] `docs/code-map.md`: Feature-Zeile `capture` + `core/camera.ts`
+- [x] `docs/code-map.md`: Feature-Zeile `capture` + `core/camera.ts`
 
 ## Report-Back
+
+**Spec-Dateien entfernt:** `ng generate` legt standardmäßig `.spec.ts` an;
+`docs/conventions/testing.md` schreibt für Kamera-/Component-Code explizit
+keine Tests vor (nur `core/geometry.ts` bekommt welche) — `camera.spec.ts`
+und `capture.spec.ts` direkt nach dem Generieren gelöscht, konsistent mit
+Phase 1 (dort auch keine Specs neben `opencv-loader.ts`/`scan-session.ts`).
+
+**Unsicherste Stelle:** `capture.html` — die vier Zustände (`running`,
+`denied`, `insecure`, `unavailable`) sind über `@switch` auf `state()`
+geschaltet, das Video-Element selbst bleibt aber immer im DOM (nur der
+Zustand darüber wechselt), damit `viewChild.required('video')` nicht ins
+Leere greift, sobald z. B. „Nochmal versuchen" nach `denied` zurück auf
+`running` wechselt. Auf echtem Gerät ungeprüft (kein Kamera-Zugriff hier) —
+Smoke-Checkliste-Punkt 4 deckt genau das ab.

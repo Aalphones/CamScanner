@@ -31,17 +31,15 @@ Komponenten/Pipes).
 
 ## Feature-Tabelle
 
-Noch leer — wird beim ersten `/plan`-Durchlauf pro Meilenstein befüllt, sobald
-die ersten Features (`capture`, `pages`, `export`, …) tatsächlich existieren.
-
 | Feature | Zweck | Pfad |
 |---|---|---|
-| _(noch keins)_ | | |
+| `capture` | Sucher mit Live-Kamerabild, Auslöser nimmt Standbild auf | `features/capture/` |
 
-## Core-Services (Meilenstein 1, Phase 1)
+## Core-Services (Meilenstein 1)
 
 | Datei | Zweck |
 |---|---|
 | `core/opencv-loader.ts` | Lädt `@techstark/opencv-js` per Lazy-Chunk, cached die Ladung |
 | `core/scan-session.ts` | Signal-State für den Scan-Fluss: Standbild, Ecken, begradigte Seite |
 | `core/geometry.ts` | `Point`/`Quad`-Typen (Funktionen folgen in Phase 3) |
+| `core/camera.ts` | Kapselt `getUserMedia`/Track-Handling, Zustand als Signal |

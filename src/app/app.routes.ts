@@ -4,5 +4,9 @@ import { Routes } from '@angular/router';
 // dieses Plans — jede Phase schaltet ihren Eintrag scharf (loadComponent-Import).
 export const routes: Routes = [
   { path: '', redirectTo: 'capture', pathMatch: 'full' },
+  {
+    path: 'capture',
+    loadComponent: () => import('./features/capture/capture').then((module) => module.Capture),
+  },
   { path: '**', redirectTo: 'capture' },
 ];
