@@ -42,7 +42,7 @@ vergessene Mats sind ein Leck, das nach ein paar Scans den Tab abschießt.
 
 ## Checkliste
 
-- [ ] `src/app/core/geometry.ts` ausbauen — reine Funktionen, keine Abhängigkeiten:
+- [x] `src/app/core/geometry.ts` ausbauen — reine Funktionen, keine Abhängigkeiten:
       - `sortQuadCorners(points: readonly Point[]): Quad` — oben-links hat die
         kleinste Summe `x + y`, unten-rechts die größte; oben-rechts die
         kleinste Differenz `y - x`, unten-links die größte
@@ -53,12 +53,12 @@ vergessene Mats sind ein Leck, das nach ein paar Scans den Tab abschießt.
       - `quadArea(quad: Quad): number` (Trapezformel)
       - `isConvexQuad(quad: Quad): boolean` — Vorzeichen der Kreuzprodukte an
         allen vier Ecken gleich
-- [ ] `src/app/core/geometry.spec.ts` — Vitest, ohne Angular-TestBed:
+- [x] `src/app/core/geometry.spec.ts` — Vitest, ohne Angular-TestBed:
       - unsortierte Punkte eines gedrehten Rechtecks werden korrekt sortiert
       - `scaleQuad` mit Faktor 2 verdoppelt alle Koordinaten
       - `quadOutputSize` eines 100x200-Rechtecks liefert exakt 100x200
       - `isConvexQuad` erkennt ein über Kreuz gefaltetes Viereck als nicht konvex
-- [ ] `ng generate service core/document-detection` — `detect()` in dieser
+- [x] `ng generate service core/document-detection` — `detect()` in dieser
       Reihenfolge:
       1. Verkleinerungsfaktor `Math.min(1, 1024 / Math.max(breite, hoehe))`;
          Bitmap über ein `OffscreenCanvas` in dieser Größe zeichnen und als
@@ -80,11 +80,33 @@ vergessene Mats sind ein Leck, das nach ein paar Scans den Tab abschießt.
 
 ## Doc-Updates
 
-- [ ] `docs/decisions/003-erkennung-und-bildschirm-uebergabe.md` — Erkennung auf
+- [x] `docs/decisions/003-erkennung-und-bildschirm-uebergabe.md` — Erkennung auf
       verkleinerter Kopie, Ecken-Reihenfolge als projektweite Konvention,
       Zustands-Übergabe zwischen Bildschirmen über `ScanSessionService` statt
       Router-State (Router-State überlebt kein Neuladen und ist nicht typisiert)
-- [ ] `docs/code-map.md`: `core/document-detection.ts`, `core/geometry.ts`
-- [ ] `docs/glossary.md`: Einträge „Quad" und „Kantenerkennungs-Schwellwerte"
+- [x] `docs/code-map.md`: `core/document-detection.ts`, `core/geometry.ts`
+- [x] `docs/glossary.md`: Einträge „Quad" und „Kantenerkennungs-Schwellwerte"
 
 ## Report-Back
+
+**Status:** complete (2026-08-30)
+
+- `geometry.ts` trägt jetzt fünf reine Funktionen (`sortQuadCorners`,
+  `scaleQuad`, `quadOutputSize`, `quadArea`, `isConvexQuad`) plus einen
+  `Size`-Typ für die Zielgröße. Kein `!`, keine Fremdabhängigkeit.
+- `document-detection.ts` läuft wie geplant: verkleinern → Graustufen →
+  Weichzeichner → Canny → Dilatation → Konturen → `approxPolyDP`, erster
+  Kandidat mit vier Ecken, konvex, ≥ 20 % Fläche gewinnt.
+- **Abweichung (bewusst):** Statt einer Kaskade verschachtelter
+  `try`/`finally`-Blöcke sammelt ein kleiner Ablagekorb `MatScope` alle Mats
+  ein, ein einziges `finally` gibt sie frei. Gleiche Garantie, ein Bruchteil
+  der Verschachtelung — inklusive der Mats aus `contours.get(i)`, die eine
+  Block-Kaskade leicht übersieht.
+- **Abweichung:** Die Mindestfläche wird über `quadArea()` des sortierten
+  Quads geprüft, nicht über `cv.contourArea()` der Rohkontur — das ist die
+  Fläche, die am Ende tatsächlich begradigt wird.
+- Erkennung noch ohne Aufrufer; die Sichtprüfung der AK 1 verschiebt sich auf
+  Phase 4 (Eintrag in FINDINGS.md).
+
+**Gates:** `npx tsc --noEmit` sauber, `npm test` 9/9 grün, `npm run lint`
+sauber, `npm run build` durch (207,81 kB initial).

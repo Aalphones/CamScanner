@@ -1,8 +1,8 @@
 # State
 
 **Aktiver Plan:** `docs/planning/2026-08-30_mvp-kern-pipeline/`
-**Phase:** 3/5 — Kantenerkennung & Geometrie (offen)
-**Nächster Schritt:** `phase-3-erkennung-geometrie.md` abarbeiten (ADR-003, `document-detection.ts`, Signal-Übergabe).
+**Phase:** 4/5 — Ecken-Korrektur & Begradigung (offen)
+**Nächster Schritt:** `phase-4-ecken-begradigung.md` abarbeiten — Zuschneiden-Bildschirm mit verschiebbaren Ecken, `perspective.ts` (`warp`), Route-Guard auf `/crop`. Vorher die drei Phase-4-Einträge in `FINDINGS.md` lesen.
 
 Projekt-Setup (Bootstrap) ist abgeschlossen: Angular-22-Workspace, PWA-Schematic,
 Doku-Struktur, CI-Skeleton.

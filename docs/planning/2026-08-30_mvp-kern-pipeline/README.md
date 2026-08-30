@@ -15,7 +15,7 @@ ihn unverändert weiterverwenden kann.
 |---|---|---|---|
 | 1 | [OpenCV-Fundament & Gerüst](phase-1-opencv-fundament.md) | heikel | complete |
 | 2 | [Kamera & Aufnahme](phase-2-kamera-aufnahme.md) | standard | complete |
-| 3 | [Kantenerkennung & Geometrie](phase-3-erkennung-geometrie.md) | heikel | pending |
+| 3 | [Kantenerkennung & Geometrie](phase-3-erkennung-geometrie.md) | heikel | complete |
 | 4 | [Ecken-Korrektur & Begradigung](phase-4-ecken-begradigung.md) | standard | pending |
 | 5 | [PDF-Export & Abschluss](phase-5-pdf-export.md) | standard | pending |
 

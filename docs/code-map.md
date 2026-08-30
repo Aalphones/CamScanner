@@ -41,5 +41,6 @@ Komponenten/Pipes).
 |---|---|
 | `core/opencv-loader.ts` | Lädt `@techstark/opencv-js` per Lazy-Chunk, cached die Ladung |
 | `core/scan-session.ts` | Signal-State für den Scan-Fluss: Standbild, Ecken, begradigte Seite |
-| `core/geometry.ts` | `Point`/`Quad`-Typen (Funktionen folgen in Phase 3) |
+| `core/geometry.ts` | `Point`/`Quad`-Typen plus reine Rechen-Funktionen: Ecken sortieren, skalieren, Zielgröße, Fläche, Konvexitätsprüfung |
+| `core/document-detection.ts` | Findet die Blattkanten im Standbild (OpenCV: Graustufen → Canny → Konturen) und liefert vier Ecken oder `null` |
 | `core/camera.ts` | Kapselt `getUserMedia`/Track-Handling, Zustand als Signal |
