@@ -43,11 +43,11 @@ Ergebnis: Die App hat die Farben, Schrift und Grundbausteine aus dem Mockup als 
 
 ## Checkliste
 
-- [ ] `src/styles/_tokens.scss`: `:root` mit allen Variablen der Token-Tabelle (Namen exakt wie dort).
-- [ ] `src/styles/_base.scss`: Regeln für `html, body` aus dem bisherigen `styles.scss` übernehmen (`height: 100%`, `margin: 0`, `overscroll-behavior: none`, `touch-action: manipulation`), Hintergrund auf `var(--cam-bg)`, dazu Farbe, Schrift, `color-scheme: dark`, `* { box-sizing: border-box; }`, `button { font: inherit; color: inherit; }`.
-- [ ] `src/styles/_buttons.scss`, `_bars.scss` (`.topbar`, `.bottombar`), `_toast.scss` nach „Struktur & Maße“.
-- [ ] `src/styles.scss`: nur noch `@use 'styles/tokens'; @use 'styles/base'; @use 'styles/buttons'; @use 'styles/bars'; @use 'styles/toast';`.
-- [ ] `ng generate component shared/icon` → `icon.ts/.html/.scss`. Input `name = input.required<IconName>()`. `IconName` und die Pfade als `const ICON_PATHS: Record<IconName, string>`:
+- [x] `src/styles/_tokens.scss`: `:root` mit allen Variablen der Token-Tabelle (Namen exakt wie dort).
+- [x] `src/styles/_base.scss`: Regeln für `html, body` aus dem bisherigen `styles.scss` übernehmen (`height: 100%`, `margin: 0`, `overscroll-behavior: none`, `touch-action: manipulation`), Hintergrund auf `var(--cam-bg)`, dazu Farbe, Schrift, `color-scheme: dark`, `* { box-sizing: border-box; }`, `button { font: inherit; color: inherit; }`.
+- [x] `src/styles/_buttons.scss`, `_bars.scss` (`.topbar`, `.bottombar`), `_toast.scss` nach „Struktur & Maße“.
+- [x] `src/styles.scss`: nur noch `@use 'styles/tokens'; @use 'styles/base'; @use 'styles/buttons'; @use 'styles/bars'; @use 'styles/toast';`.
+- [x] `ng generate component shared/icon` → `icon.ts/.html/.scss`. Input `name = input.required<IconName>()`. `IconName` und die Pfade als `const ICON_PATHS: Record<IconName, string>`:
       - `back`: `m15 18-6-6 6-6`
       - `flash`: `M13 2 4 14h7l-1 8 9-12h-7z`
       - `grid`: `M3 3h18v18H3zM9 3v18M15 3v18M3 9h18M3 15h18`
@@ -59,8 +59,8 @@ Ergebnis: Die App hat die Farben, Schrift und Grundbausteine aus dem Mockup als 
       - `camera-off`: `M3 3l18 18M10.5 6H14l1.5 2H19a2 2 0 0 1 2 2v7M3 8.5V17a2 2 0 0 0 2 2h11M9.9 9.9a3.5 3.5 0 0 0 4.2 4.2`
       - `info`: `M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM12 11v5M12 8h.01`
       - SVG mit `aria-hidden="true"`; die Beschriftung trägt immer der umgebende Button (`aria-label`).
-- [ ] `src/index.html`: `lang="de"`, `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`, `<meta name="theme-color" content="#0b0d10">`, `<noscript>` auf Deutsch („Bitte JavaScript aktivieren, sonst kann nichts gescannt werden.“).
-- [ ] `public/.htaccess`:
+- [x] `src/index.html`: `lang="de"`, `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`, `<meta name="theme-color" content="#0b0d10">`, `<noscript>` auf Deutsch („Bitte JavaScript aktivieren, sonst kann nichts gescannt werden.“).
+- [x] `public/.htaccess`:
       ```
       Options -Indexes
       AddType application/manifest+json .webmanifest
@@ -82,10 +82,10 @@ Ergebnis: Die App hat die Farben, Schrift und Grundbausteine aus dem Mockup als 
       </IfModule>
       ```
       Die zweite `FilesMatch` steht bewusst danach, damit sie für `ngsw-worker.js` die erste überschreibt. Läuft die HTTPS-Umleitung auf Strato im Kreis (Browser meldet „zu oft umgeleitet“), die beiden Zeilen `RewriteCond %{HTTPS}`/`RewriteRule … R=301` entfernen, im Strato-Kundenbereich „HTTPS erzwingen“ für die Domain einschalten und das in `FINDINGS.md` sowie ADR-004 vermerken.
-- [ ] `.gitattributes` neu: `* text=auto eol=lf`, `*.cmd text eol=crlf`, `*.bat text eol=crlf`, `*.png binary`, `*.ico binary`, `*.onnx binary`. Danach `git add --renormalize .` und prüfen, dass `git status` nur erwartete Dateien zeigt; falls mehr als `.gitattributes` und die neuen Dateien geändert erscheinen, den Renormalize-Teil als eigenen `chore`-Commit vorziehen.
-- [ ] `.gitignore`: Block „Deploy“ mit `deploy.env`.
-- [ ] `deploy.env.example` (Kommentare wie CardMaker, aber nur diese Schlüssel): `WINSCP_PATH`, `SFTP_PROTOCOL`, `SFTP_HOST`, `SFTP_USER`, `SFTP_PASSWORD`, `SFTP_HOSTKEY`, `REMOTE_WEB_PATH` (Kommentar: eigener Ordner der Subdomain, z. B. `/scanner/`, **nie** `/` — der Upload löscht im Ziel alles, was nicht zum Build gehört), `BASE_HREF` (Standard `/`; nur ändern, wenn die App in einem Unterordner einer Domain läuft, dann z. B. `/scanner/`), `PUBLIC_URL` (z. B. `https://scan.example.de/`, nur für die Abschlussmeldung).
-- [ ] `deploy.cmd` (CRLF, `@echo off`, `chcp 65001`, Kopfkommentar „CamScanner - hochladen per Doppelklick“). Ablauf und Meldungen nach CardMaker, Schritte:
+- [x] `.gitattributes` neu: `* text=auto eol=lf`, `*.cmd text eol=crlf`, `*.bat text eol=crlf`, `*.png binary`, `*.ico binary`, `*.onnx binary`. Danach `git add --renormalize .` und prüfen, dass `git status` nur erwartete Dateien zeigt; falls mehr als `.gitattributes` und die neuen Dateien geändert erscheinen, den Renormalize-Teil als eigenen `chore`-Commit vorziehen.
+- [x] `.gitignore`: Block „Deploy“ mit `deploy.env`.
+- [x] `deploy.env.example` (Kommentare wie CardMaker, aber nur diese Schlüssel): `WINSCP_PATH`, `SFTP_PROTOCOL`, `SFTP_HOST`, `SFTP_USER`, `SFTP_PASSWORD`, `SFTP_HOSTKEY`, `REMOTE_WEB_PATH` (Kommentar: eigener Ordner der Subdomain, z. B. `/scanner/`, **nie** `/` — der Upload löscht im Ziel alles, was nicht zum Build gehört), `BASE_HREF` (Standard `/`; nur ändern, wenn die App in einem Unterordner einer Domain läuft, dann z. B. `/scanner/`), `PUBLIC_URL` (z. B. `https://scan.example.de/`, nur für die Abschlussmeldung).
+- [x] `deploy.cmd` (CRLF, `@echo off`, `chcp 65001`, Kopfkommentar „CamScanner - hochladen per Doppelklick“). Ablauf und Meldungen nach CardMaker, Schritte:
       1. `deploy.env` fehlt → Fehler mit Hinweis auf `deploy.env.example`.
       2. Einlesen mit `for /f "usebackq eol=# tokens=1,* delims==" %%A in ("deploy.env") do set "%%A=%%B"` **vor** `setlocal enabledelayedexpansion` (wörtlich aus CardMaker samt Kommentar).
       3. Standardwert `BASE_HREF=/`; Pflichtwerte über `:needValue` (aus CardMaker kopieren): `WINSCP_PATH`, `SFTP_PROTOCOL`, `SFTP_HOST`, `SFTP_USER`, `SFTP_PASSWORD`, `REMOTE_WEB_PATH`.
@@ -97,15 +97,17 @@ Ergebnis: Die App hat die Farben, Schrift und Grundbausteine aus dem Mockup als 
       9. `[3/4] Verbinden und hochladen ...` → `synchronize remote -delete "dist\cam-scanner\browser" "!REMOTE_WEB_PATH!"` (Schalter vor den Verzeichnissen). Temp-Skripte unter `%TEMP%\camscanner-*.txt`, danach löschen.
       10. `[4/4] Fertig` mit `!PUBLIC_URL!`, falls gesetzt; `pause`. Fehlerpfad `:fail` mit `pause` und `exit /b 1`.
       11. `:writeSession` und `:needValue` unverändert aus CardMaker.
-- [ ] Trockenlauf: `deploy.cmd` ohne `deploy.env` und mit einer Test-`deploy.env` mit `REMOTE_WEB_PATH=/` ausführen; beide müssen vor dem Verbinden abbrechen. Den echten Upload macht der User (Zugangsdaten, Subdomain, SSL im Strato-Kundenbereich).
-- [ ] `.github/workflows/ci.yml`: Job `deploy` vollständig entfernen; `build-and-test` bleibt unverändert.
-- [ ] `docs/decisions/004-hosting-strato.md` (Kontext: Pages kann keine eigenen Header, Strato-Paket ist vorhanden · Optionen: GitHub Pages, Strato · Entscheidung: Strato statisch, `deploy.cmd`, eigener Ordner pro Subdomain, `-delete` · Konsequenzen: Upload nur von diesem Rechner, HTTPS-Umleitung per `.htaccess`, COOP/COEP für Phase 11 per `.htaccess` testbar).
+- [x] Trockenlauf: `deploy.cmd` ohne `deploy.env` und mit einer Test-`deploy.env` mit `REMOTE_WEB_PATH=/` ausführen; beide müssen vor dem Verbinden abbrechen. Den echten Upload macht der User (Zugangsdaten, Subdomain, SSL im Strato-Kundenbereich).
+- [x] `.github/workflows/ci.yml`: Job `deploy` vollständig entfernen; `build-and-test` bleibt unverändert.
+- [x] `docs/decisions/004-hosting-strato.md` (Kontext: Pages kann keine eigenen Header, Strato-Paket ist vorhanden · Optionen: GitHub Pages, Strato · Entscheidung: Strato statisch, `deploy.cmd`, eigener Ordner pro Subdomain, `-delete` · Konsequenzen: Upload nur von diesem Rechner, HTTPS-Umleitung per `.htaccess`, COOP/COEP für Phase 11 per `.htaccess` testbar).
 
 ## Doc-Updates
 
-- [ ] `AGENTS.md` Quickstart: Zeile `deploy.cmd        # Build + Upload nach Strato (braucht deploy.env)`; Critical Rule ergänzen: „`deploy.env` enthält Zugangsdaten und wird nie committet.“
-- [ ] `README.md` (Projekt-Root): Abschnitt „Deploy“ mit drei Sätzen: `deploy.env.example` nach `deploy.env` kopieren und ausfüllen, `deploy.cmd` doppelklicken, Ziel ist ein eigener Ordner auf dem Strato-Paket.
-- [ ] `docs/code-map.md`: Zeilen für `src/styles/` (globale Bausteine), `shared/icon`, `public/.htaccess`, `deploy.cmd`.
-- [ ] `docs/glossary.md`: „Design-Token“ (benannte Farbe/Größe aus dem Mockup als CSS-Variable `--cam-*`).
+- [x] `AGENTS.md` Quickstart: Zeile `deploy.cmd        # Build + Upload nach Strato (braucht deploy.env)`; Critical Rule ergänzen: „`deploy.env` enthält Zugangsdaten und wird nie committet.“
+- [x] `README.md` (Projekt-Root): Abschnitt „Deploy“ mit drei Sätzen: `deploy.env.example` nach `deploy.env` kopieren und ausfüllen, `deploy.cmd` doppelklicken, Ziel ist ein eigener Ordner auf dem Strato-Paket.
+- [x] `docs/code-map.md`: Zeilen für `src/styles/` (globale Bausteine), `shared/icon`, `public/.htaccess`, `deploy.cmd`.
+- [x] `docs/glossary.md`: „Design-Token“ (benannte Farbe/Größe aus dem Mockup als CSS-Variable `--cam-*`).
 
 ## Report-Back
+
+Status: complete. Build, Lint und die 9 bestehenden Tests sind grün, `.htaccess` liegt im Build. Trockenläufe von `deploy.cmd` (ohne `deploy.env`, mit `REMOTE_WEB_PATH=/`, ohne Schrägstrich am Ende) brechen vor dem Verbinden ab. Offen beim User: echter Upload (Zugangsdaten, Subdomain, SSL im Strato-Kundenbereich) und die curl-Prüfung aus den Abnahme-Kriterien. Für `icon` wurde bewusst keine Spec-Datei behalten (Profil private).

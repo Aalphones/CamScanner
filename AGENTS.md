@@ -52,6 +52,7 @@ npm start           # ng serve — Kamera braucht HTTPS oder localhost
 npm run build       # Production-Build
 npm test            # Vitest
 npm run lint        # angular-eslint
+deploy.cmd          # Build + Upload nach Strato (braucht deploy.env)
 ```
 
 ## Critical Rules
@@ -64,3 +65,4 @@ npm run lint        # angular-eslint
 3. **OpenCV.js/onnxruntime-web nie direkt in Komponenten** — immer über einen
    `core/`-Service kapseln (Typisierung, Testbarkeit, siehe
    `docs/conventions/angular.md`).
+4. **`deploy.env` enthält Zugangsdaten und wird nie committet.**

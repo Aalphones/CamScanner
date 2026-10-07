@@ -10,7 +10,7 @@ Dieser Plan **ersetzt** die offenen Phasen 4 und 5 des Meilenstein-1-Plans (arch
 
 | # | Phase | Meilenstein | Rating | Status |
 |---|---|---|---|---|
-| 1 | [Fundament: Design-Bausteine & Strato-Deploy](phase-1-fundament-deploy.md) | Basis | standard | pending |
+| 1 | [Fundament: Design-Bausteine & Strato-Deploy](phase-1-fundament-deploy.md) | Basis | standard | complete |
 | 2 | [Scannen & Kamera-gesperrt](phase-2-scannen-kamera-gesperrt.md) | M1 | standard | pending |
 | 3 | [Zuschneiden & Begradigen](phase-3-zuschneiden.md) | M1 | heikel | pending |
 | 4 | [Export: PDF & Herunterladen](phase-4-export.md) | M1 | standard | pending |

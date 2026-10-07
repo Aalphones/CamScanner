@@ -1,0 +1,19 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: max(8px, env(safe-area-inset-top)) 14px 8px;
+
+  &__title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+}
+
+.bottombar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px max(18px, env(safe-area-inset-bottom));
+}

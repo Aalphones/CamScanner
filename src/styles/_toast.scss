@@ -1,0 +1,23 @@
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(90px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px;
+  border: 1px solid var(--cam-line);
+  border-radius: 999px;
+  background: var(--cam-surface-2);
+  font-size: 0.85rem;
+
+  &__action {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--cam-accent);
+    font-weight: 600;
+    cursor: pointer;
+  }
+}

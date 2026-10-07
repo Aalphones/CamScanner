@@ -35,6 +35,15 @@ Komponenten/Pipes).
 |---|---|---|
 | `capture` | Sucher mit Live-Kamerabild, Auslöser nimmt Standbild auf | `features/capture/` |
 
+## Globale Bausteine & Deploy
+
+| Pfad | Zweck |
+|---|---|
+| `src/styles/` | Globale Styles: Design-Tokens (`--cam-*`), Basis, Buttons, Top-/Bottombar, Toast |
+| `shared/icon/` | `cam-icon` — SVG-Icons mit festem Namens-Satz |
+| `public/.htaccess` | HTTPS-Umleitung, SPA-Fallback, Cache-Header; wird in den Build kopiert |
+| `deploy.cmd` | Build + Upload auf das Strato-Paket (Zugangsdaten aus `deploy.env`) |
+
 ## Core-Services (Meilenstein 1)
 
 | Datei | Zweck |

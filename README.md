@@ -20,6 +20,10 @@ npm run lint    # angular-eslint
 Kamera-Zugriff (`getUserMedia`) verlangt einen Secure Context — `localhost`
 funktioniert für die lokale Entwicklung, ein Deploy braucht HTTPS.
 
+## Deploy
+
+`deploy.env.example` nach `deploy.env` kopieren und ausfüllen. Dann `deploy.cmd` doppelklicken: Es baut die App und lädt sie per WinSCP hoch. Ziel ist ein eigener Ordner auf dem Strato-Paket, nie das Wurzelverzeichnis.
+
 ## Mehr
 
 Voller Projekt-Kontext, Architektur und Konventionen: [AGENTS.md](AGENTS.md).

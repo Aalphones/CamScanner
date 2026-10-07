@@ -1,10 +1,5 @@
-/* Vollbild-Kamera-Oberfläche, kein scrollendes Dokument. */
-
-html,
-body {
-  height: 100%;
-  margin: 0;
-  overscroll-behavior: none;
-  touch-action: manipulation;
-  background: #111;
-}
+@use 'styles/tokens';
+@use 'styles/base';
+@use 'styles/buttons';
+@use 'styles/bars';
+@use 'styles/toast';

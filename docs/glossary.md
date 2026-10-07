@@ -6,6 +6,7 @@ stillschweigend anders verwenden.
 | Begriff | Bedeutung |
 |---|---|
 | **Page** | Eine gescannte, bereits zugeschnittene/korrigierte Dokumentseite im Page Buffer (`pages[]`), bevor sie ins PDF eingebettet wird |
+| **Design-Token** | Benannte Farbe oder Größe aus dem Mockup als CSS-Variable `--cam-*` (z. B. `--cam-accent`); alle Styles verwenden nur diese Namen |
 | **Page Buffer** | In-Memory-Sammlung aller bisher gescannten Seiten der aktuellen Session |
 | **Perspektivkorrektur / Warp** | Mathematische Entzerrung eines schräg fotografierten Dokuments auf ein rechteckiges Bild, anhand der 4 erkannten Eckpunkte |
 | **Quad** | Die vier Eckpunkte eines erkannten Dokuments, **immer** in der Reihenfolge oben-links, oben-rechts, unten-rechts, unten-links, in Pixeln des Quell-Standbilds (Typ `Quad` in `core/geometry.ts`, festgelegt in ADR-003) |
