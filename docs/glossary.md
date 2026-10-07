@@ -13,6 +13,7 @@ stillschweigend anders verwenden.
 | **Page Buffer** | In-Memory-Sammlung aller bisher gescannten Seiten der aktuellen Session |
 | **Perspektivkorrektur / Warp** | Mathematische Entzerrung eines schräg fotografierten Dokuments auf ein rechteckiges Bild, anhand der 4 erkannten Eckpunkte |
 | **Quad** | Die vier Eckpunkte eines erkannten Dokuments, **immer** in der Reihenfolge oben-links, oben-rechts, unten-rechts, unten-links, in Pixeln des Quell-Standbilds (Typ `Quad` in `core/geometry.ts`, festgelegt in ADR-003) |
+| **Live-Rahmen** | Erkennung auf dem laufenden Kamerabild im Sucher, höchstens 4 Läufe pro Sekunde auf einem 480-px-Vorschaubild; „stabil“ (Rahmen pulsiert, „Dokument erkannt — halten …“) nach drei Treffern in Folge, deren Ecken sich um weniger als 3 % der Bilddiagonale bewegen |
 | **Kantenerkennungs-Schwellwerte** | Das Zahlenpaar für Canny (aktuell 75/200): unterhalb des kleinen Werts zählt ein Helligkeitssprung nicht als Kante, oberhalb des großen sicher — dazwischen nur, wenn er an einer starken Kante hängt. Die Stellschrauben beim Feldtest |
 | **Scan-Look** | Bildoptimierung, die ein Handyfoto wie einen klassischen Flachbett-Scan aussehen lässt (hoher Kontrast, oft S/W) |
 | **Adaptive Threshold** | Schwellwert-Verfahren, das Hell/Dunkel lokal statt global bewertet — robuster bei ungleichmäßiger Beleuchtung als ein fester Schwellwert |

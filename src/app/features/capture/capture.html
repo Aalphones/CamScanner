@@ -11,6 +11,18 @@
     <cam-camera-blocked reason="unavailable" (retry)="onRetryClick()" />
   }
   @case ('running') {
+    @if (liveQuad(); as quad) {
+      <svg class="capture__live" aria-hidden="true">
+        <polygon
+          class="capture__outline"
+          [class.capture__outline--stable]="documentStable()"
+          [attr.points]="liveOutlinePoints()"
+        />
+        @for (corner of quad; track $index) {
+          <circle class="capture__corner" [attr.cx]="corner.x" [attr.cy]="corner.y" [attr.r]="cornerRadius" />
+        }
+      </svg>
+    }
     @if (gridOn()) {
       <div class="capture__grid"></div>
     }
@@ -38,7 +50,11 @@
         <cam-icon name="grid" />
       </button>
     </div>
-    <p class="capture__hint">Dokument formatfüllend ins Bild halten</p>
+    @if (documentStable()) {
+      <p class="capture__hint" aria-live="polite"><span class="capture__dot"></span>Dokument erkannt — halten …</p>
+    } @else {
+      <p class="capture__hint" aria-live="polite">Dokument formatfüllend ins Bild halten</p>
+    }
     <div class="capture__bottom">
       <span></span>
       <button

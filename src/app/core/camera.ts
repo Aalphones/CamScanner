@@ -82,6 +82,27 @@ export class Camera {
     return createImageBitmap(video);
   }
 
+  /**
+   * Kleines Vorschaubild für die Live-Erkennung. Der Browser verkleinert beim
+   * Dekodieren — billiger als erst volle Auflösung holen und dann skalieren.
+   * Der Aufrufer muss das Bitmap schließen.
+   */
+  grabPreviewFrame(video: HTMLVideoElement, maxEdge = 480): Promise<ImageBitmap> | null {
+    const { videoWidth, videoHeight } = video;
+
+    if (videoWidth === 0 || videoHeight === 0) {
+      return null;
+    }
+
+    const scale = Math.min(1, maxEdge / Math.max(videoWidth, videoHeight));
+
+    return createImageBitmap(video, {
+      resizeWidth: Math.round(videoWidth * scale),
+      resizeHeight: Math.round(videoHeight * scale),
+      resizeQuality: 'low',
+    });
+  }
+
   /** Stoppt alle Tracks und leert `srcObject` — sonst läuft die Kamera-LED weiter, auch wenn niemand mehr zusieht. */
   stop(): void {
     this.stream?.getTracks().forEach((track) => track.stop());

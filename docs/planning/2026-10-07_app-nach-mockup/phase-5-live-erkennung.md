@@ -37,14 +37,21 @@ Ergebnis: Im Sucher liegt ein Akzent-Rahmen mit Eckpunkten auf dem erkannten Dok
 
 ## Checkliste
 
-- [ ] `core/camera.ts`: `grabPreviewFrame(video, maxEdge)`.
-- [ ] `core/geometry.ts`: `fitCover`, `mapQuad`, `quadsClose(a: Quad, b: Quad, tolerance: number): boolean`.
-- [ ] `features/capture/live-detection.ts` (Feature-eigene Logik, ohne Decorator-Service: Klasse mit `start(video)`, `stop()`, Signalen `quad: Signal<Quad | null>` in Vorschau-Koordinaten, `previewSize`, `stable: Signal<boolean>`; bekommt `Camera` und `DocumentDetection` im Konstruktor). Schleife mit `setTimeout`, Abbruch-Flag, `visibilitychange`-Listener, der in `stop()` entfernt wird.
-- [ ] `capture.ts/.html/.scss`: `LiveDetection` anlegen, im `effect()` auf `state() === 'running'` starten, sonst stoppen; Videogröße per `ResizeObserver`; SVG mit `mapQuad(quad, fitCover(previewSize, videoSize))`.
+- [x] `core/camera.ts`: `grabPreviewFrame(video, maxEdge)`.
+- [x] `core/geometry.ts`: `fitCover`, `mapQuad`, `quadsClose(a: Quad, b: Quad, tolerance: number): boolean`.
+- [x] `features/capture/live-detection.ts` (Feature-eigene Logik, ohne Decorator-Service: Klasse mit `start(video)`, `stop()`, Signalen `quad: Signal<Quad | null>` in Vorschau-Koordinaten, `previewSize`, `stable: Signal<boolean>`; bekommt `Camera` und `DocumentDetection` im Konstruktor). Schleife mit `setTimeout`, Abbruch-Flag, `visibilitychange`-Listener, der in `stop()` entfernt wird.
+- [x] `capture.ts/.html/.scss`: `LiveDetection` anlegen, im `effect()` auf `state() === 'running'` starten, sonst stoppen; Videogröße per `ResizeObserver`; SVG mit `mapQuad(quad, fitCover(previewSize, videoSize))`.
 
 ## Doc-Updates
 
-- [ ] `docs/code-map.md`: Feature `capture` um `live-detection.ts` ergänzen; `geometry.ts` um `fitCover`, `mapQuad`, `quadsClose`.
-- [ ] `docs/glossary.md`: „Live-Rahmen“ — Erkennung auf dem laufenden Kamerabild, 4 Läufe/s, „stabil“ nach drei ruhigen Treffern.
+- [x] `docs/code-map.md`: Feature `capture` um `live-detection.ts` ergänzen; `geometry.ts` um `fitCover`, `mapQuad`, `quadsClose`.
+- [x] `docs/glossary.md`: „Live-Rahmen“ — Erkennung auf dem laufenden Kamerabild, 4 Läufe/s, „stabil“ nach drei ruhigen Treffern.
 
 ## Report-Back
+
+**Status: complete** — Build, Lint, Tests grün. Geräteprüfung (Flüssigkeit, Wärme, Lage auf den Blattkanten) steht beim User aus.
+
+- `grabPreviewFrame` liefert `null`, solange das Video noch keine Maße hat (direkt nach `running`); der Lauf zählt dann als Fehltreffer und wird 250 ms später wiederholt.
+- Rückkehr aus dem Hintergrund startet die Schleife wieder; ein Lauf, der während `stop()` noch rechnet, verwirft sein Ergebnis (Generationszähler).
+- Der Effekt hängt zusätzlich an `capturing()`: schlägt das Standbild fehl, läuft der Rahmen danach von selbst wieder an.
+- Abweichung Mockup: Rahmen ist ein SVG-Polygon (schräge Kanten) statt des gedrehten Rechtecks mit 4 px Rundung; Ecken r = 6 entsprechen den 12-px-Punkten. Pulsieren nur im stabilen Zustand, wie in den Entscheidungen festgelegt.

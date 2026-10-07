@@ -14,7 +14,7 @@ Dieser Plan **ersetzt** die offenen Phasen 4 und 5 des Meilenstein-1-Plans (arch
 | 2 | [Scannen & Kamera-gesperrt](phase-2-scannen-kamera-gesperrt.md) | M1 | standard | complete |
 | 3 | [Zuschneiden & Begradigen](phase-3-zuschneiden.md) | M1 | heikel | complete |
 | 4 | [Export: PDF & Herunterladen](phase-4-export.md) | M1 | standard | complete |
-| 5 | [Live-Rahmen im Sucher](phase-5-live-erkennung.md) | M1 | heikel | pending |
+| 5 | [Live-Rahmen im Sucher](phase-5-live-erkennung.md) | M1 | heikel | complete |
 | 6 | [Page Buffer & Seitenübersicht](phase-6-seitenuebersicht.md) | M2 | heikel | pending |
 | 7 | [Filter-Rechenwerk](phase-7-filter-rechenwerk.md) | M3 | heikel | pending |
 | 8 | [Filter-Bildschirm „Scan-Look“](phase-8-filter-bildschirm.md) | M3 | standard | pending |

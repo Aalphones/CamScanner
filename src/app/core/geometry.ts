@@ -175,6 +175,40 @@ export function fitContain(source: Size, box: Size): { readonly scale: number; r
   };
 }
 
+/**
+ * Einpassen wie `object-fit: cover`: das Bild füllt die Box vollständig, der
+ * Überstand wird mittig abgeschnitten (negativer Offset).
+ */
+export function fitCover(source: Size, box: Size): { readonly scale: number; readonly offsetX: number; readonly offsetY: number } {
+  if (source.width <= 0 || source.height <= 0) {
+    return { scale: 1, offsetX: 0, offsetY: 0 };
+  }
+
+  const scale = Math.max(box.width / source.width, box.height / source.height);
+
+  return {
+    scale,
+    offsetX: (box.width - source.width * scale) / 2,
+    offsetY: (box.height - source.height * scale) / 2,
+  };
+}
+
+/** Rechnet ein Quad von Bild- in Anzeige-Koordinaten um (Ergebnis von `fitContain` oder `fitCover`). */
+export function mapQuad(quad: Quad, view: { readonly scale: number; readonly offsetX: number; readonly offsetY: number }): Quad {
+  const [topLeft, topRight, bottomRight, bottomLeft] = quad;
+  const mapPoint = (point: Point): Point => ({ x: point.x * view.scale + view.offsetX, y: point.y * view.scale + view.offsetY });
+
+  return [mapPoint(topLeft), mapPoint(topRight), mapPoint(bottomRight), mapPoint(bottomLeft)];
+}
+
+/** Liegt jede Ecke von `next` höchstens `tolerance` Pixel neben der gleichnamigen Ecke von `previous`? */
+export function quadsClose(previous: Quad, next: Quad, tolerance: number): boolean {
+  return previous.every((corner: Point, index: number) => {
+    const counterpart = next[index];
+    return counterpart !== undefined && distance(corner, counterpart) < tolerance;
+  });
+}
+
 /** Hält einen Punkt innerhalb des Bildes — eine Ecke außerhalb würde beim Begradigen Randpixel verschmieren. */
 export function clampPoint(point: Point, size: Size): Point {
   return {

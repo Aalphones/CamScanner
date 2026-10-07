@@ -33,7 +33,7 @@ Komponenten/Pipes).
 
 | Feature | Zweck | Pfad |
 |---|---|---|
-| `capture` | Sucher mit Live-Kamerabild, Taschenlampe, Raster, Auslöser nimmt Standbild auf | `features/capture/` |
+| `capture` | Sucher mit Live-Kamerabild, Taschenlampe, Raster, Auslöser nimmt Standbild auf; Live-Rahmen über dem erkannten Dokument (`live-detection.ts`: Erkennungs-Schleife und Stabilitäts-Zähler) | `features/capture/` |
 | `capture` → `camera-blocked` | Fehlerbildschirm „Kamera ist gesperrt“ in drei Varianten (gesperrt, unsichere Verbindung, keine Kamera) | `features/capture/camera-blocked/` |
 | `crop` | Zuschneiden: Standbild mit erkanntem Rahmen, Eck- und Mittelgriffe zum Nachziehen, Lupe, „Auto“, Begradigen per „Übernehmen“ | `features/crop/` |
 | `export` | Exportieren: Seitenstapel-Vorschau, Dateiname, Qualitätsstufe, PDF vorab gebaut, Herunterladen | `features/export/` |
@@ -55,7 +55,7 @@ Komponenten/Pipes).
 | `core/opencv-loader.ts` | Lädt `@techstark/opencv-js` per Lazy-Chunk, cached die Ladung |
 | `core/scan-session.ts` | Entwurf der Seite in Arbeit: Standbild, erkannte und gesetzte Ecken, begradigte Seite, Filter-Einstellung |
 | `core/scan-flow.guards.ts` | Route-Guards des Scan-Flusses — ohne Entwurf zurück in den Sucher |
-| `core/geometry.ts` | `Point`/`Quad`-Typen plus reine Rechen-Funktionen: Ecken sortieren, skalieren, Zielgröße, Fläche, Konvexitätsprüfung, Startviereck, Einpassen (contain), Punkt begrenzen, Kantenmitten |
+| `core/geometry.ts` | `Point`/`Quad`-Typen plus reine Rechen-Funktionen: Ecken sortieren, skalieren, Zielgröße, Fläche, Konvexitätsprüfung, Startviereck, Einpassen (contain/cover), Quad auf den Bildschirm umrechnen, Ruhe-Vergleich zweier Quads, Punkt begrenzen, Kantenmitten |
 | `core/mat-scope.ts` | Sammelt OpenCV-Objekte ein und gibt sie in einem `finally` frei |
 | `core/document-detection.ts` | Findet die Blattkanten im Standbild (OpenCV: Graustufen → Canny → Konturen) und liefert vier Ecken oder `null` |
 | `core/perspective.ts` | Begradigt das Viereck aus dem Original zum Rechteck (OpenCV-Perspektivtransformation), liefert JPEG |
