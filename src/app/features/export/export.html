@@ -1,0 +1,66 @@
+<header class="topbar">
+  <button type="button" class="icon-btn" aria-label="Zurück" (click)="onBackClick()">
+    <cam-icon name="back" />
+  </button>
+  <h2 class="topbar__title">Exportieren</h2>
+  <span class="export__spacer"></span>
+</header>
+
+<div class="export__stack">
+  @for (url of previewUrls; track url) {
+    @let depth = previewUrls.length - 1 - $index;
+    <img class="export__sheet" [class]="'export__sheet export__sheet--depth-' + depth" [src]="url" alt="" />
+  }
+</div>
+
+<p class="export__meta">{{ metaText() }}</p>
+
+<label class="export__field">
+  <small class="export__field-label">Dateiname</small>
+  <input class="export__field-input" type="text" autocomplete="off" spellcheck="false" [value]="fileName()" (input)="onFileNameInput($event)" />
+</label>
+
+<div class="export__quality-head">
+  <span id="export-quality-label">Qualität</span>
+  <button
+    type="button"
+    class="export__info"
+    aria-label="Was bedeuten die Stufen?"
+    [attr.aria-expanded]="isQualityInfoOpen()"
+    (click)="onQualityInfoClick()"
+  >
+    <cam-icon name="info" [size]="14" />
+  </button>
+</div>
+@if (isQualityInfoOpen()) {
+  <p class="export__quality-info">Klein: für Mail und Messenger · Mittel: gut lesbar · Original: volle Kamera-Auflösung, große Datei</p>
+}
+
+<div class="export__segments" role="radiogroup" aria-labelledby="export-quality-label">
+  @for (option of qualityOptions; track option.id) {
+    <button
+      type="button"
+      role="radio"
+      class="export__segment"
+      [class.export__segment--on]="quality() === option.id"
+      [attr.aria-checked]="quality() === option.id"
+      [attr.tabindex]="quality() === option.id ? 0 : -1"
+      [attr.data-quality]="option.id"
+      (click)="onQualitySelect(option.id)"
+      (keydown)="onQualityKeydown($event)"
+    >
+      {{ option.label }}
+    </button>
+  }
+</div>
+
+<div class="export__actions">
+  @if (buildFailed()) {
+    <p class="export__error">PDF konnte nicht erstellt werden — bitte Qualität nochmal wählen.</p>
+  }
+  <button type="button" class="btn btn--primary btn--block" [disabled]="!canDownload()" (click)="onDownloadClick()">Herunterladen</button>
+  <p class="export__privacy">
+    <cam-icon name="lock" [size]="13" />
+    Bleibt auf deinem Gerät. Kein Upload.
+  </p>
+</div>

@@ -1,0 +1,165 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background: var(--cam-bg);
+}
+
+.export {
+  &__spacer {
+    width: 38px;
+  }
+
+  &__stack {
+    position: relative;
+    flex: none;
+    height: 210px;
+    margin: 6px 0 4px;
+  }
+
+  &__sheet {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    width: 130px;
+    height: 180px;
+    border-radius: 3px;
+    background: var(--cam-surface);
+    box-shadow: 0 8px 24px #0009;
+    object-fit: contain;
+    transform: translateX(-50%);
+
+    // Tiefe 0 = Seite 1 oben, danach nach hinten gefächert.
+    &--depth-1 {
+      opacity: 0.8;
+      transform: translateX(-50%) rotate(5deg) translateX(22px);
+    }
+
+    &--depth-2 {
+      opacity: 0.55;
+      transform: translateX(-50%) rotate(-8deg) translateX(-26px);
+    }
+  }
+
+  &__meta {
+    flex: none;
+    margin: 0 0 12px;
+    color: var(--cam-muted);
+    font-size: 0.75rem;
+    text-align: center;
+  }
+
+  &__field {
+    display: block;
+    flex: none;
+    margin: 0 14px;
+    padding: 8px 12px;
+    border: 1px solid var(--cam-line);
+    border-radius: 12px;
+    background: var(--cam-surface);
+  }
+
+  &__field-label {
+    display: block;
+    color: var(--cam-muted);
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  &__field-input {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: var(--cam-text);
+    font: inherit;
+    font-size: 0.9rem;
+  }
+
+  &__quality-head {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    margin: 12px 14px 4px;
+    color: var(--cam-muted);
+    font-size: 0.7rem;
+  }
+
+  &__info {
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--cam-muted);
+    cursor: pointer;
+  }
+
+  &__quality-info {
+    flex: none;
+    margin: 0 14px 6px;
+    color: var(--cam-muted);
+    font-size: 0.7rem;
+  }
+
+  &__segments {
+    display: grid;
+    flex: none;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 0 14px;
+    padding: 3px;
+    border-radius: 12px;
+    background: var(--cam-surface);
+  }
+
+  &__segment {
+    padding: 8px 0;
+    border: 0;
+    border-radius: 9px;
+    background: none;
+    color: var(--cam-muted);
+    font: inherit;
+    font-size: 0.78rem;
+    text-align: center;
+    cursor: pointer;
+
+    &--on {
+      background: var(--cam-surface-2);
+      color: var(--cam-text);
+      font-weight: 600;
+    }
+  }
+
+  &__actions {
+    display: grid;
+    flex: none;
+    gap: 10px;
+    margin-top: auto;
+    padding: 14px 14px max(20px, env(safe-area-inset-bottom));
+  }
+
+  &__error {
+    margin: 0;
+    color: var(--cam-danger);
+    font-size: 0.75rem;
+    text-align: center;
+  }
+
+  &__privacy {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 0;
+    color: var(--cam-muted);
+    font-size: 0.68rem;
+
+    cam-icon {
+      color: var(--cam-accent);
+    }
+  }
+}

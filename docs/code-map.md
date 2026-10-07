@@ -36,6 +36,7 @@ Komponenten/Pipes).
 | `capture` | Sucher mit Live-Kamerabild, Taschenlampe, Raster, Auslöser nimmt Standbild auf | `features/capture/` |
 | `capture` → `camera-blocked` | Fehlerbildschirm „Kamera ist gesperrt“ in drei Varianten (gesperrt, unsichere Verbindung, keine Kamera) | `features/capture/camera-blocked/` |
 | `crop` | Zuschneiden: Standbild mit erkanntem Rahmen, Eck- und Mittelgriffe zum Nachziehen, Lupe, „Auto“, Begradigen per „Übernehmen“ | `features/crop/` |
+| `export` | Exportieren: Seitenstapel-Vorschau, Dateiname, Qualitätsstufe, PDF vorab gebaut, Herunterladen | `features/export/` |
 
 ## Globale Bausteine & Deploy
 
@@ -43,6 +44,7 @@ Komponenten/Pipes).
 |---|---|
 | `src/styles/` | Globale Styles: Design-Tokens (`--cam-*`), Basis, Buttons, Top-/Bottombar, Toast |
 | `shared/icon/` | `cam-icon` — SVG-Icons mit festem Namens-Satz |
+| `shared/toast/` | `cam-toast` — zeigt den aktuellen Toast aus `core/toast.ts`, einmal in `app.html` eingebunden |
 | `public/.htaccess` | HTTPS-Umleitung, SPA-Fallback, Cache-Header; wird in den Build kopiert |
 | `deploy.cmd` | Build + Upload auf das Strato-Paket (Zugangsdaten aus `deploy.env`) |
 
@@ -58,4 +60,7 @@ Komponenten/Pipes).
 | `core/document-detection.ts` | Findet die Blattkanten im Standbild (OpenCV: Graustufen → Canny → Konturen) und liefert vier Ecken oder `null` |
 | `core/perspective.ts` | Begradigt das Viereck aus dem Original zum Rechteck (OpenCV-Perspektivtransformation), liefert JPEG |
 | `core/filter-settings.ts` | Typen und Standardwert der Filter-Einstellung einer Seite |
+| `core/pdf.ts` | Baut aus JPEG-Seiten ein A4-PDF (pdf-lib, lazy geladen), Qualitätsstufen verkleinern per OffscreenCanvas |
+| `core/file-save.ts` | `downloadBlob` (temporärer `<a download>`) und `sanitizePdfFileName` |
+| `core/toast.ts` | Ein Toast zur Zeit mit optionaler Aktion, Signal `current` |
 | `core/camera.ts` | Kapselt `getUserMedia`/Track-Handling, Zustand als Signal |

@@ -25,7 +25,7 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "externalDependencies": ["fs", "crypto", "path"],
-            "allowedCommonJsDependencies": ["@techstark/opencv-js"],
+            "allowedCommonJsDependencies": ["@techstark/opencv-js", "pako"],
             "assets": [
               {
                 "glob": "**/*",

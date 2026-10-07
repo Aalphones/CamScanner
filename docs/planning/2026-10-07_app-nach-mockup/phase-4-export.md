@@ -45,15 +45,25 @@ Ergebnis: `/export` sieht aus wie Mockup-Figur 5 (ohne „Teilen“, das kommt i
 
 ## Checkliste
 
-- [ ] `ng generate service core/pdf` → `ExportQuality`, `Rotation` (`0 | 90 | 180 | 270`), `PdfPageInput`, `buildPdf(pages, quality)` laut Entscheidungen; Konstanten `A4_WIDTH_PT = 595`, `A4_HEIGHT_PT = 842`, `QUALITY_PRESETS: Record<ExportQuality, { maxEdge: number; jpegQuality: number } | null>` (`original` = `null`).
-- [ ] `src/app/core/file-save.ts` — `downloadBlob` (temporäres `<a download>` über `inject(DOCUMENT)`, `URL.revokeObjectURL` im nächsten Tick per `setTimeout(…, 0)`) und `sanitizePdfFileName`.
-- [ ] `ng generate service core/toast` + `ng generate component shared/toast` nach Entscheidungen und `_toast.scss`; `role="status"`, `aria-live="polite"`.
-- [ ] `ng generate component features/export` nach „Struktur & Maße“. Signale: `fileName`, `quality` (Start `medium`), `pdf: Blob | null`, `building`. Ein `effect()` auf `quality` baut neu; ein laufender Bau, dessen Ergebnis nicht mehr zur aktuellen Qualität passt, wird verworfen (Zähler `buildToken`). Vorschau-URLs per `createObjectURL`, freigeben in `ngOnDestroy`.
-- [ ] `app.routes.ts`: Route `export` mit `canActivate: [draftWarpedGuard]`.
+- [x] `ng generate service core/pdf` → `ExportQuality`, `Rotation` (`0 | 90 | 180 | 270`), `PdfPageInput`, `buildPdf(pages, quality)` laut Entscheidungen; Konstanten `A4_WIDTH_PT = 595`, `A4_HEIGHT_PT = 842`, `QUALITY_PRESETS: Record<ExportQuality, { maxEdge: number; jpegQuality: number } | null>` (`original` = `null`).
+- [x] `src/app/core/file-save.ts` — `downloadBlob` (temporäres `<a download>` über `inject(DOCUMENT)`, `URL.revokeObjectURL` im nächsten Tick per `setTimeout(…, 0)`) und `sanitizePdfFileName`.
+- [x] `ng generate service core/toast` + `ng generate component shared/toast` nach Entscheidungen und `_toast.scss`; `role="status"`, `aria-live="polite"`.
+- [x] `ng generate component features/export` nach „Struktur & Maße“. Signale: `fileName`, `quality` (Start `medium`), `pdf: Blob | null`, `building`. Ein `effect()` auf `quality` baut neu; ein laufender Bau, dessen Ergebnis nicht mehr zur aktuellen Qualität passt, wird verworfen (Zähler `buildToken`). Vorschau-URLs per `createObjectURL`, freigeben in `ngOnDestroy`.
+- [x] `app.routes.ts`: Route `export` mit `canActivate: [draftWarpedGuard]`.
 
 ## Doc-Updates
 
-- [ ] `docs/code-map.md`: Feature-Zeile `export`; Core-Zeilen `pdf.ts`, `file-save.ts`, `toast.ts`; Shared `toast/`.
-- [ ] `docs/glossary.md`: „Qualitätsstufe“ (Klein/Mittel/Original mit den Werten aus dieser Phase).
+- [x] `docs/code-map.md`: Feature-Zeile `export`; Core-Zeilen `pdf.ts`, `file-save.ts`, `toast.ts`; Shared `toast/`.
+- [x] `docs/glossary.md`: „Qualitätsstufe“ (Klein/Mittel/Original mit den Werten aus dieser Phase).
 
 ## Report-Back
+
+Status: complete. `npm run build`, `npm run lint`, `npm test` (9 Tests) grün. Geräte-/Browser-Prüfung der Abnahme-Kriterien steht beim User aus.
+
+Abweichungen:
+- `downloadBlob(blob, fileName, targetDocument = document)` nimmt das Dokument als dritten Parameter statt `inject(DOCUMENT)` — eine freie Funktion hat keinen Injektionskontext.
+- Die Toast-Komponente heißt `ToastView` (der Service heißt schon `Toast`) und hat kein eigenes Stylesheet; `_toast.scss` ist global.
+- `buildPdf` ist eine Methode des Services `Pdf`.
+- `angular.json`: `pako` (Abhängigkeit von pdf-lib) in `allowedCommonJsDependencies`, sonst Build-Warnung.
+- Ein Toast, der durch einen neuen ersetzt wird, ruft sein `onExpire` auf (für Phase 6: gelöschte Seite wird endgültig).
+- Seitenstapel-Schräglage hängt an der Tiefe von oben (Seite 1 gerade, Seite 2 +5°, Seite 3 −8°), nicht an der DOM-Position — sonst stünde bei zwei Seiten die falsche Lage oben.

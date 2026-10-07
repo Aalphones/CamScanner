@@ -1,0 +1,11 @@
+<div class="toast-region" role="status" aria-live="polite">
+  @let state = toast.current();
+  @if (state !== null) {
+    <div class="toast">
+      <span>{{ state.message }}</span>
+      @if (state.actionLabel !== null) {
+        <button type="button" class="toast__action" (click)="toast.runAction()">{{ state.actionLabel }}</button>
+      }
+    </div>
+  }
+</div>
