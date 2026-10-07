@@ -12,10 +12,25 @@ const CAMERA_CONSTRAINTS: MediaStreamConstraints = {
   audio: false,
 };
 
+// `torch` fehlt in den TypeScript-DOM-Typen, obwohl Chromium-Browser es melden.
+interface TorchCapabilities extends MediaTrackCapabilities {
+  torch?: boolean;
+}
+
+interface TorchConstraintSet extends MediaTrackConstraintSet {
+  torch?: boolean;
+}
+
 @Service()
 export class Camera {
   private readonly stateSignal = signal<CameraState>('idle');
   readonly state = this.stateSignal.asReadonly();
+
+  private readonly torchAvailableSignal = signal(false);
+  readonly torchAvailable = this.torchAvailableSignal.asReadonly();
+
+  private readonly torchOnSignal = signal(false);
+  readonly torchOn = this.torchOnSignal.asReadonly();
 
   private stream: MediaStream | null = null;
   private videoElement: HTMLVideoElement | null = null;
@@ -39,9 +54,26 @@ export class Camera {
     try {
       this.stream = await navigator.mediaDevices.getUserMedia(CAMERA_CONSTRAINTS);
       video.srcObject = this.stream;
+      this.torchAvailableSignal.set(this.readTorchCapability());
       this.stateSignal.set('running');
     } catch (error) {
       this.stateSignal.set(error instanceof DOMException && error.name === 'NotAllowedError' ? 'denied' : 'unavailable');
+    }
+  }
+
+  /** Schaltet die Taschenlampe; ohne laufenden Track passiert nichts, bei einem Fehler bleibt sie aus. */
+  async setTorch(on: boolean): Promise<void> {
+    const track = this.stream?.getVideoTracks()[0];
+    if (!track) {
+      return;
+    }
+
+    try {
+      const torchConstraint: TorchConstraintSet = { torch: on };
+      await track.applyConstraints({ advanced: [torchConstraint] });
+      this.torchOnSignal.set(on);
+    } catch {
+      this.torchOnSignal.set(false);
     }
   }
 
@@ -60,6 +92,18 @@ export class Camera {
       this.videoElement = null;
     }
 
+    this.torchAvailableSignal.set(false);
+    this.torchOnSignal.set(false);
     this.stateSignal.set('idle');
+  }
+
+  private readTorchCapability(): boolean {
+    const track = this.stream?.getVideoTracks()[0];
+    if (!track || typeof track.getCapabilities !== 'function') {
+      return false;
+    }
+
+    const capabilities: TorchCapabilities = track.getCapabilities();
+    return capabilities.torch === true;
   }
 }

@@ -1,0 +1,20 @@
+<div class="blocked__icon">
+  <cam-icon name="camera-off" [size]="38" [strokeWidth]="1.8" />
+</div>
+<h3 class="blocked__title">{{ content().title }}</h3>
+<p class="blocked__text">{{ content().text }}</p>
+<div class="blocked__steps">
+  <b>So geht’s:</b>
+  @for (step of content().steps; track $index) {
+    <div>
+      @for (part of step; track $index) {
+        @if (part.isBold) {
+          <b>{{ part.text }}</b>
+        } @else {
+          {{ part.text }}
+        }
+      }
+    </div>
+  }
+</div>
+<button type="button" class="btn btn--primary btn--block" (click)="onActionClick()">{{ content().action }}</button>

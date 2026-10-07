@@ -23,6 +23,8 @@ export type IconName = keyof typeof ICON_PATHS;
 })
 export class Icon {
   readonly name = input.required<IconName>();
+  readonly size = input(20);
+  readonly strokeWidth = input(2);
 
   protected readonly path = computed((): string => ICON_PATHS[this.name()]);
 }

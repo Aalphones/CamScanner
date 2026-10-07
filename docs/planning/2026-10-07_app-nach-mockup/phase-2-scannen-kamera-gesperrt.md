@@ -43,15 +43,21 @@ Ergebnis: Der Sucher sieht aus wie Mockup-Bildschirm 1 (ohne Live-Rahmen und ohn
 
 ## Checkliste
 
-- [ ] `core/camera.ts`: Signal `torchAvailable` (nach erfolgreichem Start aus `getCapabilities()` gesetzt, bei `stop()` auf `false`), Signal `torchOn`, Methode `setTorch(on: boolean): Promise<void>` (ignoriert Aufrufe ohne laufenden Track; bei Fehler `torchOn` auf `false`). `stop()` setzt `torchOn` auf `false`.
-- [ ] `ng generate component features/capture/camera-blocked` → Input `reason = input.required<'denied' | 'insecure' | 'unavailable'>()`, Output `retry = output<void>()`. Texte als `const BLOCKED_TEXTS: Record<…, { title; text; steps: readonly string[]; action: string }>`. Für `insecure` löst der Knopf selbst `location.replace(location.href.replace(/^http:/, 'https:'))` aus statt `retry` — den Zugriff auf `location` über `inject(DOCUMENT).location` (kein globales `window` in der Komponente).
-- [ ] `features/capture/capture.html` neu nach „Struktur & Maße“: Video, Raster (`@if (gridOn())`), obere Reihe, Hinweis, untere Leiste mit Auslöser; bei `denied`/`insecure`/`unavailable` stattdessen `<cam-camera-blocked [reason]="state()" (retry)="onRetryClick()" />`. Zustand `starting`/`idle`: nur schwarzer Hintergrund.
-- [ ] `features/capture/capture.scss`: nur Sucher-eigene Regeln (BEM `.capture__video`, `.capture__top`, `.capture__hint`, `.capture__bottom`, `.capture__shutter`, `.capture__grid`). Button-Optik kommt aus den globalen Klassen.
-- [ ] `features/capture/capture.ts`: `gridOn` als Signal mit `localStorage`-Lesen im Feld-Initialisierer (in `try/catch`) und Schreiben in `onGridClick()`; `onTorchClick()` ruft `camera.setTorch(!camera.torchOn())`.
+- [x] `core/camera.ts`: Signal `torchAvailable` (nach erfolgreichem Start aus `getCapabilities()` gesetzt, bei `stop()` auf `false`), Signal `torchOn`, Methode `setTorch(on: boolean): Promise<void>` (ignoriert Aufrufe ohne laufenden Track; bei Fehler `torchOn` auf `false`). `stop()` setzt `torchOn` auf `false`.
+- [x] `ng generate component features/capture/camera-blocked` → Input `reason = input.required<'denied' | 'insecure' | 'unavailable'>()`, Output `retry = output<void>()`. Texte als `const BLOCKED_TEXTS: Record<…, { title; text; steps: readonly string[]; action: string }>`. Für `insecure` löst der Knopf selbst `location.replace(location.href.replace(/^http:/, 'https:'))` aus statt `retry` — den Zugriff auf `location` über `inject(DOCUMENT).location` (kein globales `window` in der Komponente).
+- [x] `features/capture/capture.html` neu nach „Struktur & Maße“: Video, Raster (`@if (gridOn())`), obere Reihe, Hinweis, untere Leiste mit Auslöser; bei `denied`/`insecure`/`unavailable` stattdessen `<cam-camera-blocked [reason]="state()" (retry)="onRetryClick()" />`. Zustand `starting`/`idle`: nur schwarzer Hintergrund.
+- [x] `features/capture/capture.scss`: nur Sucher-eigene Regeln (BEM `.capture__video`, `.capture__top`, `.capture__hint`, `.capture__bottom`, `.capture__shutter`, `.capture__grid`). Button-Optik kommt aus den globalen Klassen.
+- [x] `features/capture/capture.ts`: `gridOn` als Signal mit `localStorage`-Lesen im Feld-Initialisierer (in `try/catch`) und Schreiben in `onGridClick()`; `onTorchClick()` ruft `camera.setTorch(!camera.torchOn())`.
 
 ## Doc-Updates
 
-- [ ] `docs/code-map.md`: Feature-Zeile `capture` ergänzen um `camera-blocked/` (Fehlerbildschirm, drei Varianten).
-- [ ] `docs/glossary.md`: „Taschenlampe (torch)“ — Dauerlicht der Rückkamera, nur auf Geräten, deren Video-Track es meldet.
+- [x] `docs/code-map.md`: Feature-Zeile `capture` ergänzen um `camera-blocked/` (Fehlerbildschirm, drei Varianten).
+- [x] `docs/glossary.md`: „Taschenlampe (torch)“ — Dauerlicht der Rückkamera, nur auf Geräten, deren Video-Track es meldet.
 
 ## Report-Back
+
+Status: complete. Build (kein Budget-Warnhinweis), Lint und die 9 bestehenden Tests sind grün. Geräteprüfung (Taschenlampe, gesperrte Kamera, http) steht beim User aus.
+
+- `cam-icon` hat neue Eingaben `size` und `strokeWidth` (Standard 20 / 2), weil der Fehlerbildschirm ein 38-px-Icon mit Strichstärke 1.8 braucht.
+- Der generierte Spec von `camera-blocked` wurde gelöscht (Profil `private`: keine neuen Tests).
+- Hinweis-Pille sitzt bei `56px + safe-area-top`, damit sie auf Geräten mit Notch nicht unter der oberen Reihe liegt.

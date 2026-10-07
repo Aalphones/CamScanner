@@ -3,10 +3,14 @@ import { Router } from '@angular/router';
 
 import { Camera } from '../../core/camera';
 import { ScanSession } from '../../core/scan-session';
+import { Icon } from '../../shared/icon/icon';
+import { CameraBlocked } from './camera-blocked/camera-blocked';
+
+const GRID_STORAGE_KEY = 'cam.grid';
 
 @Component({
   selector: 'cam-capture',
-  imports: [],
+  imports: [CameraBlocked, Icon],
   templateUrl: './capture.html',
   styleUrl: './capture.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,7 +22,10 @@ export class Capture implements OnInit, OnDestroy {
 
   protected readonly videoRef = viewChild.required<ElementRef<HTMLVideoElement>>('video');
   protected readonly state = this.camera.state;
+  protected readonly torchAvailable = this.camera.torchAvailable;
+  protected readonly torchOn = this.camera.torchOn;
   protected readonly capturing = signal(false);
+  protected readonly gridOn = signal(this.readGridPreference());
 
   ngOnInit(): void {
     void this.camera.start(this.videoRef().nativeElement);
@@ -47,5 +54,28 @@ export class Capture implements OnInit, OnDestroy {
 
   protected onRetryClick(): void {
     void this.camera.start(this.videoRef().nativeElement);
+  }
+
+  protected onTorchClick(): void {
+    void this.camera.setTorch(!this.camera.torchOn());
+  }
+
+  protected onGridClick(): void {
+    const next = !this.gridOn();
+    this.gridOn.set(next);
+
+    try {
+      localStorage.setItem(GRID_STORAGE_KEY, next ? '1' : '0');
+    } catch {
+      // Speicher gesperrt (z. B. privater Modus) — das Raster funktioniert trotzdem, nur ohne Merken.
+    }
+  }
+
+  private readGridPreference(): boolean {
+    try {
+      return localStorage.getItem(GRID_STORAGE_KEY) === '1';
+    } catch {
+      return false;
+    }
   }
 }

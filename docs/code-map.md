@@ -33,7 +33,8 @@ Komponenten/Pipes).
 
 | Feature | Zweck | Pfad |
 |---|---|---|
-| `capture` | Sucher mit Live-Kamerabild, Auslöser nimmt Standbild auf | `features/capture/` |
+| `capture` | Sucher mit Live-Kamerabild, Taschenlampe, Raster, Auslöser nimmt Standbild auf | `features/capture/` |
+| `capture` → `camera-blocked` | Fehlerbildschirm „Kamera ist gesperrt“ in drei Varianten (gesperrt, unsichere Verbindung, keine Kamera) | `features/capture/camera-blocked/` |
 
 ## Globale Bausteine & Deploy
 

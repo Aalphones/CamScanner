@@ -2,32 +2,53 @@
 
 @switch (state()) {
   @case ('denied') {
-    <div class="capture__message">
-      <p>
-        Ohne Kamera-Erlaubnis kann nichts gescannt werden. Erlaubnis im
-        Browser-Menü neben der Adresszeile freigeben und die Seite neu laden.
-      </p>
-      <button type="button" (click)="onRetryClick()">Nochmal versuchen</button>
-    </div>
+    <cam-camera-blocked reason="denied" (retry)="onRetryClick()" />
   }
   @case ('insecure') {
-    <div class="capture__message">
-      <p>Die Kamera funktioniert nur über eine verschlüsselte Verbindung (https).</p>
-    </div>
+    <cam-camera-blocked reason="insecure" (retry)="onRetryClick()" />
   }
   @case ('unavailable') {
-    <div class="capture__message">
-      <p>Die Kamera ist auf diesem Gerät nicht verfügbar.</p>
-    </div>
+    <cam-camera-blocked reason="unavailable" (retry)="onRetryClick()" />
   }
   @case ('running') {
+    @if (gridOn()) {
+      <div class="capture__grid"></div>
+    }
+    <div class="capture__top">
+      @if (torchAvailable()) {
+        <button
+          type="button"
+          class="icon-btn icon-btn--ghost"
+          [class.icon-btn--on]="torchOn()"
+          aria-label="Taschenlampe"
+          (click)="onTorchClick()"
+        >
+          <cam-icon name="flash" />
+        </button>
+      } @else {
+        <span></span>
+      }
+      <button
+        type="button"
+        class="icon-btn icon-btn--ghost"
+        [class.icon-btn--on]="gridOn()"
+        aria-label="Raster"
+        (click)="onGridClick()"
+      >
+        <cam-icon name="grid" />
+      </button>
+    </div>
     <p class="capture__hint">Dokument formatfüllend ins Bild halten</p>
-    <button
-      type="button"
-      class="capture__shutter"
-      [disabled]="capturing()"
-      (click)="onShutterClick()"
-      aria-label="Foto aufnehmen"
-    ></button>
+    <div class="capture__bottom">
+      <span></span>
+      <button
+        type="button"
+        class="capture__shutter"
+        [disabled]="capturing()"
+        (click)="onShutterClick()"
+        aria-label="Foto aufnehmen"
+      ></button>
+      <span></span>
+    </div>
   }
 }
