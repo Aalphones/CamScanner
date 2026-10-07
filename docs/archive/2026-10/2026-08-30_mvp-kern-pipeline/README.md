@@ -16,8 +16,10 @@ ihn unverändert weiterverwenden kann.
 | 1 | [OpenCV-Fundament & Gerüst](phase-1-opencv-fundament.md) | heikel | complete |
 | 2 | [Kamera & Aufnahme](phase-2-kamera-aufnahme.md) | standard | complete |
 | 3 | [Kantenerkennung & Geometrie](phase-3-erkennung-geometrie.md) | heikel | complete |
-| 4 | [Ecken-Korrektur & Begradigung](phase-4-ecken-begradigung.md) | standard | pending |
-| 5 | [PDF-Export & Abschluss](phase-5-pdf-export.md) | standard | pending |
+| 4 | [Ecken-Korrektur & Begradigung](phase-4-ecken-begradigung.md) | standard | ersetzt |
+| 5 | [PDF-Export & Abschluss](phase-5-pdf-export.md) | standard | ersetzt |
+
+**Ersetzt am 2026-10-07:** Phasen 4 und 5 gehen im Plan `docs/planning/2026-10-07_app-nach-mockup/` auf (dort Phasen 3 und 4), weil inzwischen ein abgenommenes Design-Mockup vorliegt, das Zuschneiden und Export anders gestaltet als die hier freihändig festgelegten Bildschirme.
 
 ## Architektur-Entscheidungen (fallen in diesem Plan)
 
@@ -124,20 +126,23 @@ Oben stehen die Stellen, an denen ich selbst am unsichersten bin.
 
 ## Summary
 
-_(beim Archivieren füllen)_
+Phasen 1–3 umgesetzt: OpenCV.js als Lazy-Chunk, Kamera-Sucher mit Auslöser, Kantenerkennung mit sortierten Ecken. Phasen 4 und 5 nicht umgesetzt, sondern in den Mockup-Plan `2026-10-07_app-nach-mockup` überführt.
 
 ## Files touched
 
-_(beim Archivieren füllen)_
+`src/app/core/` (`opencv-loader.ts`, `camera.ts`, `scan-session.ts`, `geometry.ts`, `geometry.spec.ts`, `document-detection.ts`), `src/app/features/capture/`, `src/app/app.routes.ts`, `docs/decisions/002-*.md`, `docs/decisions/003-*.md`, `docs/code-map.md`, `docs/glossary.md`.
 
 ## Commits
 
-_(beim Archivieren füllen)_
+- `b576b7c` feat(core): OpenCV-Fundament und App-Gerüst (Phase 1/5)
+- `1d8ed92` feat(capture): Kamera-Sucher mit Auslöser (Phase 2/5)
+- `1622794` feat(detection): Blattkanten finden und Ecken sortieren (Phase 3/5)
 
 ## Deviations from plan
 
-_(beim Archivieren füllen)_
+Phasen 4 und 5 durch den Mockup-Plan ersetzt (siehe Hinweis unter der Phasen-Tabelle). Der Bildschirm `/result` entfällt; Export nach Mockup-Figur 5.
 
 ## Follow-ups
 
-_(beim Archivieren füllen)_
+- Taschenlampen-Schalter (offener Punkt oben): im Mockup-Plan Phase 2 enthalten.
+- Die drei Phase-4-Einträge aus `FINDINGS.md` stehen im Mockup-Plan unter `FINDINGS.md`.

@@ -1,8 +1,9 @@
 # State
 
-**Aktiver Plan:** `docs/planning/2026-08-30_mvp-kern-pipeline/`
-**Phase:** 4/5 — Ecken-Korrektur & Begradigung (offen)
-**Nächster Schritt:** `phase-4-ecken-begradigung.md` abarbeiten — Zuschneiden-Bildschirm mit verschiebbaren Ecken, `perspective.ts` (`warp`), Route-Guard auf `/crop`. Vorher die drei Phase-4-Einträge in `FINDINGS.md` lesen.
+**Aktiver Plan:** (keiner in Umsetzung)
+**Geparkt, als Nächstes:** `docs/planning/2026-10-07_app-nach-mockup/` — App nach Design-Mockup, Meilensteine 1 (Rest) bis 6, 11 Phasen, Start per `/implement`.
+**Nächster Schritt:** Phase 1 (`phase-1-fundament-deploy.md`) — Design-Bausteine und `deploy.cmd` für Strato. Vorher README und `FINDINGS.md` des Plans lesen.
 
-Projekt-Setup (Bootstrap) ist abgeschlossen: Angular-22-Workspace, PWA-Schematic,
-Doku-Struktur, CI-Skeleton.
+Der Meilenstein-1-Plan ist archiviert unter `docs/archive/2026-10/2026-08-30_mvp-kern-pipeline/` (Phasen 1–3 fertig, 4–5 im neuen Plan aufgegangen).
+
+Projekt-Setup (Bootstrap) ist abgeschlossen: Angular-22-Workspace, PWA-Schematic, Doku-Struktur, CI-Skeleton.

@@ -52,15 +52,16 @@ Detection bei jedem Kamera-Frame durchrattert.
 
 ## Constraints
 
-- Deployment: GitHub Pages (HTTPS automatisch — `getUserMedia` verlangt
-  Secure Context; Ausnahme nur `localhost` in Dev)
+- Deployment: Strato Shared Hosting als statische Dateien (Angular-Build per
+  WinSCP hochladen, kein Server-Code). `getUserMedia` verlangt Secure Context —
+  für die Domain muss das SSL-Zertifikat aktiv sein; Ausnahme nur `localhost`
+  in Dev. Der Service Worker (Offline) ist auf dem echten Server noch zu testen.
 - Solo-Projekt, kein Team, kein Zeitdruck — Freizeitprojekt ohne Deadline
 - WASM-Multithreading (für `onnxruntime-web`, falls die ML-Phase kommt)
   braucht Cross-Origin-Isolation-Header (`COOP: same-origin`,
-  `COEP: require-corp`) — GitHub Pages kann keine Custom-Header setzen, das ist
-  ein bekannter Konflikt, falls Phase „ML-Erweiterung" umgesetzt wird
-  (→ dann Hosting-Alternative prüfen oder auf Single-Thread-WASM-Fallback
-  bauen, siehe Konzept Kapitel 12.2)
+  `COEP: require-corp`) — ob Strato die per `.htaccess` zulässt, ist ungeprüft;
+  falls nicht, greift der Single-Thread-WASM-Fallback (siehe Konzept
+  Kapitel 12.2). Gilt nur, falls Phase „ML-Erweiterung" umgesetzt wird.
 
 ## Meilensteine
 
@@ -86,5 +87,5 @@ Reihenfolge ist grobe Orientierung, kein Fixplan — Detailphasen entstehen beim
 - Welche konkreten ML-Modelle (Kapitel 12 im Konzept) tatsächlich Mehrwert
   bringen, klärt sich erst nach Meilenstein 3 in der Praxis — bewusst nicht
   vorab entschieden.
-- Hosting-Alternative für Meilenstein 6 (Cross-Origin-Isolation-Header),
-  falls GitHub Pages das nicht hergibt — offen bis die Phase ansteht.
+- Cross-Origin-Isolation-Header (Meilenstein 6) per `.htaccess` auf Strato
+  testen, sonst Single-Thread — offen bis die Phase ansteht.
