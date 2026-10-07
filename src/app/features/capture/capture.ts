@@ -44,7 +44,7 @@ export class Capture implements OnInit, OnDestroy {
 
     try {
       const frame = await this.camera.captureFrame(this.videoRef().nativeElement);
-      this.scanSession.setSourceFrame(frame);
+      this.scanSession.startNew(frame);
       this.camera.stop();
       await this.router.navigate(['/crop']);
     } finally {

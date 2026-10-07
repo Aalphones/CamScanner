@@ -1,0 +1,80 @@
+<header class="topbar">
+  <button type="button" class="icon-btn" aria-label="Zurück" (click)="onBackClick()">
+    <cam-icon name="back" />
+  </button>
+  <h2 class="topbar__title">Zuschneiden</h2>
+  <button
+    type="button"
+    class="btn btn--small"
+    [disabled]="!canAuto()"
+    [attr.title]="autoTitle()"
+    (click)="onAutoClick()"
+  >
+    Auto
+  </button>
+</header>
+
+<div #stage class="crop__stage">
+  <canvas #imageCanvas class="crop__image"></canvas>
+
+  @let corners = displayCorners();
+  @if (corners !== null) {
+    <svg
+      class="crop__overlay"
+      [attr.viewBox]="'0 0 ' + stageSize().width + ' ' + stageSize().height"
+      (pointermove)="onPointerMove($event)"
+      (pointerup)="onPointerEnd($event)"
+      (pointercancel)="onPointerEnd($event)"
+    >
+      <path fill-rule="evenodd" fill="#000" fill-opacity=".55" [attr.d]="shadePath()" />
+      <polygon class="crop__frame" [attr.points]="polygonPoints()" />
+
+      @for (point of displayMidpoints(); track $index) {
+        <circle class="crop__handle crop__handle--edge" [attr.cx]="point.x" [attr.cy]="point.y" r="5" />
+      }
+      @for (point of corners; track $index) {
+        <circle class="crop__handle crop__handle--corner" [attr.cx]="point.x" [attr.cy]="point.y" r="11" />
+      }
+
+      @for (point of displayMidpoints(); track $index) {
+        <circle
+          class="crop__hit"
+          [attr.cx]="point.x"
+          [attr.cy]="point.y"
+          r="18"
+          fill="transparent"
+          (pointerdown)="onHandlePointerDown($event, 'edge', $index)"
+        />
+      }
+      @for (point of corners; track $index) {
+        <circle
+          class="crop__hit"
+          [attr.cx]="point.x"
+          [attr.cy]="point.y"
+          r="22"
+          fill="transparent"
+          (pointerdown)="onHandlePointerDown($event, 'corner', $index)"
+        />
+      }
+    </svg>
+  }
+
+  @if (dragging() !== null) {
+    <div class="crop__loupe" [class.crop__loupe--right]="isLoupeRight()">
+      <canvas #loupeCanvas class="crop__loupe-image"></canvas>
+    </div>
+  }
+</div>
+
+<p class="crop__hint" [class.crop__hint--danger]="hint().isDanger" aria-live="polite">{{ hint().text }}</p>
+
+<footer class="bottombar crop__bottombar">
+  <button type="button" class="btn" (click)="onBackClick()">Neu aufnehmen</button>
+  <button type="button" class="btn btn--primary" [disabled]="!canApply()" (click)="onApplyClick()">
+    @if (warping()) {
+      Wird begradigt …
+    } @else {
+      Übernehmen
+    }
+  </button>
+</footer>

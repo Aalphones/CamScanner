@@ -24,6 +24,8 @@
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "externalDependencies": ["fs", "crypto", "path"],
+            "allowedCommonJsDependencies": ["@techstark/opencv-js"],
             "assets": [
               {
                 "glob": "**/*",

@@ -1,19 +1,34 @@
 import { Service, signal } from '@angular/core';
 
+import { DEFAULT_FILTER_SETTINGS, type FilterSettings } from './filter-settings';
 import type { Quad } from './geometry';
 
+/** Der Entwurf: die Seite in Arbeit zwischen Auslöser und Übernahme in den Page Buffer. */
 @Service()
 export class ScanSession {
   private readonly sourceFrameSignal = signal<ImageBitmap | null>(null);
+  private readonly detectedCornersSignal = signal<Quad | null>(null);
   private readonly cornersSignal = signal<Quad | null>(null);
   private readonly warpedPageSignal = signal<Blob | null>(null);
+  private readonly filterSignal = signal<FilterSettings>(DEFAULT_FILTER_SETTINGS);
+  private readonly editingPageIdSignal = signal<string | null>(null);
 
   readonly sourceFrame = this.sourceFrameSignal.asReadonly();
+  /** Ergebnis der Erkennung — Ziel des „Auto“-Knopfs, auch nachdem der User die Ecken verschoben hat. */
+  readonly detectedCorners = this.detectedCornersSignal.asReadonly();
   readonly corners = this.cornersSignal.asReadonly();
   readonly warpedPage = this.warpedPageSignal.asReadonly();
+  readonly filter = this.filterSignal.asReadonly();
+  /** `null` = neue Seite. */
+  readonly editingPageId = this.editingPageIdSignal.asReadonly();
 
-  setSourceFrame(frame: ImageBitmap): void {
+  startNew(frame: ImageBitmap): void {
+    this.reset();
     this.sourceFrameSignal.set(frame);
+  }
+
+  setDetectedCorners(corners: Quad | null): void {
+    this.detectedCornersSignal.set(corners);
   }
 
   setCorners(corners: Quad): void {
@@ -24,11 +39,18 @@ export class ScanSession {
     this.warpedPageSignal.set(page);
   }
 
+  setFilter(settings: FilterSettings): void {
+    this.filterSignal.set(settings);
+  }
+
   /** Gibt das gehaltene ImageBitmap frei, bevor der Zustand geleert wird — sonst hält ein 12-MP-Bitmap den Speicher. */
   reset(): void {
     this.sourceFrameSignal()?.close();
     this.sourceFrameSignal.set(null);
+    this.detectedCornersSignal.set(null);
     this.cornersSignal.set(null);
     this.warpedPageSignal.set(null);
+    this.filterSignal.set(DEFAULT_FILTER_SETTINGS);
+    this.editingPageIdSignal.set(null);
   }
 }

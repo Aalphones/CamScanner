@@ -1,0 +1,106 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background: var(--cam-bg);
+}
+
+.crop {
+  &__stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    background: #0f1215;
+  }
+
+  &__image,
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__overlay {
+    touch-action: none;
+  }
+
+  &__frame {
+    fill: none;
+    stroke: var(--cam-accent);
+    stroke-width: 2;
+  }
+
+  &__handle {
+    fill: var(--cam-accent);
+    stroke: var(--cam-accent-ink);
+    pointer-events: none;
+
+    &--corner {
+      stroke-width: 3;
+    }
+
+    &--edge {
+      stroke-width: 2;
+    }
+  }
+
+  &__hit {
+    cursor: grab;
+  }
+
+  &__loupe {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    width: 84px;
+    height: 84px;
+    overflow: hidden;
+    border: 3px solid var(--cam-accent);
+    border-radius: 50%;
+    box-shadow: 0 6px 18px #000a;
+    pointer-events: none;
+
+    &--right {
+      left: auto;
+      right: 14px;
+    }
+
+    // Fadenkreuz über dem Lupenbild.
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(var(--cam-accent), var(--cam-accent)) center / 2px 100% no-repeat,
+        linear-gradient(var(--cam-accent), var(--cam-accent)) center / 100% 2px no-repeat;
+      opacity: 0.8;
+    }
+  }
+
+  &__loupe-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__hint {
+    flex: none;
+    margin: 0;
+    padding: 8px 14px 0;
+    color: var(--cam-muted);
+    font-size: 0.75rem;
+    text-align: center;
+
+    &--danger {
+      color: var(--cam-danger);
+    }
+  }
+
+  &__bottombar {
+    flex: none;
+    justify-content: space-between;
+  }
+}

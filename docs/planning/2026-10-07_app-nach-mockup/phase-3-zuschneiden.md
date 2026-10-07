@@ -51,24 +51,31 @@ Ergebnis: `/crop` sieht aus wie Mockup-Figur 2. Das Standbild wird automatisch e
 
 ## Checkliste
 
-- [ ] Refactor-Commit: `core/mat-scope.ts` mit `export class MatScope` (Code und Kommentar 1:1 aus `document-detection.ts`), dort Import statt Klasse.
-- [ ] `core/filter-settings.ts`: `FilterId`, `FilterSettings`, `DEFAULT_FILTER_SETTINGS` laut Kontrakt (nur Typen und Konstante).
-- [ ] `core/scan-session.ts` laut Kontrakt erweitern: `detectedCorners`, `filter` (Start `DEFAULT_FILTER_SETTINGS`), `editingPageId` (bleibt in dieser Phase `null`), `startNew(frame)` (schließt ein vorheriges Bitmap, setzt alles andere zurück, setzt `sourceFrame`), `setDetectedCorners`, `setFilter`. `setSourceFrame` entfällt; `capture.ts` ruft `startNew`. `reset()` setzt auch die neuen Felder zurück.
-- [ ] `ng generate service core/perspective` → `warp(source, corners)`: `scope = new MatScope()`; Original per `OffscreenCanvas` in `ImageData` → `cv.matFromImageData`; Ziel `w`/`h` aus `quadOutputSize(corners)`; `cv.matFromArray(4, 1, cv.CV_32FC2, [...])` für Quelle (Ecken in Kontrakt-Reihenfolge) und Ziel `[0,0, w,0, w,h, 0,h]`; `cv.getPerspectiveTransform`; `cv.warpPerspective(src, dst, M, new cv.Size(w, h), cv.INTER_LINEAR, cv.BORDER_REPLICATE)`; Ergebnis per `new ImageData(new Uint8ClampedArray(dst.data), w, h)` auf ein `OffscreenCanvas` und `convertToBlob({ type: 'image/jpeg', quality: 0.92 })`. Alles im `finally` über `scope.releaseAll()`.
-- [ ] `core/scan-flow.guards.ts`: `draftSourceGuard` (prüft `scanSession.sourceFrame() !== null`, sonst `router.parseUrl('/capture')`) und `draftWarpedGuard` (prüft `warpedPage() !== null`). `hasPagesGuard` folgt in Phase 6.
-- [ ] `ng generate component features/crop` → `crop.ts/.html/.scss` nach „Struktur & Maße“:
+- [x] Refactor-Commit: `core/mat-scope.ts` mit `export class MatScope` (Code und Kommentar 1:1 aus `document-detection.ts`), dort Import statt Klasse.
+- [x] `core/filter-settings.ts`: `FilterId`, `FilterSettings`, `DEFAULT_FILTER_SETTINGS` laut Kontrakt (nur Typen und Konstante).
+- [x] `core/scan-session.ts` laut Kontrakt erweitern: `detectedCorners`, `filter` (Start `DEFAULT_FILTER_SETTINGS`), `editingPageId` (bleibt in dieser Phase `null`), `startNew(frame)` (schließt ein vorheriges Bitmap, setzt alles andere zurück, setzt `sourceFrame`), `setDetectedCorners`, `setFilter`. `setSourceFrame` entfällt; `capture.ts` ruft `startNew`. `reset()` setzt auch die neuen Felder zurück.
+- [x] `ng generate service core/perspective` → `warp(source, corners)`: `scope = new MatScope()`; Original per `OffscreenCanvas` in `ImageData` → `cv.matFromImageData`; Ziel `w`/`h` aus `quadOutputSize(corners)`; `cv.matFromArray(4, 1, cv.CV_32FC2, [...])` für Quelle (Ecken in Kontrakt-Reihenfolge) und Ziel `[0,0, w,0, w,h, 0,h]`; `cv.getPerspectiveTransform`; `cv.warpPerspective(src, dst, M, new cv.Size(w, h), cv.INTER_LINEAR, cv.BORDER_REPLICATE)`; Ergebnis per `new ImageData(new Uint8ClampedArray(dst.data), w, h)` auf ein `OffscreenCanvas` und `convertToBlob({ type: 'image/jpeg', quality: 0.92 })`. Alles im `finally` über `scope.releaseAll()`.
+- [x] `core/scan-flow.guards.ts`: `draftSourceGuard` (prüft `scanSession.sourceFrame() !== null`, sonst `router.parseUrl('/capture')`) und `draftWarpedGuard` (prüft `warpedPage() !== null`). `hasPagesGuard` folgt in Phase 6.
+- [x] `ng generate component features/crop` → `crop.ts/.html/.scss` nach „Struktur & Maße“:
       - `ngOnInit`: `detect(sourceFrame)`; Ergebnis nach `setDetectedCorners`; `setCorners(ergebnis ?? insetQuad(10 %))`. `insetQuad` als exportierte reine Funktion in `core/geometry.ts` (`insetQuad(size: Size, ratio: number): Quad`).
       - Signale: `stageSize`, `view` (computed), `dragging: { kind: 'corner' | 'edge'; index: number; pointerId: number; last: Point } | null`, `warping`.
       - Bild zeichnen in einem `effect()` auf `view` + `sourceFrame`.
       - Geometrie-Hilfen in `core/geometry.ts` ergänzen (reine Funktionen): `fitContain(source: Size, box: Size): { scale: number; offsetX: number; offsetY: number }`, `clampPoint(point: Point, size: Size): Point`, `edgeMidpoints(quad: Quad): readonly [Point, Point, Point, Point]` (Kante i = Ecke i → Ecke (i+1) % 4).
       - Lupe: eigenes `<canvas>` 84 × 84 (× DPR); `drawImage(sourceFrame, sx, sy, sw, sh, 0, 0, 84·dpr, 84·dpr)` mit `sw = sh = 84 / (2 · view.scale)` um den gezogenen Punkt; Fadenkreuz per CSS (`::before` wie im Mockup).
       - „Übernehmen“: `warping.set(true)` → `warp()` → `setWarpedPage()` → `/export`; Fehler → Hinweiszeile „Begradigen fehlgeschlagen — bitte nochmal versuchen“, `warping` zurück.
-- [ ] `app.routes.ts`: Route `crop` mit `canActivate: [draftSourceGuard]` und `loadComponent`. Den veralteten Kommentar über „drei Screens“ durch einen Verweis auf diesen Plan ersetzen.
+- [x] `app.routes.ts`: Route `crop` mit `canActivate: [draftSourceGuard]` und `loadComponent`. Den veralteten Kommentar über „drei Screens“ durch einen Verweis auf diesen Plan ersetzen.
 
 ## Doc-Updates
 
-- [ ] `docs/code-map.md`: Feature-Zeile `crop`; Core-Zeilen `mat-scope.ts`, `perspective.ts`, `filter-settings.ts`, `scan-flow.guards.ts`; `geometry.ts` um die neuen Hilfen ergänzen; `scan-session.ts`-Zweck auf „Entwurf der Seite in Arbeit“ ändern.
-- [ ] `docs/glossary.md`: „Entwurf (Draft)“ — die Seite in Arbeit zwischen Auslöser und Übernahme in den Page Buffer, gehalten von `ScanSession`.
-- [ ] `FINDINGS.md`: die drei übernommenen Einträge abhaken.
+- [x] `docs/code-map.md`: Feature-Zeile `crop`; Core-Zeilen `mat-scope.ts`, `perspective.ts`, `filter-settings.ts`, `scan-flow.guards.ts`; `geometry.ts` um die neuen Hilfen ergänzen; `scan-session.ts`-Zweck auf „Entwurf der Seite in Arbeit“ ändern.
+- [x] `docs/glossary.md`: „Entwurf (Draft)“ — die Seite in Arbeit zwischen Auslöser und Übernahme in den Page Buffer, gehalten von `ScanSession`.
+- [x] `FINDINGS.md`: die drei übernommenen Einträge abhaken.
 
 ## Report-Back
+
+**Status:** complete. Build, Lint und Tests sauber; Initial-Total 228,5 kB, OpenCV als eigener Lazy-Chunk (17,55 MB roh).
+
+- **Abweichung:** `angular.json` bekommt `externalDependencies` (`fs`, `crypto`, `path`) und `allowedCommonJsDependencies` — ohne sie baut der erste echte OpenCV-Import nicht (siehe FINDINGS → Vault).
+- **Zusatz:** `/crop` erkennt nur, wenn der Entwurf noch keine Ecken hat; sonst bleiben die Ecken des Users stehen (FINDINGS → Phase 6).
+- **Unsicherste Stelle:** Ziehen per Differenz (`last`) — wird ein Griff an den Bildrand gedrückt und der Finger läuft weiter, sitzt der Griff beim Zurückziehen versetzt zum Finger. Prüfen am Handy; stört es, auf Greif-Versatz umstellen.
+- **Am Gerät offen:** alle Abnahme-Kriterien außer Build/Chunk — Ziehen mit Finger, Lupe, Drehen des Handys, 12-MP-Begradigen unter 2 s, Sichtprüfung der Erkennung.

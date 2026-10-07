@@ -141,3 +141,52 @@ export function isConvexQuad(quad: Quad): boolean {
 
   return sawPositive !== sawNegative;
 }
+
+/** Startviereck, wenn nichts erkannt wurde: das Bild mit einem Randabstand von `ratio` je Seite. */
+export function insetQuad(size: Size, ratio: number): Quad {
+  const left = size.width * ratio;
+  const top = size.height * ratio;
+  const right = size.width - left;
+  const bottom = size.height - top;
+
+  return [
+    { x: left, y: top },
+    { x: right, y: top },
+    { x: right, y: bottom },
+    { x: left, y: bottom },
+  ];
+}
+
+/**
+ * Einpassen wie `object-fit: contain`. Die einzige Umrechnung zwischen Bild-
+ * und Anzeige-Koordinaten: Anzeige = Bild · scale + offset.
+ */
+export function fitContain(source: Size, box: Size): { readonly scale: number; readonly offsetX: number; readonly offsetY: number } {
+  if (source.width <= 0 || source.height <= 0) {
+    return { scale: 1, offsetX: 0, offsetY: 0 };
+  }
+
+  const scale = Math.min(box.width / source.width, box.height / source.height);
+
+  return {
+    scale,
+    offsetX: (box.width - source.width * scale) / 2,
+    offsetY: (box.height - source.height * scale) / 2,
+  };
+}
+
+/** Hält einen Punkt innerhalb des Bildes — eine Ecke außerhalb würde beim Begradigen Randpixel verschmieren. */
+export function clampPoint(point: Point, size: Size): Point {
+  return {
+    x: Math.min(Math.max(point.x, 0), size.width),
+    y: Math.min(Math.max(point.y, 0), size.height),
+  };
+}
+
+/** Mitten der vier Kanten; Kante i läuft von Ecke i zu Ecke (i + 1) % 4. */
+export function edgeMidpoints(quad: Quad): readonly [Point, Point, Point, Point] {
+  const [topLeft, topRight, bottomRight, bottomLeft] = quad;
+  const midpoint = (from: Point, to: Point): Point => ({ x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 });
+
+  return [midpoint(topLeft, topRight), midpoint(topRight, bottomRight), midpoint(bottomRight, bottomLeft), midpoint(bottomLeft, topLeft)];
+}
