@@ -102,6 +102,46 @@
     background: linear-gradient(transparent, #000c);
   }
 
+  &__last {
+    position: relative;
+    justify-self: start;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    background: var(--cam-surface);
+    cursor: pointer;
+  }
+
+  &__last-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  &__badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    display: grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 99px;
+    background: var(--cam-accent);
+    color: var(--cam-accent-ink);
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  &__done {
+    justify-self: end;
+  }
+
   &__shutter {
     width: 72px;
     height: 72px;

@@ -5,12 +5,13 @@ stillschweigend anders verwenden.
 
 | Begriff | Bedeutung |
 |---|---|
-| **Page** | Eine gescannte, bereits zugeschnittene/korrigierte Dokumentseite im Page Buffer (`pages[]`), bevor sie ins PDF eingebettet wird |
+| **Page** | Eine gescannte Seite im Page Buffer (`ScannedPage`): Original-Standbild, Ecken, begradigtes und gefiltertes Bild (alle als JPEG), Filter-Einstellung, Drehung und Vorschaubild — genug, um sie später neu zuzuschneiden oder zu filtern (ADR-005) |
+| **Auswahl-Modus** | Zustand der Seitenübersicht nach „Auswählen“: Antippen markiert Seiten statt sie zu öffnen, Ziehen und Löschen sind aus, „Drehen“ wirkt nur auf die markierten Seiten |
 | **Design-Token** | Benannte Farbe oder Größe aus dem Mockup als CSS-Variable `--cam-*` (z. B. `--cam-accent`); alle Styles verwenden nur diese Namen |
 | **Taschenlampe (torch)** | Dauerlicht der Rückkamera; nur auf Geräten, deren Video-Track es meldet (`getCapabilities().torch`), sonst fehlt der Knopf |
 | **Entwurf (Draft)** | Die Seite in Arbeit zwischen Auslöser und Übernahme in den Page Buffer — Standbild, Ecken, begradigtes Bild, Filter —, gehalten von `ScanSession` |
 | **Qualitätsstufe** | Wahl beim PDF-Export: *Klein* (längste Kante höchstens 1240 px, JPEG 0,7), *Mittel* (2000 px, JPEG 0,8, Standard), *Original* (das vorhandene JPEG unverändert). Verkleinert wird nur, nie vergrößert |
-| **Page Buffer** | In-Memory-Sammlung aller bisher gescannten Seiten der aktuellen Session |
+| **Page Buffer** | Alle Seiten des aktuellen Dokuments in ihrer Reihenfolge, nur im Arbeitsspeicher — ein Neuladen der App verliert den Stapel (ADR-005, `core/page-buffer.ts`) |
 | **Perspektivkorrektur / Warp** | Mathematische Entzerrung eines schräg fotografierten Dokuments auf ein rechteckiges Bild, anhand der 4 erkannten Eckpunkte |
 | **Quad** | Die vier Eckpunkte eines erkannten Dokuments, **immer** in der Reihenfolge oben-links, oben-rechts, unten-rechts, unten-links, in Pixeln des Quell-Standbilds (Typ `Quad` in `core/geometry.ts`, festgelegt in ADR-003) |
 | **Live-Rahmen** | Erkennung auf dem laufenden Kamerabild im Sucher, höchstens 4 Läufe pro Sekunde auf einem 480-px-Vorschaubild; „stabil“ (Rahmen pulsiert, „Dokument erkannt — halten …“) nach drei Treffern in Folge, deren Ecken sich um weniger als 3 % der Bilddiagonale bewegen |

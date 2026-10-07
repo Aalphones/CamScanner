@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Camera } from '../../core/camera';
 import { DocumentDetection } from '../../core/document-detection';
 import { fitCover, mapQuad, type Point, type Quad, type Size } from '../../core/geometry';
+import { PageBuffer } from '../../core/page-buffer';
 import { ScanSession } from '../../core/scan-session';
 import { Icon } from '../../shared/icon/icon';
 import { CameraBlocked } from './camera-blocked/camera-blocked';
@@ -25,6 +26,17 @@ export class Capture implements OnInit, OnDestroy {
   private readonly camera = inject(Camera);
   private readonly scanSession = inject(ScanSession);
   private readonly router = inject(Router);
+  private readonly pageBuffer = inject(PageBuffer);
+
+  protected readonly pageCount = this.pageBuffer.count;
+
+  /** Vorschau der zuletzt übernommenen Seite; `null` = noch keine Seite, dann bleiben beide Zellen leer. */
+  protected readonly lastPageThumbnail = computed((): string | null => this.pageBuffer.pages().at(-1)?.thumbnailUrl ?? null);
+
+  protected readonly pagesLabel = computed((): string => {
+    const count = this.pageCount();
+    return count === 1 ? 'Seitenübersicht öffnen, 1 Seite' : `Seitenübersicht öffnen, ${count} Seiten`;
+  });
 
   protected readonly videoRef = viewChild.required<ElementRef<HTMLVideoElement>>('video');
   protected readonly state = this.camera.state;
@@ -110,6 +122,10 @@ export class Capture implements OnInit, OnDestroy {
     } finally {
       this.capturing.set(false);
     }
+  }
+
+  protected onPagesClick(): void {
+    void this.router.navigate(['/pages']);
   }
 
   protected onRetryClick(): void {

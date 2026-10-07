@@ -69,7 +69,13 @@
 <p class="crop__hint" [class.crop__hint--danger]="hint().isDanger" aria-live="polite">{{ hint().text }}</p>
 
 <footer class="bottombar crop__bottombar">
-  <button type="button" class="btn" (click)="onBackClick()">Neu aufnehmen</button>
+  <button type="button" class="btn" (click)="onBackClick()">
+    @if (isEditing()) {
+      Abbrechen
+    } @else {
+      Neu aufnehmen
+    }
+  </button>
   <button type="button" class="btn btn--primary" [disabled]="!canApply()" (click)="onApplyClick()">
     @if (warping()) {
       Wird begradigt …

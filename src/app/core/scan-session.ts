@@ -2,6 +2,7 @@ import { Service, signal } from '@angular/core';
 
 import { DEFAULT_FILTER_SETTINGS, type FilterSettings } from './filter-settings';
 import type { Quad } from './geometry';
+import type { ScannedPage } from './page-buffer';
 
 /** Der Entwurf: die Seite in Arbeit zwischen Auslöser und Übernahme in den Page Buffer. */
 @Service()
@@ -25,6 +26,20 @@ export class ScanSession {
   startNew(frame: ImageBitmap): void {
     this.reset();
     this.sourceFrameSignal.set(frame);
+  }
+
+  /**
+   * Lädt eine Seite aus dem Page Buffer zum Nachbearbeiten. Die erkannten Ecken bleiben leer —
+   * der Zuschneiden-Bildschirm erkennt nach, damit „Auto“ ein Ziel hat, ohne die gespeicherten Ecken zu überschreiben.
+   */
+  async startEdit(page: ScannedPage): Promise<void> {
+    const frame = await createImageBitmap(page.source);
+
+    this.reset();
+    this.sourceFrameSignal.set(frame);
+    this.cornersSignal.set(page.corners);
+    this.filterSignal.set(page.filter);
+    this.editingPageIdSignal.set(page.id);
   }
 
   setDetectedCorners(corners: Quad | null): void {

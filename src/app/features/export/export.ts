@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, OnDestroy
 import { Router } from '@angular/router';
 
 import { downloadBlob, sanitizePdfFileName } from '../../core/file-save';
+import { PageBuffer, type ScannedPage } from '../../core/page-buffer';
 import { Pdf, type ExportQuality, type PdfPageInput } from '../../core/pdf';
 import { ScanSession } from '../../core/scan-session';
 import { Toast } from '../../core/toast';
@@ -33,6 +34,7 @@ const sizeFormat = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 1, ma
 })
 export class Export implements OnDestroy {
   private readonly scanSession = inject(ScanSession);
+  private readonly pageBuffer = inject(PageBuffer);
   private readonly pdfBuilder = inject(Pdf);
   private readonly toast = inject(Toast);
   private readonly router = inject(Router);
@@ -45,16 +47,20 @@ export class Export implements OnDestroy {
   protected readonly buildFailed = signal(false);
   protected readonly isQualityInfoOpen = signal(false);
 
-  /** Bis Phase 6 genau eine Seite: das begradigte Blatt aus dem Entwurf. */
-  private readonly pageInputs: readonly PdfPageInput[] = this.collectPageInputs();
+  /** Stand beim Öffnen — die Seiten ändern sich auf diesem Bildschirm nicht. */
+  private readonly pages: readonly ScannedPage[] = this.pageBuffer.pages();
+  private readonly pageInputs: readonly PdfPageInput[] = this.pages.map((page: ScannedPage) => ({
+    image: page.output,
+    rotation: page.rotation,
+  }));
 
   /** Ein Bau, dessen Ergebnis nicht mehr zur gewählten Qualität passt, wird verworfen. */
   private buildToken = 0;
 
-  /** Vorschaubilder, von unten nach oben gestapelt: die dritte Seite zuerst, die erste zuletzt. */
-  protected readonly previewUrls: readonly string[] = this.pageInputs
+  /** Vorschaubilder, von unten nach oben gestapelt: die dritte Seite zuerst, die erste zuletzt. Die URLs gehören dem Page Buffer. */
+  protected readonly previewUrls: readonly string[] = this.pages
     .slice(0, STACK_DEPTH)
-    .map((page: PdfPageInput) => URL.createObjectURL(page.image))
+    .map((page: ScannedPage) => page.thumbnailUrl)
     .reverse();
 
   protected readonly metaText = computed((): string => {
@@ -79,11 +85,10 @@ export class Export implements OnDestroy {
 
   ngOnDestroy(): void {
     this.buildToken += 1;
-    this.previewUrls.forEach((url: string) => URL.revokeObjectURL(url));
   }
 
   protected onBackClick(): void {
-    void this.router.navigate(['/crop']);
+    void this.router.navigate(['/pages']);
   }
 
   protected onFileNameInput(event: Event): void {
@@ -127,6 +132,7 @@ export class Export implements OnDestroy {
   }
 
   private startNewDocument(): void {
+    this.pageBuffer.clear();
     this.scanSession.reset();
     void this.router.navigate(['/capture']);
   }
@@ -156,16 +162,6 @@ export class Export implements OnDestroy {
         this.building.set(false);
       }
     }
-  }
-
-  private collectPageInputs(): readonly PdfPageInput[] {
-    const warped = this.scanSession.warpedPage();
-
-    if (warped === null) {
-      return [];
-    }
-
-    return [{ image: warped, rotation: 0 }];
   }
 
   private arrowStep(key: string): number {

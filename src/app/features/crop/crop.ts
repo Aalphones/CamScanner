@@ -15,6 +15,8 @@ import { Router } from '@angular/router';
 
 import { DocumentDetection } from '../../core/document-detection';
 import { clampPoint, edgeMidpoints, fitContain, insetQuad, isConvexQuad, type Point, type Quad, type Size } from '../../core/geometry';
+import { PageBuffer, type ScannedPage } from '../../core/page-buffer';
+import { createPage } from '../../core/page-factory';
 import { Perspective } from '../../core/perspective';
 import { ScanSession } from '../../core/scan-session';
 import { Icon } from '../../shared/icon/icon';
@@ -58,6 +60,7 @@ export class Crop implements OnInit {
   private readonly scanSession = inject(ScanSession);
   private readonly documentDetection = inject(DocumentDetection);
   private readonly perspective = inject(Perspective);
+  private readonly pageBuffer = inject(PageBuffer);
   private readonly router = inject(Router);
 
   private readonly stageRef = viewChild.required<ElementRef<HTMLDivElement>>('stage');
@@ -69,9 +72,20 @@ export class Crop implements OnInit {
   protected readonly detecting = signal(false);
   protected readonly warping = signal(false);
   protected readonly warpFailed = signal(false);
+  /** Beim Bearbeiten läuft die Erkennung erst auf „Auto“ — bis dahin ist „nichts erkannt“ kein Befund. */
+  private readonly detectionAttempted = signal(false);
 
   private readonly sourceFrame = this.scanSession.sourceFrame;
   protected readonly detectedCorners = this.scanSession.detectedCorners;
+  protected readonly isEditing = computed((): boolean => this.scanSession.editingPageId() !== null);
+
+  private readonly isNothingDetected = computed((): boolean => {
+    if (this.detectedCorners() !== null) {
+      return false;
+    }
+
+    return !this.isEditing() || this.detectionAttempted();
+  });
 
   private readonly imageSize = computed((): Size => {
     const frame = this.sourceFrame();
@@ -140,10 +154,10 @@ export class Crop implements OnInit {
     return this.scanSession.corners() !== null && !this.isCrossed() && !this.detecting() && !this.warping();
   });
 
-  protected readonly canAuto = computed((): boolean => this.detectedCorners() !== null && !this.warping());
+  protected readonly canAuto = computed((): boolean => !this.isNothingDetected() && !this.detecting() && !this.warping());
 
   protected readonly autoTitle = computed((): string | null => {
-    if (this.detecting() || this.detectedCorners() !== null) {
+    if (this.detecting() || !this.isNothingDetected()) {
       return null;
     }
 
@@ -163,7 +177,7 @@ export class Crop implements OnInit {
       return { text: 'Begradigen fehlgeschlagen — bitte nochmal versuchen', isDanger: true };
     }
 
-    if (this.detectedCorners() === null) {
+    if (this.isNothingDetected()) {
       return { text: 'Keine Blattkanten erkannt — Ecken bitte von Hand setzen', isDanger: false };
     }
 
@@ -212,15 +226,24 @@ export class Crop implements OnInit {
     void this.detectCorners();
   }
 
+  /** Neue Seite: verwerfen und neu aufnehmen. Bearbeiten: ohne Änderung zurück in die Übersicht. */
   protected onBackClick(): void {
+    const target = this.isEditing() ? '/pages' : '/capture';
+
     this.scanSession.reset();
-    void this.router.navigate(['/capture']);
+    void this.router.navigate([target]);
   }
 
-  protected onAutoClick(): void {
-    const detected = this.detectedCorners();
+  protected async onAutoClick(): Promise<void> {
+    const frame = this.sourceFrame();
 
-    if (detected === null) {
+    if (frame === null || !this.canAuto()) {
+      return;
+    }
+
+    const detected = this.detectedCorners() ?? (await this.runDetection(frame));
+
+    if (detected === null || this.sourceFrame() !== frame) {
       return;
     }
 
@@ -240,9 +263,24 @@ export class Crop implements OnInit {
     this.warpFailed.set(false);
 
     try {
+      const editedPage = this.findEditedPage();
       const warped = await this.perspective.warp(frame, corners);
-      this.scanSession.setWarpedPage(warped);
-      await this.router.navigate(['/export']);
+      const page = await createPage({
+        sourceFrame: frame,
+        corners,
+        warped,
+        filter: this.scanSession.filter(),
+        ...(editedPage === undefined ? {} : { id: editedPage.id, rotation: editedPage.rotation, source: editedPage.source }),
+      });
+
+      if (editedPage === undefined) {
+        this.pageBuffer.add(page);
+      } else {
+        this.pageBuffer.replace(editedPage.id, page);
+      }
+
+      this.scanSession.reset();
+      await this.router.navigate([editedPage === undefined ? '/capture' : '/pages']);
     } catch (error: unknown) {
       console.error('Begradigen fehlgeschlagen', error);
       this.warpFailed.set(true);
@@ -298,11 +336,22 @@ export class Crop implements OnInit {
   private async detectCorners(): Promise<void> {
     const frame = this.sourceFrame();
 
-    // Bereits zugeschnitten (z. B. zurück aus dem nächsten Schritt): die Ecken des Users behalten.
+    // Bereits zugeschnitten (zurück aus dem nächsten Schritt oder Bearbeiten einer Seite): die Ecken des Users behalten.
     if (frame === null || this.scanSession.corners() !== null) {
       return;
     }
 
+    const detected = await this.runDetection(frame);
+
+    if (this.sourceFrame() !== frame) {
+      return;
+    }
+
+    this.scanSession.setCorners(detected ?? insetQuad(this.imageSize(), FALLBACK_INSET_RATIO));
+  }
+
+  /** Erkennt die Blattkanten und legt sie als Ziel für „Auto“ in den Entwurf. */
+  private async runDetection(frame: ImageBitmap): Promise<Quad | null> {
     this.detecting.set(true);
     let detected: Quad | null = null;
 
@@ -312,15 +361,26 @@ export class Crop implements OnInit {
       console.error('Kantenerkennung fehlgeschlagen', error);
     } finally {
       this.detecting.set(false);
+      this.detectionAttempted.set(true);
     }
 
     // Während der Erkennung zurückgegangen: der Entwurf gehört nicht mehr zu diesem Bild.
     if (this.sourceFrame() !== frame) {
-      return;
+      return null;
     }
 
     this.scanSession.setDetectedCorners(detected);
-    this.scanSession.setCorners(detected ?? insetQuad(this.imageSize(), FALLBACK_INSET_RATIO));
+    return detected;
+  }
+
+  private findEditedPage(): ScannedPage | undefined {
+    const id = this.scanSession.editingPageId();
+
+    if (id === null) {
+      return undefined;
+    }
+
+    return this.pageBuffer.pages().find((page: ScannedPage) => page.id === id);
   }
 
   private toDisplay(point: Point): Point {

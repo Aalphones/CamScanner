@@ -33,9 +33,10 @@ Komponenten/Pipes).
 
 | Feature | Zweck | Pfad |
 |---|---|---|
-| `capture` | Sucher mit Live-Kamerabild, Taschenlampe, Raster, Auslöser nimmt Standbild auf; Live-Rahmen über dem erkannten Dokument (`live-detection.ts`: Erkennungs-Schleife und Stabilitäts-Zähler) | `features/capture/` |
+| `capture` | Sucher mit Live-Kamerabild, Taschenlampe, Raster, Auslöser nimmt Standbild auf; Live-Rahmen über dem erkannten Dokument (`live-detection.ts`: Erkennungs-Schleife und Stabilitäts-Zähler); untere Leiste mit Vorschaubild + Seitenzähler und „Fertig“ zur Seitenübersicht | `features/capture/` |
 | `capture` → `camera-blocked` | Fehlerbildschirm „Kamera ist gesperrt“ in drei Varianten (gesperrt, unsichere Verbindung, keine Kamera) | `features/capture/camera-blocked/` |
-| `crop` | Zuschneiden: Standbild mit erkanntem Rahmen, Eck- und Mittelgriffe zum Nachziehen, Lupe, „Auto“, Begradigen per „Übernehmen“ | `features/crop/` |
+| `crop` | Zuschneiden: Standbild mit erkanntem Rahmen, Eck- und Mittelgriffe zum Nachziehen, Lupe, „Auto“, Begradigen per „Übernehmen“ und Seite in den Page Buffer schreiben; Bearbeiten-Modus für eine vorhandene Seite | `features/crop/` |
+| `pages` | Seitenübersicht: Raster aller Seiten, Umsortieren per Halten und Ziehen (`page-drag.ts`), Löschen mit Rückgängig, Auswahl-Modus, Drehen, Kachel antippen = Bearbeiten | `features/pages/` |
 | `export` | Exportieren: Seitenstapel-Vorschau, Dateiname, Qualitätsstufe, PDF vorab gebaut, Herunterladen | `features/export/` |
 
 ## Globale Bausteine & Deploy
@@ -53,8 +54,10 @@ Komponenten/Pipes).
 | Datei | Zweck |
 |---|---|
 | `core/opencv-loader.ts` | Lädt `@techstark/opencv-js` per Lazy-Chunk, cached die Ladung |
-| `core/scan-session.ts` | Entwurf der Seite in Arbeit: Standbild, erkannte und gesetzte Ecken, begradigte Seite, Filter-Einstellung |
-| `core/scan-flow.guards.ts` | Route-Guards des Scan-Flusses — ohne Entwurf zurück in den Sucher |
+| `core/scan-session.ts` | Entwurf der Seite in Arbeit: Standbild, erkannte und gesetzte Ecken, begradigte Seite, Filter-Einstellung; `startEdit` lädt eine Seite aus dem Page Buffer zum Nachbearbeiten |
+| `core/scan-flow.guards.ts` | Route-Guards des Scan-Flusses — ohne Entwurf bzw. ohne Seiten zurück in den Sucher |
+| `core/page-buffer.ts` | Page Buffer: alle Seiten des Dokuments im Arbeitsspeicher, Typen `ScannedPage`/`Rotation`, Hinzufügen, Ersetzen, Löschen/Wiederherstellen, Verschieben, Drehen; Eigentümer der Vorschau-URLs (ADR-005) |
+| `core/page-factory.ts` | `createPage` baut eine Seite aus Entwurf und begradigtem Bild; `renderThumbnail` zeichnet die gedrehte Vorschau |
 | `core/geometry.ts` | `Point`/`Quad`-Typen plus reine Rechen-Funktionen: Ecken sortieren, skalieren, Zielgröße, Fläche, Konvexitätsprüfung, Startviereck, Einpassen (contain/cover), Quad auf den Bildschirm umrechnen, Ruhe-Vergleich zweier Quads, Punkt begrenzen, Kantenmitten |
 | `core/mat-scope.ts` | Sammelt OpenCV-Objekte ein und gibt sie in einem `finally` frei |
 | `core/document-detection.ts` | Findet die Blattkanten im Standbild (OpenCV: Graustufen → Canny → Konturen) und liefert vier Ecken oder `null` |

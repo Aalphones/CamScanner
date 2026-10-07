@@ -1,0 +1,76 @@
+<header class="topbar">
+  <button type="button" class="icon-btn" aria-label="Zurück" (click)="onBackClick()">
+    <cam-icon name="back" />
+  </button>
+  <h2 class="topbar__title">{{ title() }}</h2>
+  <button type="button" class="btn btn--small" [disabled]="count() === 0" (click)="onSelectToggle()">
+    @if (isSelecting()) {
+      Abbrechen
+    } @else {
+      Auswählen
+    }
+  </button>
+</header>
+
+@if (isSelecting()) {
+  <p class="pages__hint" aria-live="polite">Seiten antippen zum Auswählen</p>
+}
+
+<div #grid class="pages__grid">
+  @let dragged = draggedPage();
+  @for (page of displayPages(); track page.id; let index = $index) {
+    @let isGhost = dragged !== null && dragged.id === page.id;
+    <div class="pages__tile" [class.pages__tile--ghost]="isGhost" [attr.data-index]="index">
+      @if (!isSelecting() && !drag.isDragging()) {
+        <button type="button" class="pages__del" [attr.aria-label]="'Seite ' + (index + 1) + ' löschen'" (click)="onDeleteClick(page)">
+          <cam-icon name="close" [size]="12" [strokeWidth]="3" />
+        </button>
+      }
+      <button
+        type="button"
+        class="pages__frame"
+        [class.pages__frame--selected]="isSelected(page)"
+        [attr.aria-label]="'Seite ' + (index + 1) + (isSelecting() ? ' auswählen' : ' bearbeiten')"
+        [attr.aria-pressed]="isSelecting() ? isSelected(page) : null"
+        (pointerdown)="onTilePointerDown($event, index)"
+        (click)="onTileClick(page)"
+        (contextmenu)="$event.preventDefault()"
+      >
+        @if (!isGhost) {
+          <img class="pages__image" [src]="page.thumbnailUrl" alt="" draggable="false" />
+        }
+      </button>
+      <span class="pages__num" aria-hidden="true">Seite {{ index + 1 }}</span>
+    </div>
+  }
+
+  <div class="pages__tile pages__tile--add">
+    <button type="button" class="pages__frame" aria-label="Seite hinzufügen" (click)="onAddClick()">
+      <cam-icon name="plus" [size]="28" />
+    </button>
+    <span class="pages__num" aria-hidden="true">Seite hinzufügen</span>
+  </div>
+</div>
+
+@let pointer = drag.pointer();
+@if (dragged !== null && pointer !== null) {
+  <div
+    class="pages__floating"
+    aria-hidden="true"
+    [style.left.px]="pointer.x"
+    [style.top.px]="pointer.y"
+    [style.width.px]="drag.tileWidth()"
+  >
+    <div class="pages__frame pages__frame--floating">
+      <img class="pages__image" [src]="dragged.thumbnailUrl" alt="" draggable="false" />
+    </div>
+  </div>
+}
+
+<footer class="bottombar pages__bottombar">
+  <button type="button" class="btn" [disabled]="!canRotate()" [attr.title]="rotateLabel()" [attr.aria-label]="rotateLabel()" (click)="onRotateClick()">
+    <cam-icon name="rotate" />
+    Drehen
+  </button>
+  <button type="button" class="btn btn--primary pages__export" [disabled]="count() === 0" (click)="onExportClick()">PDF erstellen</button>
+</footer>

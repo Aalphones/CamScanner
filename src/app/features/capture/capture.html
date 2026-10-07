@@ -56,7 +56,15 @@
       <p class="capture__hint" aria-live="polite">Dokument formatfüllend ins Bild halten</p>
     }
     <div class="capture__bottom">
-      <span></span>
+      @let lastPage = lastPageThumbnail();
+      @if (lastPage !== null) {
+        <button type="button" class="capture__last" [attr.aria-label]="pagesLabel()" (click)="onPagesClick()">
+          <img class="capture__last-image" [src]="lastPage" alt="" />
+          <span class="capture__badge">{{ pageCount() }}</span>
+        </button>
+      } @else {
+        <span></span>
+      }
       <button
         type="button"
         class="capture__shutter"
@@ -64,7 +72,11 @@
         (click)="onShutterClick()"
         aria-label="Foto aufnehmen"
       ></button>
-      <span></span>
+      @if (lastPage !== null) {
+        <button type="button" class="btn btn--small btn--primary capture__done" (click)="onPagesClick()">Fertig</button>
+      } @else {
+        <span></span>
+      }
     </div>
   }
 }

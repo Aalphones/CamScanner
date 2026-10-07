@@ -17,9 +17,14 @@ Erledigte Einträge abhaken, nicht löschen — sie erklären am Plan-Ende die A
 ## Aus Phase 3
 
 - [ ] → Phase 9: Der OpenCV-Lazy-Chunk ist 17,55 MB roh, ~2,9 MB komprimiert. Für den Offline-Start muss der Service Worker ihn cachen — Prefetch beim Installieren oder lazy beim ersten Zuschneiden entscheiden; außerdem prüfen, dass Strato ihn komprimiert ausliefert (`.htaccess`), sonst lädt das Handy beim ersten Scan 17 MB.
-- [ ] → Phase 6: `/crop` überspringt die Erkennung, wenn der Entwurf schon Ecken hat (Rückweg aus dem nächsten Schritt behält die Ecken des Users). `startEdit()` muss deshalb `corners` **und** `detectedCorners` setzen — sonst ist „Auto“ beim Bearbeiten ausgegraut.
+- [x] → Phase 6: `/crop` überspringt die Erkennung, wenn der Entwurf schon Ecken hat (Rückweg aus dem nächsten Schritt behält die Ecken des Users). `startEdit()` muss deshalb `corners` **und** `detectedCorners` setzen — sonst ist „Auto“ beim Bearbeiten ausgegraut. *Gelöst ohne `detectedCorners` in `startEdit`: im Bearbeiten-Modus ist „Auto“ aktiv, solange noch nicht erkannt wurde, und der erste Druck erkennt nach (wie in der Phase-6-Entscheidung).*
 - [x] → Phase 4: `/crop` navigiert nach „Übernehmen“ bereits auf `/export`; die Route muss dort nur noch entstehen.
 - [ ] → Vault: Angular-Build (esbuild) mit `@techstark/opencv-js` — Symptom: `Could not resolve "fs"` / `"crypto"` erst, sobald der Chunk wirklich importiert wird · Ursache: die Emscripten-Datei enthält `require("fs")` in einem Node-Zweig · Fix: `"externalDependencies": ["fs", "crypto", "path"]` in `angular.json` (der Zweig läuft im Browser nie), dazu `allowedCommonJsDependencies` gegen die CommonJS-Warnung.
+
+## Aus Phase 6
+
+- [ ] → Phase 8: Der Übernehmen-Ablauf steht in `features/crop/crop.ts` → `onApplyClick` samt Bearbeiten-Zweig (`id`, `rotation` und das alte `source`-JPEG der Seite an `createPage` weiterreichen, dann `replace` statt `add`). Beim Verlegen an „Fertig“ im Filter diesen Zweig mitnehmen; `/crop` setzt dann nur noch `setWarpedPage` und navigiert nach `/filter`. `createPage` kennt dafür das optionale Feld `source` (README-Kontrakt nachgezogen).
+- [ ] → Phase 8: `/crop` → „Zurück“/„Abbrechen“ setzt im Bearbeiten-Modus den Entwurf zurück und geht nach `/pages`. Der Zurück-Pfeil im Filter führt nach `/crop` — dort muss der Entwurf dann noch stehen (nicht in `/filter` zurücksetzen).
 
 ## Aus Phase 5
 

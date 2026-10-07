@@ -15,7 +15,7 @@ Dieser Plan **ersetzt** die offenen Phasen 4 und 5 des Meilenstein-1-Plans (arch
 | 3 | [Zuschneiden & Begradigen](phase-3-zuschneiden.md) | M1 | heikel | complete |
 | 4 | [Export: PDF & Herunterladen](phase-4-export.md) | M1 | standard | complete |
 | 5 | [Live-Rahmen im Sucher](phase-5-live-erkennung.md) | M1 | heikel | complete |
-| 6 | [Page Buffer & Seitenübersicht](phase-6-seitenuebersicht.md) | M2 | heikel | pending |
+| 6 | [Page Buffer & Seitenübersicht](phase-6-seitenuebersicht.md) | M2 | heikel | complete |
 | 7 | [Filter-Rechenwerk](phase-7-filter-rechenwerk.md) | M3 | heikel | pending |
 | 8 | [Filter-Bildschirm „Scan-Look“](phase-8-filter-bildschirm.md) | M3 | standard | pending |
 | 9 | [PWA-Härtung](phase-9-pwa.md) | M4 | standard | pending |
@@ -124,7 +124,8 @@ rotate(ids: readonly string[]): Promise<void>   // +90°, Thumbnail neu
 clear(): void
 
 // core/page-factory.ts  (Phase 6)
-createPage(input: { sourceFrame: ImageBitmap; corners: Quad; warped: Blob; filter: FilterSettings; id?: string; rotation?: Rotation }): Promise<ScannedPage>
+createPage(input: { sourceFrame: ImageBitmap; corners: Quad; warped: Blob; filter: FilterSettings; source?: Blob; id?: string; rotation?: Rotation }): Promise<ScannedPage>
+// source: beim Bearbeiten das vorhandene JPEG weiterreichen statt neu zu kodieren
 
 // core/perspective.ts  (Phase 3)
 warp(source: ImageBitmap, corners: Quad): Promise<Blob>   // image/jpeg 0.92

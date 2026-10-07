@@ -52,20 +52,32 @@ Seitenübersicht (Mockup-Figur 4):
 
 ## Checkliste
 
-- [ ] `docs/decisions/005-page-buffer-modell.md` nach den Entscheidungen oben (Kontext / Optionen: ImageBitmap halten · JPEG-Blobs · IndexedDB / Entscheidung / Konsequenzen: Neuladen verliert Stapel; Re-Crop braucht Dekodieren).
-- [ ] `ng generate service core/page-buffer` laut Kontrakt; `Rotation` von `pdf.ts` hierher verschieben, `pdf.ts` importiert sie.
-- [ ] `core/page-factory.ts`: `createPage(input)` — `source` aus `sourceFrame` per `OffscreenCanvas` + `convertToBlob({ type: 'image/jpeg', quality: 0.9 })`; `output = warped` (bis Phase 7); `thumbnailUrl` über Hilfsfunktion `renderThumbnail(blob, rotation): Promise<string>` (exportiert, wird von `PageBuffer.rotate` mitbenutzt).
-- [ ] `ScanSession.startEdit(page)` laut Entscheidungen.
-- [ ] `scan-flow.guards.ts`: `hasPagesGuard` (`pageBuffer.count() > 0`).
-- [ ] `features/crop`: Übernehmen-Ablauf auf den Buffer umstellen; Bearbeiten-Modus (Beschriftung, Ziele, „Auto“ mit Nach-Erkennen).
-- [ ] `features/capture`: linke und rechte Zelle der unteren Leiste nach „Struktur & Maße“.
-- [ ] `ng generate component features/pages` nach „Struktur & Maße“ und Entscheidungen; Ziehen in `features/pages/page-drag.ts` (Klasse mit Zustand `pressTimer`, `dragIndex`, `overIndex`, `pointer`), damit `pages.ts` lesbar bleibt.
-- [ ] `features/export`: Quelle auf `pageBuffer.pages()`, Guard, Zurück-Ziel, „Neues Dokument“.
-- [ ] `app.routes.ts`: Route `pages` mit `hasPagesGuard`; `export` auf `hasPagesGuard` umstellen.
+- [x] `docs/decisions/005-page-buffer-modell.md` nach den Entscheidungen oben (Kontext / Optionen: ImageBitmap halten · JPEG-Blobs · IndexedDB / Entscheidung / Konsequenzen: Neuladen verliert Stapel; Re-Crop braucht Dekodieren).
+- [x] `ng generate service core/page-buffer` laut Kontrakt; `Rotation` von `pdf.ts` hierher verschieben, `pdf.ts` importiert sie.
+- [x] `core/page-factory.ts`: `createPage(input)` — `source` aus `sourceFrame` per `OffscreenCanvas` + `convertToBlob({ type: 'image/jpeg', quality: 0.9 })`; `output = warped` (bis Phase 7); `thumbnailUrl` über Hilfsfunktion `renderThumbnail(blob, rotation): Promise<string>` (exportiert, wird von `PageBuffer.rotate` mitbenutzt).
+- [x] `ScanSession.startEdit(page)` laut Entscheidungen.
+- [x] `scan-flow.guards.ts`: `hasPagesGuard` (`pageBuffer.count() > 0`).
+- [x] `features/crop`: Übernehmen-Ablauf auf den Buffer umstellen; Bearbeiten-Modus (Beschriftung, Ziele, „Auto“ mit Nach-Erkennen).
+- [x] `features/capture`: linke und rechte Zelle der unteren Leiste nach „Struktur & Maße“.
+- [x] `ng generate component features/pages` nach „Struktur & Maße“ und Entscheidungen; Ziehen in `features/pages/page-drag.ts` (Klasse mit Zustand `pressTimer`, `dragIndex`, `overIndex`, `pointer`), damit `pages.ts` lesbar bleibt.
+- [x] `features/export`: Quelle auf `pageBuffer.pages()`, Guard, Zurück-Ziel, „Neues Dokument“.
+- [x] `app.routes.ts`: Route `pages` mit `hasPagesGuard`; `export` auf `hasPagesGuard` umstellen.
 
 ## Doc-Updates
 
-- [ ] `docs/code-map.md`: Feature-Zeile `pages`; Core-Zeilen `page-buffer.ts`, `page-factory.ts`; `capture` um die untere Leiste ergänzen.
-- [ ] `docs/glossary.md`: „Page“ und „Page Buffer“ auf das Modell aus ADR-005 bringen (Felder, nur Arbeitsspeicher, Neuladen verliert den Stapel); „Auswahl-Modus“.
+- [x] `docs/code-map.md`: Feature-Zeile `pages`; Core-Zeilen `page-buffer.ts`, `page-factory.ts`; `capture` um die untere Leiste ergänzen.
+- [x] `docs/glossary.md`: „Page“ und „Page Buffer“ auf das Modell aus ADR-005 bringen (Felder, nur Arbeitsspeicher, Neuladen verliert den Stapel); „Auswahl-Modus“.
 
 ## Report-Back
+
+**Status:** complete — `npm run build`, `npm run lint`, `npm test` (9/9) sauber. Geräteprüfung der Abnahme-Kriterien steht beim User.
+
+Abweichungen und Ergänzungen:
+
+- **Kontrakt erweitert:** `createPage` nimmt optional `source: Blob`. Beim Bearbeiten wird das vorhandene Original-JPEG weitergereicht statt aus dem dekodierten Bitmap neu kodiert — sonst verliert jede Nachbearbeitung Qualität. README nachgezogen.
+- **„Auto“ beim Bearbeiten:** `startEdit` setzt `detectedCorners` nicht (gegen den Phase-3-Finding, gemäß Phase-6-Entscheidung). Stattdessen ist „Auto“ im Bearbeiten-Modus aktiv, solange noch nicht erkannt wurde; der erste Druck erkennt nach und setzt die Ecken. Der Hinweis „Keine Blattkanten erkannt“ erscheint dort erst nach einem erfolglosen Versuch.
+- **Ziehen auf dem Handy:** `touch-action` wirkt nur ab Fingerauflage, ein späteres Umschalten auf `none` stoppt das Scrollen nicht. Die Kachel trägt deshalb `pan-y`, und ein nicht-passiver `touchmove`-Handler auf dem Raster verhindert das Scrollen, sobald das Ziehen läuft. Pointer-Move/-Up hängen am Dokument, weil Angular die Kachel beim Umsortieren im DOM verschiebt. Die Lücke wandert schon während des Ziehens mit (Vorschau der neuen Reihenfolge); die gezogene Kachel schwebt als eigene Kopie (`position: fixed`) über dem Raster. Langes Drücken öffnet kein Kontextmenü (`contextmenu` unterdrückt, `-webkit-touch-callout: none`).
+- **Raster-Innenabstand oben 8 statt 6 px:** das „x“ ragt 7 px über die Kachel und wurde vom Scroll-Rand angeschnitten.
+- **Bild-Schatten als `drop-shadow`:** `box-shadow` läge um die ganze Fläche des per `contain` eingepassten Bildes, nicht um die Seite.
+- **Export-Stapel** zeigt jetzt die Vorschaubilder des Page Buffers (Drehung eingerechnet) statt eigener Object-URLs; Export gibt nichts mehr frei.
+- **Während des Ziehens** sind die „x“-Knöpfe ausgeblendet. Umsortieren per Tastatur gibt es nicht.
