@@ -30,12 +30,14 @@ Ergebnis: Der Export-Bildschirm hat „Teilen“ als Hauptaktion (Mockup-Figur 5
 
 ## Checkliste
 
-- [ ] `ng generate service core/share` laut Kontrakt und Entscheidungen.
-- [ ] `features/export`: Signal `canShare` beim Start; Knöpfe und Rückmeldungen laut Entscheidungen.
+- [x] `ng generate service core/share` laut Kontrakt und Entscheidungen.
+- [x] `features/export`: Signal `canShare` beim Start; Knöpfe und Rückmeldungen laut Entscheidungen.
 
 ## Doc-Updates
 
-- [ ] `docs/code-map.md`: Core-Zeile `share.ts`.
-- [ ] `docs/glossary.md`: „Web Share API“ um die Regel „nur mit fertigem Blob im Klick-Handler“ ergänzen.
+- [x] `docs/code-map.md`: Core-Zeile `share.ts`.
+- [x] `docs/glossary.md`: „Web Share API“ um die Regel „nur mit fertigem Blob im Klick-Handler“ ergänzen.
 
 ## Report-Back
+
+Status: complete. Lint, Build und die 9 bestehenden Tests grün. `Share` ist ein Service mit den Methoden `canShareFiles()`/`sharePdf()` (README-Kontrakt führt sie als freie Funktionen, Services sind im Bestand der Weg). Geräteprüfung (Share-Sheet auf Android) steht beim User aus.

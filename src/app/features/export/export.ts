@@ -5,6 +5,7 @@ import { downloadBlob, sanitizePdfFileName } from '../../core/file-save';
 import { PageBuffer, type ScannedPage } from '../../core/page-buffer';
 import { Pdf, type ExportQuality, type PdfPageInput } from '../../core/pdf';
 import { ScanSession } from '../../core/scan-session';
+import { Share } from '../../core/share';
 import { Toast } from '../../core/toast';
 import { Icon } from '../../shared/icon/icon';
 
@@ -36,6 +37,7 @@ export class Export implements OnDestroy {
   private readonly scanSession = inject(ScanSession);
   private readonly pageBuffer = inject(PageBuffer);
   private readonly pdfBuilder = inject(Pdf);
+  private readonly shareService = inject(Share);
   private readonly toast = inject(Toast);
   private readonly router = inject(Router);
 
@@ -46,6 +48,7 @@ export class Export implements OnDestroy {
   protected readonly building = signal(false);
   protected readonly buildFailed = signal(false);
   protected readonly isQualityInfoOpen = signal(false);
+  protected readonly canShare = signal(this.shareService.canShareFiles());
 
   /** Stand beim Öffnen — die Seiten ändern sich auf diesem Bildschirm nicht. */
   private readonly pages: readonly ScannedPage[] = this.pageBuffer.pages();
@@ -129,6 +132,23 @@ export class Export implements OnDestroy {
 
     downloadBlob(pdf, sanitizePdfFileName(this.fileName(), this.defaultFileName()));
     this.toast.show('PDF gespeichert', { actionLabel: 'Neues Dokument', action: () => this.startNewDocument() });
+  }
+
+  protected async onShareClick(): Promise<void> {
+    const pdf = this.pdf();
+
+    if (pdf === null || !this.canDownload()) {
+      return;
+    }
+
+    // Kein await vor sharePdf — sonst verfällt die Nutzer-Geste.
+    const result = await this.shareService.sharePdf(pdf, sanitizePdfFileName(this.fileName(), this.defaultFileName()));
+
+    if (result === 'shared') {
+      this.toast.show('Geteilt', { actionLabel: 'Neues Dokument', action: () => this.startNewDocument() });
+    } else if (result === 'failed') {
+      this.toast.show('Teilen hat nicht geklappt — bitte Herunterladen nutzen');
+    }
   }
 
   private startNewDocument(): void {

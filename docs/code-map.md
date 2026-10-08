@@ -70,5 +70,6 @@ Komponenten/Pipes).
 | `core/pdf.ts` | Baut aus JPEG-Seiten ein A4-PDF (pdf-lib, lazy geladen), Qualitätsstufen verkleinern per OffscreenCanvas |
 | `core/file-save.ts` | `downloadBlob` (temporärer `<a download>`) und `sanitizePdfFileName` |
 | `core/toast.ts` | Ein Toast zur Zeit mit optionaler Aktion, Signal `current` |
+| `core/share.ts` | `Share` — `canShareFiles()` und `sharePdf()` (Web Share API mit Datei); einzige Stelle, die `navigator.share` anfasst |
 | `core/app-update.ts` | Hört auf den Service Worker und zeigt bei fertig geladener neuer Version den Toast „Neue Version verfügbar · Neu laden“ |
 | `core/camera.ts` | Kapselt `getUserMedia`/Track-Handling, Zustand als Signal |

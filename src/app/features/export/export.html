@@ -58,7 +58,15 @@
   @if (buildFailed()) {
     <p class="export__error">PDF konnte nicht erstellt werden — bitte Qualität nochmal wählen.</p>
   }
-  <button type="button" class="btn btn--primary btn--block" [disabled]="!canDownload()" (click)="onDownloadClick()">Herunterladen</button>
+  @if (canShare()) {
+    <button type="button" class="btn btn--primary btn--block" [disabled]="!canDownload()" (click)="onShareClick()">
+      <cam-icon name="share" [size]="18" />
+      Teilen
+    </button>
+    <button type="button" class="btn btn--block" [disabled]="!canDownload()" (click)="onDownloadClick()">Herunterladen</button>
+  } @else {
+    <button type="button" class="btn btn--primary btn--block" [disabled]="!canDownload()" (click)="onDownloadClick()">Herunterladen</button>
+  }
   <p class="export__privacy">
     <cam-icon name="lock" [size]="13" />
     Bleibt auf deinem Gerät. Kein Upload.

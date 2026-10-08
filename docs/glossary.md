@@ -30,5 +30,5 @@ stillschweigend anders verwenden.
 | **NCHW** | Tensor-Layout (Batch, Channels, Height, Width), das die meisten Bild-ML-Modelle als Input erwarten |
 | **WebGPU** | Browser-API für GPU-beschleunigte Berechnungen — schnellster Ausführungspfad für ONNX Runtime Web, mit WASM als Fallback |
 | **Cross-Origin-Isolation** (COOP/COEP) | Header-Paar, das ein Browser-Feature (hier: WASM-Multithreading) freischaltet — ohne die Header fällt ORT auf Single-Thread zurück |
-| **Web Share API** | Browser-API, die das native Teilen-Menü des Betriebssystems öffnet (z. B. Android Share Sheet) |
+| **Web Share API** | Browser-API, die das native Teilen-Menü des Betriebssystems öffnet (z. B. Android Share Sheet). Teilen klappt nur mit fertigem Blob direkt im Klick-Handler — ein `await` davor lässt die Nutzer-Geste verfallen |
 | **Secure Context** | Bedingung, unter der sicherheitskritische APIs (u. a. `getUserMedia`) überhaupt verfügbar sind: HTTPS oder `localhost` |
