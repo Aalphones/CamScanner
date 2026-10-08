@@ -22,7 +22,8 @@ stillschweigend anders verwenden.
 | **Sauvola / Niblack** | Binarisierungsverfahren (Text vs. Hintergrund), die lokale Statistik nutzen — genauer als Otsu bei ungleicher Ausleuchtung |
 | **Otsu** | Automatische Schwellwert-Berechnung für ein sauberes Schwarz/Weiß-Bild, wenn die Beleuchtung gleichmäßig ist |
 | **Unsharp Mask** | Klassischer Schärfungsfilter (Original minus geglättete Kopie, verstärkt zurückaddiert) |
-| **Background Division** | Schatten-/Beleuchtungskorrektur: Bild durch eine stark geblurrte Kopie seiner selbst teilen, um Helligkeitsgradienten rauszurechnen |
+| **Background Division** | Schatten-/Beleuchtungskorrektur: Bild durch eine Schätzung seiner Beleuchtung teilen, um Helligkeitsgradienten rauszurechnen. Konkret (`core/image-filters.ts`): Graubild auf ein Viertel verkleinern, Schriftstriche per morphologischem Schließen (Ellipse 9 × 9) mit Papierfarbe füllen, Median 21 glätten, zurück auf volle Größe, dann `Bild · 255 / Hintergrund` — Papier wird überall gleich hell |
+| **Filter (Scan-Look)** | Die fünf wählbaren Looks einer Seite: *Original* (unverändert) · *Auto* (Farbe bleibt, nur die Helligkeit wird per Background Division und CLAHE ausgeglichen, leicht nachgeschärft) · *Scan* (Graustufen, Background Division, kräftigeres CLAHE und Nachschärfen) · *S/W* (Background Division, dann reines Schwarz-Weiß per Otsu) · *Grau* (Graustufen mit CLAHE, ohne Schattenkorrektur). Danach wirken Kontrast und Helligkeit, 50 = neutral |
 | **ONNX / ONNX Runtime Web** | Austauschformat für trainierte ML-Modelle bzw. die Laufzeit, die solche Modelle direkt im Browser (WASM/WebGPU) ausführt — kein Server nötig |
 | **DocAligner** | ONNX-Modell zur Eckpunkterkennung eines Dokuments, geplanter Fallback falls die klassische OpenCV-Kontur-Erkennung versagt |
 | **DocShadow** | ONNX-Modell zur Entfernung von Schlagschatten/Beleuchtungsgradienten auf Fotos |

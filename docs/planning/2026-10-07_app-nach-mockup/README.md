@@ -16,7 +16,7 @@ Dieser Plan **ersetzt** die offenen Phasen 4 und 5 des Meilenstein-1-Plans (arch
 | 4 | [Export: PDF & Herunterladen](phase-4-export.md) | M1 | standard | complete |
 | 5 | [Live-Rahmen im Sucher](phase-5-live-erkennung.md) | M1 | heikel | complete |
 | 6 | [Page Buffer & Seitenübersicht](phase-6-seitenuebersicht.md) | M2 | heikel | complete |
-| 7 | [Filter-Rechenwerk](phase-7-filter-rechenwerk.md) | M3 | heikel | pending |
+| 7 | [Filter-Rechenwerk](phase-7-filter-rechenwerk.md) | M3 | heikel | complete |
 | 8 | [Filter-Bildschirm „Scan-Look“](phase-8-filter-bildschirm.md) | M3 | standard | pending |
 | 9 | [PWA-Härtung](phase-9-pwa.md) | M4 | standard | pending |
 | 10 | [Teilen](phase-10-teilen.md) | M5 | standard | pending |
@@ -124,13 +124,14 @@ rotate(ids: readonly string[]): Promise<void>   // +90°, Thumbnail neu
 clear(): void
 
 // core/page-factory.ts  (Phase 6)
-createPage(input: { sourceFrame: ImageBitmap; corners: Quad; warped: Blob; filter: FilterSettings; source?: Blob; id?: string; rotation?: Rotation }): Promise<ScannedPage>
+createPage(input: { sourceFrame: ImageBitmap; corners: Quad; warped: Blob; filter: FilterSettings; output: Blob; source?: Blob; id?: string; rotation?: Rotation }): Promise<ScannedPage>
 // source: beim Bearbeiten das vorhandene JPEG weiterreichen statt neu zu kodieren
+// output: rechnet der Aufrufer per ImageFilters.renderFiltered(warped, filter) — createPage ist eine Funktion ohne Injector (seit Phase 7)
 
 // core/perspective.ts  (Phase 3)
 warp(source: ImageBitmap, corners: Quad): Promise<Blob>   // image/jpeg 0.92
 
-// core/image-filters.ts  (Phase 7)
+// core/image-filters.ts  (Phase 7, Service ImageFilters)
 renderFiltered(warped: Blob, settings: FilterSettings, maxEdge?: number): Promise<Blob>  // image/jpeg 0.92
 
 // core/pdf.ts  (Phase 4)

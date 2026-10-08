@@ -26,6 +26,12 @@ Erledigte Einträge abhaken, nicht löschen — sie erklären am Plan-Ende die A
 - [ ] → Phase 8: Der Übernehmen-Ablauf steht in `features/crop/crop.ts` → `onApplyClick` samt Bearbeiten-Zweig (`id`, `rotation` und das alte `source`-JPEG der Seite an `createPage` weiterreichen, dann `replace` statt `add`). Beim Verlegen an „Fertig“ im Filter diesen Zweig mitnehmen; `/crop` setzt dann nur noch `setWarpedPage` und navigiert nach `/filter`. `createPage` kennt dafür das optionale Feld `source` (README-Kontrakt nachgezogen).
 - [ ] → Phase 8: `/crop` → „Zurück“/„Abbrechen“ setzt im Bearbeiten-Modus den Entwurf zurück und geht nach `/pages`. Der Zurück-Pfeil im Filter führt nach `/crop` — dort muss der Entwurf dann noch stehen (nicht in `/filter` zurücksetzen).
 
+## Aus Phase 7
+
+- [ ] → Phase 8: `createPage` filtert nicht selbst (reine Funktion, kein Injector) — das Feld `output` ist Pflicht und kommt von `ImageFilters.renderFiltered(warped, filter)`. Heute rechnet das `crop.ts` → `onApplyClick` mit `scanSession.filter()`; beim Verlegen an „Fertig“ wandert dieser Aufruf mit. Kein `maxEdge` beim Übernehmen.
+- [ ] → Phase 8: Laufzeit voller Auflösung (Node, 4000 × 3000): Auto ~2,1 s, Scan ~0,8 s, S/W ~0,4 s, Grau ~0,2 s, Original ~0,1 s — auf dem Handy länger. Vorschau mit `maxEdge` rechnen und nach jedem Regler-Schritt nur den letzten Auftrag ausführen (laufende Rechnung nicht stapeln); „Speichert …“ ist bei Auto real spürbar.
+- [ ] → Phase 8: Größter Brocken in „Auto“ ist das Nachschärfen auf drei Farbkanälen (~1,1 s von 2,1 s). Nachschärfen nur auf dem Helligkeitskanal (vor dem Zurückwandeln aus Lab) brauchte ~0,4 s — Option, falls Auto auf dem Handy zu träge ist; ändert eine festgelegte Entscheidung, also nur nach Go.
+
 ## Aus Phase 5
 
 - [ ] → Phase 9: Seit Phase 5 lädt schon der Sucher den OpenCV-Chunk (Live-Rahmen), nicht erst das Zuschneiden. „Lazy beim ersten Zuschneiden“ ist damit keine Option mehr — der Chunk wird beim ersten App-Start gebraucht und gehört in den Install-Cache.

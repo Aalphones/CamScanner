@@ -38,14 +38,23 @@ Ergebnis: `core/image-filters.ts` rechnet die fünf Scan-Looks aus Mockup-Figur 
 
 ## Checkliste
 
-- [ ] Laufzeitprüfung `cv.CLAHE` (siehe Entscheidungen).
-- [ ] `docs/decisions/006-filter-pipeline.md` (Kontext / Optionen: Canvas-`filter`-CSS · OpenCV Haupt-Thread · OpenCV im Worker / Entscheidung / Konsequenzen: UI blockiert während des Voll-Renderns kurz, deshalb Zustand „Speichert …“ in Phase 8).
-- [ ] `ng generate service core/image-filters` → `renderFiltered` mit Bausteinen und Filtern laut Entscheidungen; Konstanten mit Kommentar je Zweck (Stil wie `document-detection.ts`).
-- [ ] `core/page-factory.ts`: Zwischenschritt laut Entscheidungen.
+- [x] Laufzeitprüfung `cv.CLAHE` (siehe Entscheidungen).
+- [x] `docs/decisions/006-filter-pipeline.md` (Kontext / Optionen: Canvas-`filter`-CSS · OpenCV Haupt-Thread · OpenCV im Worker / Entscheidung / Konsequenzen: UI blockiert während des Voll-Renderns kurz, deshalb Zustand „Speichert …“ in Phase 8).
+- [x] `ng generate service core/image-filters` → `renderFiltered` mit Bausteinen und Filtern laut Entscheidungen; Konstanten mit Kommentar je Zweck (Stil wie `document-detection.ts`).
+- [x] `core/page-factory.ts`: Zwischenschritt laut Entscheidungen (Abweichung siehe Report-Back).
 
 ## Doc-Updates
 
-- [ ] `docs/code-map.md`: Core-Zeile `image-filters.ts`.
-- [ ] `docs/glossary.md`: „Filter (Scan-Look)“ mit den fünf Namen und je einem Satz, was sie tun; „Background Division“ um die konkreten Schritte ergänzen.
+- [x] `docs/code-map.md`: Core-Zeile `image-filters.ts`.
+- [x] `docs/glossary.md`: „Filter (Scan-Look)“ mit den fünf Namen und je einem Satz, was sie tun; „Background Division“ um die konkreten Schritte ergänzen.
 
 ## Report-Back
+
+**Status:** complete (2026-10-08). `npm run lint`, `npm run build`, `npm test` (9/9) sauber.
+
+- **`cv.CLAHE`** ist zur Laufzeit eine Funktion (in Node gegen dieselbe `opencv.js` geprüft, `apply` läuft) — kein Ersatz nötig.
+- **Abweichung Zwischenschritt:** `createPage` ist eine Funktion ohne Injector und kann den Service `ImageFilters` nicht selbst holen. Deshalb rechnet `crop.ts` → `onApplyClick` `output = renderFiltered(warped, filter)` und reicht es als neues Pflichtfeld `output` an `createPage` (README-Kontrakt nachgezogen). Als `filter` geht `scanSession.filter()` durch statt fest `DEFAULT_FILTER_SETTINGS` — für neue Seiten identisch (`auto`), beim Bearbeiten bleibt der Filter der Seite erhalten.
+- **Laufzeit, 4000 × 3000 px** (Node 26, dieselbe WebAssembly-Datei, Entwicklungsrechner, ohne JPEG-Kodierung): Original ~0,1 s · Grau ~0,2 s · S/W ~0,4 s · Scan ~0,8 s · **Auto ~2,1 s** (20 Läufe: 1,7–2,3 s). Unter 3 s am Rechner; auf dem Handy nicht gemessen. Größter Posten in Auto: Nachschärfen auf drei Farbkanälen (~1,1 s) — Option in `FINDINGS.md`.
+- **Speicher:** 20 Auto-Läufe hintereinander, Prozess-Speicher 477 → 505 MB (JavaScript-Bildkopien, die der Garbage Collector später einsammelt) — ein Leck je Lauf wären ≥ 36 MB pro Durchgang. Im Browser-Task-Manager nicht geprüft.
+- **Plausibilität (synthetisches Bild mit Lichtverlauf 140 → 240):** Auto, Scan und S/W heben das Papier links wie rechts auf 255 (Verlauf weg); S/W enthält genau zwei Werte; Grau und Original behalten den Verlauf. Echte Fotos prüft der Smoke-Test (Punkt 4).
+- **Offen beim User (Gerät):** AK 1–2 per Sichtprüfung (für AK 2 `DEFAULT_FILTER_SETTINGS.filter` in `core/filter-settings.ts` kurz umstellen, nicht committen).

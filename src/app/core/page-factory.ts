@@ -7,6 +7,8 @@ export interface CreatePageInput {
   readonly corners: Quad;
   readonly warped: Blob;
   readonly filter: FilterSettings;
+  /** Das gefilterte Ergebnis in voller Auflösung — rechnet der Aufrufer per `ImageFilters.renderFiltered`. */
+  readonly output: Blob;
   /** Beim Bearbeiten das vorhandene JPEG weiterreichen — jedes Neu-Kodieren kostet Bildqualität. */
   readonly source?: Blob;
   readonly id?: string;
@@ -24,11 +26,9 @@ const THUMBNAIL_EDGE = 320;
  */
 export async function createPage(input: CreatePageInput): Promise<ScannedPage> {
   const rotation = input.rotation ?? 0;
-  // Bis die Filter kommen, ist das begradigte Bild zugleich das Ergebnis.
-  const output = input.warped;
   const [source, thumbnailUrl] = await Promise.all([
     input.source ?? encodeSource(input.sourceFrame),
-    renderThumbnail(output, rotation),
+    renderThumbnail(input.output, rotation),
   ]);
 
   return {
@@ -37,7 +37,7 @@ export async function createPage(input: CreatePageInput): Promise<ScannedPage> {
     corners: input.corners,
     warped: input.warped,
     filter: input.filter,
-    output,
+    output: input.output,
     rotation,
     thumbnailUrl,
   };

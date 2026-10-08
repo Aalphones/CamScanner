@@ -15,6 +15,7 @@ import { Router } from '@angular/router';
 
 import { DocumentDetection } from '../../core/document-detection';
 import { clampPoint, edgeMidpoints, fitContain, insetQuad, isConvexQuad, type Point, type Quad, type Size } from '../../core/geometry';
+import { ImageFilters } from '../../core/image-filters';
 import { PageBuffer, type ScannedPage } from '../../core/page-buffer';
 import { createPage } from '../../core/page-factory';
 import { Perspective } from '../../core/perspective';
@@ -60,6 +61,7 @@ export class Crop implements OnInit {
   private readonly scanSession = inject(ScanSession);
   private readonly documentDetection = inject(DocumentDetection);
   private readonly perspective = inject(Perspective);
+  private readonly imageFilters = inject(ImageFilters);
   private readonly pageBuffer = inject(PageBuffer);
   private readonly router = inject(Router);
 
@@ -265,11 +267,14 @@ export class Crop implements OnInit {
     try {
       const editedPage = this.findEditedPage();
       const warped = await this.perspective.warp(frame, corners);
+      const filter = this.scanSession.filter();
+      const output = await this.imageFilters.renderFiltered(warped, filter);
       const page = await createPage({
         sourceFrame: frame,
         corners,
         warped,
-        filter: this.scanSession.filter(),
+        filter,
+        output,
         ...(editedPage === undefined ? {} : { id: editedPage.id, rotation: editedPage.rotation, source: editedPage.source }),
       });
 

@@ -35,7 +35,7 @@ Komponenten/Pipes).
 |---|---|---|
 | `capture` | Sucher mit Live-Kamerabild, Taschenlampe, Raster, Auslöser nimmt Standbild auf; Live-Rahmen über dem erkannten Dokument (`live-detection.ts`: Erkennungs-Schleife und Stabilitäts-Zähler); untere Leiste mit Vorschaubild + Seitenzähler und „Fertig“ zur Seitenübersicht | `features/capture/` |
 | `capture` → `camera-blocked` | Fehlerbildschirm „Kamera ist gesperrt“ in drei Varianten (gesperrt, unsichere Verbindung, keine Kamera) | `features/capture/camera-blocked/` |
-| `crop` | Zuschneiden: Standbild mit erkanntem Rahmen, Eck- und Mittelgriffe zum Nachziehen, Lupe, „Auto“, Begradigen per „Übernehmen“ und Seite in den Page Buffer schreiben; Bearbeiten-Modus für eine vorhandene Seite | `features/crop/` |
+| `crop` | Zuschneiden: Standbild mit erkanntem Rahmen, Eck- und Mittelgriffe zum Nachziehen, Lupe, „Auto“, Begradigen und Filtern per „Übernehmen“ und Seite in den Page Buffer schreiben; Bearbeiten-Modus für eine vorhandene Seite | `features/crop/` |
 | `pages` | Seitenübersicht: Raster aller Seiten, Umsortieren per Halten und Ziehen (`page-drag.ts`), Löschen mit Rückgängig, Auswahl-Modus, Drehen, Kachel antippen = Bearbeiten | `features/pages/` |
 | `export` | Exportieren: Seitenstapel-Vorschau, Dateiname, Qualitätsstufe, PDF vorab gebaut, Herunterladen | `features/export/` |
 
@@ -57,12 +57,13 @@ Komponenten/Pipes).
 | `core/scan-session.ts` | Entwurf der Seite in Arbeit: Standbild, erkannte und gesetzte Ecken, begradigte Seite, Filter-Einstellung; `startEdit` lädt eine Seite aus dem Page Buffer zum Nachbearbeiten |
 | `core/scan-flow.guards.ts` | Route-Guards des Scan-Flusses — ohne Entwurf bzw. ohne Seiten zurück in den Sucher |
 | `core/page-buffer.ts` | Page Buffer: alle Seiten des Dokuments im Arbeitsspeicher, Typen `ScannedPage`/`Rotation`, Hinzufügen, Ersetzen, Löschen/Wiederherstellen, Verschieben, Drehen; Eigentümer der Vorschau-URLs (ADR-005) |
-| `core/page-factory.ts` | `createPage` baut eine Seite aus Entwurf und begradigtem Bild; `renderThumbnail` zeichnet die gedrehte Vorschau |
+| `core/page-factory.ts` | `createPage` baut eine Seite aus Entwurf, begradigtem und gefiltertem Bild; `renderThumbnail` zeichnet die gedrehte Vorschau |
 | `core/geometry.ts` | `Point`/`Quad`-Typen plus reine Rechen-Funktionen: Ecken sortieren, skalieren, Zielgröße, Fläche, Konvexitätsprüfung, Startviereck, Einpassen (contain/cover), Quad auf den Bildschirm umrechnen, Ruhe-Vergleich zweier Quads, Punkt begrenzen, Kantenmitten |
 | `core/mat-scope.ts` | Sammelt OpenCV-Objekte ein und gibt sie in einem `finally` frei |
 | `core/document-detection.ts` | Findet die Blattkanten im Standbild (OpenCV: Graustufen → Canny → Konturen) und liefert vier Ecken oder `null` |
 | `core/perspective.ts` | Begradigt das Viereck aus dem Original zum Rechteck (OpenCV-Perspektivtransformation), liefert JPEG |
 | `core/filter-settings.ts` | Typen und Standardwert der Filter-Einstellung einer Seite |
+| `core/image-filters.ts` | `renderFiltered` rechnet die fünf Scan-Looks plus Kontrast/Helligkeit auf das begradigte Bild (OpenCV: Background Division, CLAHE, Otsu, Unsharp Mask), optional verkleinert für Vorschauen, liefert JPEG (ADR-006) |
 | `core/pdf.ts` | Baut aus JPEG-Seiten ein A4-PDF (pdf-lib, lazy geladen), Qualitätsstufen verkleinern per OffscreenCanvas |
 | `core/file-save.ts` | `downloadBlob` (temporärer `<a download>`) und `sanitizePdfFileName` |
 | `core/toast.ts` | Ein Toast zur Zeit mit optionaler Aktion, Signal `current` |
