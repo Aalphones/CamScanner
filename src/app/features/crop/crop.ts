@@ -15,9 +15,6 @@ import { Router } from '@angular/router';
 
 import { DocumentDetection } from '../../core/document-detection';
 import { clampPoint, edgeMidpoints, fitContain, insetQuad, isConvexQuad, type Point, type Quad, type Size } from '../../core/geometry';
-import { ImageFilters } from '../../core/image-filters';
-import { PageBuffer, type ScannedPage } from '../../core/page-buffer';
-import { createPage } from '../../core/page-factory';
 import { Perspective } from '../../core/perspective';
 import { ScanSession } from '../../core/scan-session';
 import { Icon } from '../../shared/icon/icon';
@@ -61,8 +58,6 @@ export class Crop implements OnInit {
   private readonly scanSession = inject(ScanSession);
   private readonly documentDetection = inject(DocumentDetection);
   private readonly perspective = inject(Perspective);
-  private readonly imageFilters = inject(ImageFilters);
-  private readonly pageBuffer = inject(PageBuffer);
   private readonly router = inject(Router);
 
   private readonly stageRef = viewChild.required<ElementRef<HTMLDivElement>>('stage');
@@ -265,27 +260,10 @@ export class Crop implements OnInit {
     this.warpFailed.set(false);
 
     try {
-      const editedPage = this.findEditedPage();
       const warped = await this.perspective.warp(frame, corners);
-      const filter = this.scanSession.filter();
-      const output = await this.imageFilters.renderFiltered(warped, filter);
-      const page = await createPage({
-        sourceFrame: frame,
-        corners,
-        warped,
-        filter,
-        output,
-        ...(editedPage === undefined ? {} : { id: editedPage.id, rotation: editedPage.rotation, source: editedPage.source }),
-      });
 
-      if (editedPage === undefined) {
-        this.pageBuffer.add(page);
-      } else {
-        this.pageBuffer.replace(editedPage.id, page);
-      }
-
-      this.scanSession.reset();
-      await this.router.navigate([editedPage === undefined ? '/capture' : '/pages']);
+      this.scanSession.setWarpedPage(warped);
+      await this.router.navigate(['/filter']);
     } catch (error: unknown) {
       console.error('Begradigen fehlgeschlagen', error);
       this.warpFailed.set(true);
@@ -376,16 +354,6 @@ export class Crop implements OnInit {
 
     this.scanSession.setDetectedCorners(detected);
     return detected;
-  }
-
-  private findEditedPage(): ScannedPage | undefined {
-    const id = this.scanSession.editingPageId();
-
-    if (id === null) {
-      return undefined;
-    }
-
-    return this.pageBuffer.pages().find((page: ScannedPage) => page.id === id);
   }
 
   private toDisplay(point: Point): Point {

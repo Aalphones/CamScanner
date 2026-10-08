@@ -1,0 +1,69 @@
+<header class="topbar">
+  <button type="button" class="icon-btn" aria-label="Zurück" [disabled]="isSaving()" (click)="onBackClick()">
+    <cam-icon name="back" />
+  </button>
+  <h2 class="topbar__title">Scan-Look</h2>
+  <button type="button" class="btn btn--small btn--primary" [disabled]="isSaving()" (click)="onDoneClick()">
+    @if (isSaving()) {
+      Speichert …
+    } @else {
+      Fertig
+    }
+  </button>
+</header>
+
+<div class="filter__preview">
+  @let url = previewUrl();
+  @if (url !== null) {
+    <img class="filter__image" [src]="url" alt="Vorschau der Seite mit dem gewählten Filter" />
+  }
+</div>
+
+<section class="filter__panel">
+  @if (hasFailed()) {
+    <p class="filter__hint filter__hint--danger" aria-live="polite">Das hat nicht geklappt — bitte nochmal versuchen</p>
+  }
+
+  <div class="filter__chips">
+    @for (chip of chips; track chip.id) {
+      <button
+        type="button"
+        class="filter__chip"
+        [class.filter__chip--on]="settings().filter === chip.id"
+        [attr.aria-pressed]="settings().filter === chip.id"
+        [disabled]="isSaving()"
+        (click)="onFilterSelect(chip.id)"
+      >
+        <span class="filter__thumb">
+          @let chipUrl = chipUrls()[chip.id];
+          @if (chipUrl !== undefined) {
+            <img class="filter__thumb-image" [src]="chipUrl" alt="" />
+          }
+        </span>
+        {{ chip.name }}
+      </button>
+    }
+  </div>
+
+  <p class="filter__description">{{ description() }}</p>
+
+  @for (slider of sliders; track slider.key) {
+    <div class="filter__row">
+      <label class="filter__label" [for]="'filter-' + slider.key" title="Doppeltippen setzt zurück" (dblclick)="onSliderReset(slider.key)">
+        {{ slider.label }}
+      </label>
+      <input
+        class="filter__slider"
+        type="range"
+        min="0"
+        max="100"
+        step="1"
+        [id]="'filter-' + slider.key"
+        [value]="settings()[slider.key]"
+        [style.--fill]="settings()[slider.key] + '%'"
+        [disabled]="isSaving()"
+        (input)="onSliderInput(slider.key, $event)"
+      />
+    </div>
+  }
+</section>

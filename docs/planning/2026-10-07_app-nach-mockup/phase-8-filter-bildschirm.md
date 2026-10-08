@@ -39,14 +39,21 @@ Ergebnis: Zwischen Zuschneiden und Page Buffer liegt `/filter` nach Mockup-Figur
 
 ## Checkliste
 
-- [ ] `ng generate component features/filter` nach „Struktur & Maße“ und Entscheidungen; Texte als `const FILTER_LABELS: Record<FilterId, { name: string; description: string }>` (Reihenfolge der Chips: Original, Auto, Scan, S/W, Grau).
-- [ ] `features/crop`: „Übernehmen“ auf `/filter` umstellen; Übernahme-in-den-Buffer-Code von dort entfernen.
-- [ ] `core/page-factory.ts`: `createPage` erhält `output` als Parameter; der Phase-7-Zwischenschritt entfällt.
-- [ ] `app.routes.ts`: Route `filter` mit `draftWarpedGuard`.
+- [x] `ng generate component features/filter` nach „Struktur & Maße“ und Entscheidungen; Texte als `const FILTER_LABELS: Record<FilterId, { name: string; description: string }>` (Reihenfolge der Chips: Original, Auto, Scan, S/W, Grau).
+- [x] `features/crop`: „Übernehmen“ auf `/filter` umstellen; Übernahme-in-den-Buffer-Code von dort entfernen.
+- [x] `core/page-factory.ts`: `createPage` erhält `output` als Parameter; der Phase-7-Zwischenschritt entfällt.
+- [x] `app.routes.ts`: Route `filter` mit `draftWarpedGuard`.
 
 ## Doc-Updates
 
-- [ ] `docs/code-map.md`: Feature-Zeile `filter`; `crop` und `page-factory.ts` an den neuen Ablauf anpassen.
-- [ ] `docs/glossary.md`: „Scan-Look“ um die Bildschirm-Bezeichnung und die Regler ergänzen.
+- [x] `docs/code-map.md`: Feature-Zeile `filter`; `crop` und `page-factory.ts` an den neuen Ablauf anpassen.
+- [x] `docs/glossary.md`: „Scan-Look“ um die Bildschirm-Bezeichnung und die Regler ergänzen.
 
 ## Report-Back
+
+Umgesetzt wie festgelegt. Abweichungen und Hinweise:
+
+- `createPage` nahm `output` schon seit Phase 7 als Parameter — der Checklisten-Punkt war erledigt, es blieb nichts zu ändern.
+- Rechen-Aufträge der Vorschau stapeln sich nicht: läuft eine Rechnung, wird nach ihr nur der letzte Stand noch einmal gerechnet, das veraltete Ergebnis wird verworfen (statt Token-Zähler).
+- Fehlerzeile im Panel („Das hat nicht geklappt — bitte nochmal versuchen“) bei fehlgeschlagener Vorschau oder fehlgeschlagenem Speichern — im Mockup nicht vorgesehen.
+- Nicht auf dem Gerät geprüft: Reglergefühl, Laufzeit von „Fertig“ bei Auto, Chip-Bilder. Build, Lint und Tests sind grün.

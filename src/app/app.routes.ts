@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-import { draftSourceGuard, hasPagesGuard } from './core/scan-flow.guards';
+import { draftSourceGuard, draftWarpedGuard, hasPagesGuard } from './core/scan-flow.guards';
 
 // Bildschirm-Fluss und Guards: docs/planning/2026-10-07_app-nach-mockup/README.md → „Bildschirm-Fluss“.
 export const routes: Routes = [
@@ -13,6 +13,11 @@ export const routes: Routes = [
     path: 'crop',
     canActivate: [draftSourceGuard],
     loadComponent: () => import('./features/crop/crop').then((module) => module.Crop),
+  },
+  {
+    path: 'filter',
+    canActivate: [draftWarpedGuard],
+    loadComponent: () => import('./features/filter/filter').then((module) => module.Filter),
   },
   {
     path: 'pages',

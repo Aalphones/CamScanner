@@ -1,0 +1,164 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background: var(--cam-bg);
+}
+
+$thumb-width: 56px;
+$thumb-height: 72px;
+$knob-size: 18px;
+
+@mixin slider-knob {
+  width: $knob-size;
+  height: $knob-size;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px #0008;
+}
+
+.filter {
+  &__preview {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    place-items: center;
+    padding: 16px;
+    overflow: hidden;
+    background: #0f1215;
+  }
+
+  &__image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    box-shadow: 0 8px 24px #0009;
+  }
+
+  &__panel {
+    flex: none;
+    display: grid;
+    gap: 14px;
+    padding: 14px 14px max(18px, env(safe-area-inset-bottom));
+    border-radius: 22px 22px 0 0;
+    background: var(--cam-surface);
+  }
+
+  &__hint {
+    margin: 0;
+    font-size: 0.75rem;
+    text-align: center;
+
+    &--danger {
+      color: var(--cam-danger);
+    }
+  }
+
+  &__chips {
+    display: flex;
+    gap: 8px;
+    margin: 0 -14px;
+    padding: 0 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &__chip {
+    flex: none;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--cam-muted);
+    font: inherit;
+    font-size: 0.72rem;
+    text-align: center;
+    cursor: pointer;
+
+    &--on {
+      color: var(--cam-text);
+    }
+  }
+
+  &__thumb {
+    display: block;
+    width: $thumb-width;
+    height: $thumb-height;
+    margin-bottom: 4px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    background: var(--cam-surface-2);
+
+    .filter__chip--on & {
+      border-color: var(--cam-accent);
+    }
+  }
+
+  &__thumb-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__description {
+    margin: 0;
+    color: var(--cam-muted);
+    font-size: 0.72rem;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.8rem;
+  }
+
+  &__label {
+    flex: none;
+    width: 68px;
+    color: var(--cam-muted);
+    user-select: none;
+  }
+
+  &__slider {
+    --fill: 50%;
+
+    flex: 1;
+    min-width: 0;
+    height: $knob-size;
+    margin: 0;
+    background: transparent;
+    appearance: none;
+    cursor: pointer;
+
+    &::-webkit-slider-runnable-track {
+      height: 4px;
+      border-radius: 4px;
+      background: linear-gradient(to right, var(--cam-accent) var(--fill), var(--cam-line) var(--fill));
+    }
+
+    &::-moz-range-track {
+      height: 4px;
+      border-radius: 4px;
+      background: linear-gradient(to right, var(--cam-accent) var(--fill), var(--cam-line) var(--fill));
+    }
+
+    &::-webkit-slider-thumb {
+      @include slider-knob;
+
+      margin-top: -7px;
+      appearance: none;
+    }
+
+    &::-moz-range-thumb {
+      @include slider-knob;
+    }
+  }
+}
