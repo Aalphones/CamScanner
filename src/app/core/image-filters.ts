@@ -4,6 +4,7 @@ import type { Mat } from '@techstark/opencv-js';
 
 import type { FilterId, FilterSettings } from './filter-settings';
 import { MatScope } from './mat-scope';
+import { DocShadow, type GainMap } from './ml/doc-shadow';
 import { OpencvLoader, type OpenCv } from './opencv-loader';
 
 const FILTERED_IMAGE_TYPE = 'image/jpeg';
@@ -46,9 +47,16 @@ const SLIDER_NEUTRAL = 50;
 const CONTRAST_ALPHA_MIN = 0.5;
 const BRIGHTNESS_BETA_STEP = 1.2;
 
+/** Glättung der Verstärkungskarte auf 256 × 256, bevor sie hochskaliert wird (ADR-007). */
+const GAIN_BLUR_SIGMA = 2;
+
+/** Festkomma für die Verstärkung: 16 Bit statt Float halbiert den Speicher bei voller Auflösung, 1/4096 ist feiner als jede sichtbare Stufe. */
+const GAIN_FIXED_POINT = 4096;
+
 @Service()
 export class ImageFilters {
   private readonly opencvLoader = inject(OpencvLoader);
+  private readonly docShadow = inject(DocShadow);
 
   /**
    * Rechnet einen Scan-Look auf das begradigte Bild. Mit `maxEdge` verkleinert
@@ -56,12 +64,18 @@ export class ImageFilters {
    */
   async renderFiltered(warped: Blob, settings: FilterSettings, maxEdge?: number): Promise<Blob> {
     const cv = await this.opencvLoader.load();
+    // Vor dem Lesen der Pixel: das Modell läuft auf dem begradigten Original, unabhängig von `maxEdge`.
+    const gainMap = settings.removeShadow ? await this.docShadow.gainMap(warped) : null;
     const input = await this.readPixels(warped, maxEdge);
     const scope = new MatScope();
     let filteredImage: ImageData;
 
     try {
       const image = scope.track(cv.matFromImageData(input));
+
+      if (gainMap !== null) {
+        this.applyGainMap(cv, image, gainMap, scope);
+      }
 
       // Ab hier ist `image` RGB oder einkanalig grau — nie RGBA, damit Kontrast und Helligkeit den Alphakanal nicht mitverschieben.
       this.applyFilter(cv, image, settings.filter, scope);
@@ -75,6 +89,28 @@ export class ImageFilters {
     }
 
     return this.encode(filteredImage);
+  }
+
+  /**
+   * Schattenausgleich mit der Verstärkungskarte (ADR-007): Die Karte trägt nur
+   * die niederfrequente Beleuchtung, die Schrift kommt unverändert aus dem
+   * Original — deshalb wird sie nicht weicher. Das RGBA-Bild bleibt RGBA.
+   */
+  private applyGainMap(cv: OpenCv, image: Mat, gainMap: GainMap, scope: MatScope): void {
+    const gain = scope.track(cv.matFromArray(gainMap.size, gainMap.size, cv.CV_32FC3, gainMap.rgb));
+    const fullGain = scope.track(new cv.Mat());
+    const rgb = scope.track(new cv.Mat());
+
+    cv.GaussianBlur(gain, gain, new cv.Size(0, 0), GAIN_BLUR_SIGMA);
+    gain.convertTo(gain, cv.CV_16UC3, GAIN_FIXED_POINT);
+    cv.resize(gain, fullGain, new cv.Size(image.cols, image.rows), 0, 0, cv.INTER_CUBIC);
+
+    cv.cvtColor(image, rgb, cv.COLOR_RGBA2RGB);
+    rgb.convertTo(rgb, cv.CV_16UC3);
+    cv.multiply(rgb, fullGain, rgb, 1 / GAIN_FIXED_POINT);
+    // Zurück auf 8 Bit begrenzt von selbst auf 0..255.
+    rgb.convertTo(rgb, cv.CV_8UC3);
+    cv.cvtColor(rgb, image, cv.COLOR_RGB2RGBA);
   }
 
   /** Wandelt das RGBA-Bild an Ort und Stelle in den gewählten Look um. */

@@ -49,20 +49,27 @@ Ergebnisse in `FINDINGS.md` und ADR-007 festhalten.
 
 ## Checkliste
 
-- [ ] Schritt 0 (siehe oben), Ergebnisse festhalten.
-- [ ] `docs/decisions/007-ki-schattenentfernung.md` (Kontext / Optionen: Ausgang hochskalieren · Kacheln · Verstärkungskarte / Entscheidung / Konsequenzen: Modell nicht im Git, Header-Ergebnis).
-- [ ] `npm install onnxruntime-web` (nach `mode-dependencies`).
-- [ ] `scripts/fetch-models.mjs`, `package.json`-Skript `fetch-models`, `.gitignore` `public/models/`, Prüfung in `deploy.cmd`.
-- [ ] `angular.json` Asset-Eintrag für ORT; `ngsw-config.json` Gruppe `ml`; `public/.htaccess` laut Schritt 0.
-- [ ] `core/ml/doc-shadow.ts` (`ng generate service core/ml/doc-shadow`): Laden, Sitzung, `removeShadow` mit Verstärkungskarte; OpenCV-Teile mit `MatScope`.
-- [ ] `core/image-filters.ts`: `removeShadow` vor dem Filter, Zwischenspeicher pro `warped`-Blob.
-- [ ] `features/filter`: Schalter nach „Struktur & Maße“ und Entscheidungen.
+- [x] Schritt 0 (siehe oben), Ergebnisse festhalten. *Punkt 1 erledigt; Punkte 2 und 3 (Header, Dateigröße auf Strato) brauchen den Deploy durch den User — offen in FINDINGS.*
+- [x] `docs/decisions/007-ki-schattenentfernung.md` (Kontext / Optionen: Ausgang hochskalieren · Kacheln · Verstärkungskarte / Entscheidung / Konsequenzen: Modell nicht im Git, Header-Ergebnis).
+- [x] `npm install onnxruntime-web` (nach `mode-dependencies`).
+- [x] `scripts/fetch-models.mjs`, `package.json`-Skript `fetch-models`, `.gitignore` `public/models/`, Prüfung in `deploy.cmd`.
+- [x] `angular.json` Asset-Eintrag für ORT; `ngsw-config.json` Gruppe `ml`; `public/.htaccess` laut Schritt 0.
+- [x] `core/ml/doc-shadow.ts` (`ng generate service core/ml/doc-shadow`): Laden, Sitzung, `removeShadow` mit Verstärkungskarte; OpenCV-Teile mit `MatScope`.
+- [x] `core/image-filters.ts`: `removeShadow` vor dem Filter, Zwischenspeicher pro `warped`-Blob.
+- [x] `features/filter`: Schalter nach „Struktur & Maße“ und Entscheidungen.
 
 ## Doc-Updates
 
-- [ ] `docs/PROJECT.md`: offene Frage „Cross-Origin-Isolation-Header auf Strato“ mit dem Ergebnis aus Schritt 0 schließen.
-- [ ] `docs/code-map.md`: `core/ml/doc-shadow.ts`, `public/models/` (nicht im Git, `npm run fetch-models`), `scripts/fetch-models.mjs`.
-- [ ] `AGENTS.md` Quickstart: `npm run fetch-models   # KI-Modell holen (vor dem ersten Deploy)`.
-- [ ] `docs/glossary.md`: „Verstärkungskarte (Gain Map)“.
+- [x] `docs/PROJECT.md`: offene Frage „Cross-Origin-Isolation-Header auf Strato“ mit dem Ergebnis aus Schritt 0 schließen.
+- [x] `docs/code-map.md`: `core/ml/doc-shadow.ts`, `public/models/` (nicht im Git, `npm run fetch-models`), `scripts/fetch-models.mjs`.
+- [x] `AGENTS.md` Quickstart: `npm run fetch-models   # KI-Modell holen (vor dem ersten Deploy)`.
+- [x] `docs/glossary.md`: „Verstärkungskarte (Gain Map)“.
 
 ## Report-Back
+
+- **Abweichung (User-Entscheidung):** Modell auf fp16 umgewandelt, 62 MB statt 120 MB; `fetch-models` wandelt per `uv` um und prüft beide Prüfsummen. Schalter-Text nennt „ca. 70 MB“ (Modell plus komprimierte Laufzeit).
+- **Abweichung (Kontrakt):** `DocShadow` liefert `gainMap(warped)` statt `removeShadow(Blob)`; die Karte wird in `image-filters.ts` angewendet — kein JPEG-Umweg, ein Modelllauf je Seite für Vorschau, Chips und Vollbild. README nachgezogen.
+- Multiplikation bei voller Auflösung in 16-Bit-Festkomma statt Float (Speicher).
+- `namedChunks` in der Produktion an, damit der ORT-Chunk aus dem Prefetch ausgenommen werden kann.
+- Header COOP/COEP stehen in `.htaccess`; Wirkung auf Strato ungeprüft.
+- Nicht geprüft: Lauf im echten Browser (WebGPU-Pfad, Laden über den Service Worker) — nur WASM in Node gemessen.

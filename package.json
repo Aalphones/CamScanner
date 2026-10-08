@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "fetch-models": "node scripts/fetch-models.mjs"
   },
   "private": true,
   "packageManager": "npm@11.17.0",
@@ -20,6 +21,7 @@
     "@angular/router": "^22.1.0",
     "@angular/service-worker": "^22.1.0",
     "@techstark/opencv-js": "^5.0.0-release.1",
+    "onnxruntime-web": "1.30.0",
     "pdf-lib": "^1.17.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

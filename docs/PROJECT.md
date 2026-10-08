@@ -87,5 +87,4 @@ Reihenfolge ist grobe Orientierung, kein Fixplan — Detailphasen entstehen beim
 - Welche konkreten ML-Modelle (Kapitel 12 im Konzept) tatsächlich Mehrwert
   bringen, klärt sich erst nach Meilenstein 3 in der Praxis — bewusst nicht
   vorab entschieden.
-- Cross-Origin-Isolation-Header (Meilenstein 6) per `.htaccess` auf Strato
-  testen, sonst Single-Thread — offen bis die Phase ansteht.
+- Cross-Origin-Isolation-Header: stehen seit Phase 11 in `public/.htaccess` (ADR-007). Ob Strato sie durchreicht, zeigt nach dem Deploy die Konsole (`crossOriginIsolated`); ohne sie läuft die KI einfädig.

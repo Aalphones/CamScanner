@@ -3,9 +3,11 @@ import { Router } from '@angular/router';
 
 import { DEFAULT_FILTER_SETTINGS, type FilterId, type FilterSettings } from '../../core/filter-settings';
 import { ImageFilters } from '../../core/image-filters';
+import { DocShadow } from '../../core/ml/doc-shadow';
 import { PageBuffer, type ScannedPage } from '../../core/page-buffer';
 import { createPage } from '../../core/page-factory';
 import { ScanSession } from '../../core/scan-session';
+import { Toast } from '../../core/toast';
 import { Icon } from '../../shared/icon/icon';
 
 interface FilterLabel {
@@ -51,6 +53,10 @@ const CHIP_EDGE = 160;
 const SLIDER_DEBOUNCE_MS = 150;
 const SLIDER_NEUTRAL = DEFAULT_FILTER_SETTINGS.contrast;
 
+/** Modell (62 MB) plus komprimierte ORT-Laufzeit (7 MB), gerundet. */
+const SHADOW_DOWNLOAD_MB = 70;
+const SHADOW_LOAD_FAILED_MESSAGE = 'KI-Modell konnte nicht geladen werden — Internet nötig beim ersten Mal';
+
 @Component({
   selector: 'cam-filter',
   imports: [Icon],
@@ -63,6 +69,8 @@ export class Filter implements OnInit, OnDestroy {
   private readonly imageFilters = inject(ImageFilters);
   private readonly pageBuffer = inject(PageBuffer);
   private readonly router = inject(Router);
+  private readonly docShadow = inject(DocShadow);
+  private readonly toast = inject(Toast);
 
   protected readonly chips = CHIPS;
   protected readonly sliders = SLIDERS;
@@ -73,6 +81,17 @@ export class Filter implements OnInit, OnDestroy {
   protected readonly hasFailed = signal(false);
 
   protected readonly description = computed((): string => FILTER_LABELS[this.settings().filter].description);
+
+  protected readonly shadowHint = computed((): string => {
+    switch (this.docShadow.loadState()) {
+      case 'idle':
+        return `Lädt KI-Modell · einmalig ca. ${SHADOW_DOWNLOAD_MB} MB`;
+      case 'loading':
+        return `Lädt … ${Math.round(this.docShadow.loadProgress() * 100)} %`;
+      case 'ready':
+        return 'KI-Modell ist geladen';
+    }
+  });
 
   private previewTimer: ReturnType<typeof setTimeout> | undefined;
   private isPreviewRunning = false;
@@ -127,6 +146,36 @@ export class Filter implements OnInit, OnDestroy {
     }
 
     this.setSlider(key, SLIDER_NEUTRAL);
+  }
+
+  /** Beim ersten Einschalten lädt das Modell; scheitert das, springt der Schalter zurück. */
+  protected async onShadowToggle(): Promise<void> {
+    if (this.isSaving()) {
+      return;
+    }
+
+    const removeShadow = !this.settings().removeShadow;
+
+    this.scanSession.setFilter({ ...this.settings(), removeShadow });
+
+    if (removeShadow) {
+      try {
+        await this.docShadow.load();
+      } catch (error: unknown) {
+        console.error('KI-Modell laden fehlgeschlagen', error);
+
+        if (this.isDestroyed) {
+          return;
+        }
+
+        this.scanSession.setFilter({ ...this.settings(), removeShadow: false });
+        this.toast.show(SHADOW_LOAD_FAILED_MESSAGE);
+      }
+    }
+
+    if (!this.isDestroyed) {
+      this.schedulePreview(0);
+    }
   }
 
   protected async onDoneClick(): Promise<void> {

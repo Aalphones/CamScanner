@@ -60,6 +60,12 @@ echo          Fingerabdruck in deploy.env eintragen.
 goto :fail
 
 :protocolOk
+if exist "public\models\docshadow.onnx" goto :modelFound
+echo [FEHLER] Das KI-Modell fehlt: public\models\docshadow.onnx
+echo          Einmal "npm run fetch-models" ausfuehren, dann erneut hochladen.
+goto :fail
+
+:modelFound
 echo [1/4] App bauen ...
 call npm run build -- --base-href "!BASE_HREF!"
 if errorlevel 1 (

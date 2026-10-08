@@ -36,7 +36,7 @@ Komponenten/Pipes).
 | `capture` | Sucher mit Live-Kamerabild, Taschenlampe, Raster, Auslöser nimmt Standbild auf; Live-Rahmen über dem erkannten Dokument (`live-detection.ts`: Erkennungs-Schleife und Stabilitäts-Zähler); untere Leiste mit Vorschaubild + Seitenzähler und „Fertig“ zur Seitenübersicht | `features/capture/` |
 | `capture` → `camera-blocked` | Fehlerbildschirm „Kamera ist gesperrt“ in drei Varianten (gesperrt, unsichere Verbindung, keine Kamera) | `features/capture/camera-blocked/` |
 | `crop` | Zuschneiden: Standbild mit erkanntem Rahmen, Eck- und Mittelgriffe zum Nachziehen, Lupe, „Auto“, Begradigen per „Übernehmen“ und weiter zu `/filter`; Bearbeiten-Modus für eine vorhandene Seite | `features/crop/` |
-| `filter` | Scan-Look: große Vorschau, fünf Filter-Chips mit Bild der eigenen Seite, Regler für Kontrast und Helligkeit; „Fertig“ rechnet in voller Auflösung und legt die Seite in den Page Buffer (neu oder ersetzend) | `features/filter/` |
+| `filter` | Scan-Look: große Vorschau, fünf Filter-Chips mit Bild der eigenen Seite, Regler für Kontrast und Helligkeit, Schalter „Schatten entfernen“ (KI); „Fertig“ rechnet in voller Auflösung und legt die Seite in den Page Buffer (neu oder ersetzend) | `features/filter/` |
 | `pages` | Seitenübersicht: Raster aller Seiten, Umsortieren per Halten und Ziehen (`page-drag.ts`), Löschen mit Rückgängig, Auswahl-Modus, Drehen, Kachel antippen = Bearbeiten | `features/pages/` |
 | `export` | Exportieren: Seitenstapel-Vorschau, Dateiname, Qualitätsstufe, PDF vorab gebaut, Herunterladen | `features/export/` |
 
@@ -49,7 +49,7 @@ Komponenten/Pipes).
 | `shared/toast/` | `cam-toast` — zeigt den aktuellen Toast aus `core/toast.ts`, einmal in `app.html` eingebunden |
 | `public/.htaccess` | HTTPS-Umleitung, SPA-Fallback, Kompression, Cache-Header; wird in den Build kopiert |
 | `public/icons/` | App-Icon: Quelle `icon.svg`/`icon-maskable.svg`, PNGs daraus (Erzeugung siehe README dort) |
-| `public/manifest.webmanifest`, `ngsw-config.json` | PWA-Manifest und Service-Worker-Cache (Prefetch von `/*.js` hält den OpenCV-Chunk offline bereit) |
+| `public/manifest.webmanifest`, `ngsw-config.json` | PWA-Manifest und Service-Worker-Cache (Prefetch von `/*.js` hält den OpenCV-Chunk offline bereit; Gruppe `ml` lädt Modell und ORT erst bei Bedarf) |
 | `deploy.cmd` | Build + Upload auf das Strato-Paket (Zugangsdaten aus `deploy.env`) |
 
 ## Core-Services (Meilenstein 1)
@@ -73,3 +73,12 @@ Komponenten/Pipes).
 | `core/share.ts` | `Share` — `canShareFiles()` und `sharePdf()` (Web Share API mit Datei); einzige Stelle, die `navigator.share` anfasst |
 | `core/app-update.ts` | Hört auf den Service Worker und zeigt bei fertig geladener neuer Version den Toast „Neue Version verfügbar · Neu laden“ |
 | `core/camera.ts` | Kapselt `getUserMedia`/Track-Handling, Zustand als Signal |
+| `core/ml/doc-shadow.ts` | KI-Schattenentfernung: lädt `onnxruntime-web` und das DocShadow-Modell erst beim ersten Einschalten (Fortschritt als Signal), rechnet je begradigter Seite eine Verstärkungskarte; angewendet in `image-filters.ts` (ADR-007) |
+
+## KI-Modell
+
+| Pfad | Zweck |
+|---|---|
+| `public/models/` | DocShadow als fp16 — **nicht im Git**, erzeugt per `npm run fetch-models` |
+| `scripts/fetch-models.mjs`, `scripts/convert-fp16.py` | Modell holen, Prüfsumme prüfen, per `uv` auf fp16 umwandeln |
+| `public/licenses/docshadow.txt` | MIT-Hinweis des Modells, wird mit ausgeliefert |

@@ -48,6 +48,7 @@ leer (Greenfield), wird beim ersten Feature befüllt.
 
 ```bash
 npm install
+npm run fetch-models   # KI-Modell holen (vor dem ersten Deploy, braucht uv)
 npm start           # ng serve — Kamera braucht HTTPS oder localhost
 npm run build       # Production-Build
 npm test            # Vitest

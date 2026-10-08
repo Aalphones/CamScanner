@@ -20,7 +20,7 @@ Dieser Plan **ersetzt** die offenen Phasen 4 und 5 des Meilenstein-1-Plans (arch
 | 8 | [Filter-Bildschirm „Scan-Look“](phase-8-filter-bildschirm.md) | M3 | standard | complete |
 | 9 | [PWA-Härtung](phase-9-pwa.md) | M4 | standard | complete |
 | 10 | [Teilen](phase-10-teilen.md) | M5 | standard | complete |
-| 11 | [KI-Schattenentfernung](phase-11-ki-schatten.md) | M6 | heikel | pending |
+| 11 | [KI-Schattenentfernung](phase-11-ki-schatten.md) | M6 | heikel | complete |
 
 Profil `private`: keine neuen automatisierten Tests. `npm test` muss mit den bestehenden Tests (`core/geometry.spec.ts`, `app.spec.ts`) grün bleiben, `npm run lint` und `npm run build` sauber.
 
@@ -151,8 +151,12 @@ current: Signal<ToastState | null>
 canShareFiles(): boolean
 sharePdf(blob: Blob, fileName: string): Promise<'shared' | 'cancelled' | 'failed'>
 
-// core/ml/doc-shadow.ts  (Phase 11)
-removeShadow(image: Blob, onProgress?: (fraction: number) => void): Promise<Blob>
+// core/ml/doc-shadow.ts  (Phase 11, Service DocShadow — liefert die Karte statt eines fertigen Bildes, damit Vorschau und Vollbild ohne JPEG-Umweg dieselbe Karte nutzen)
+export interface GainMap { readonly size: number; readonly rgb: Float32Array }  // 256 × 256, RGB verschachtelt
+loadState: Signal<'idle' | 'loading' | 'ready'>
+loadProgress: Signal<number>                 // 0..1, Modell-Download
+load(): Promise<void>                        // nach Fehler erneut aufrufbar
+gainMap(warped: Blob): Promise<GainMap>      // einmal je warped-Blob gerechnet
 
 // core/scan-flow.guards.ts  (Phase 3, erweitert in 6)
 draftSourceGuard, draftWarpedGuard, hasPagesGuard: CanActivateFn
@@ -179,7 +183,7 @@ Oben stehen die Stellen, an denen der Planer am unsichersten war.
 4. **Filter auf echten Fotos (Phase 7/8):** Beleg auf dunklem Holz, Seite mit Schlagschatten, farbiger Flyer — je Auto, Scan, S/W. Ist S/W lesbar, bleibt Auto farbig?
 5. **Teilen (Phase 10):** Share-Sheet öffnet sich auf Android, Ziel z. B. Google Drive erhält eine gültige PDF-Datei.
 6. **Offline (Phase 9):** App installieren, Flugmodus, App öffnen, eine Seite scannen und herunterladen.
-7. **KI-Schatten (Phase 11):** Seite mit hartem Handschatten — mit und ohne Schalter vergleichen; Text darf nicht weicher werden.
+7. **KI-Schatten (Phase 11):** Seite mit hartem Handschatten — mit und ohne Schalter vergleichen; Text darf nicht weicher werden. Erstes Einschalten zeigt „Lädt … N %“, danach im Flugmodus erneut einschalten (App neu geöffnet). Nach dem Deploy: Konsole `crossOriginIsolated`, `curl -I …/models/docshadow.onnx` (siehe FINDINGS).
 8. Kamera im Browser sperren: Bildschirm „Kamera ist gesperrt“ mit drei Schritten erscheint, „Nochmal versuchen“ funktioniert nach dem Freigeben ohne Neuladen.
 9. Elemente ohne Mockup ansehen: App-Icon auf dem Homescreen, Toast „Seite gelöscht · Rückgängig“, Beschreibungszeile unter den Filter-Chips.
 

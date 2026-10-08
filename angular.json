@@ -30,6 +30,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "ort-wasm-simd-threaded.jsep.{wasm,mjs}",
+                "input": "node_modules/onnxruntime-web/dist",
+                "output": "ort"
               }
             ],
             "styles": ["src/styles.scss"]
@@ -49,6 +54,7 @@
                 }
               ],
               "outputHashing": "all",
+              "namedChunks": true,
               "serviceWorker": "ngsw-config.json"
             },
             "development": {

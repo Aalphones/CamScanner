@@ -42,6 +42,9 @@ __screenshots__/
 # Deploy (Zugangsdaten)
 deploy.env
 
+# KI-Modelle (npm run fetch-models)
+/public/models/
+
 # System files
 .DS_Store
 Thumbs.db

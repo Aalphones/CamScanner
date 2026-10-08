@@ -66,4 +66,22 @@
       />
     </div>
   }
+
+  <div class="filter__toggle">
+    <div>
+      Schatten entfernen
+      <small id="filter-shadow-hint" class="filter__toggle-hint">{{ shadowHint() }}</small>
+    </div>
+    <button
+      type="button"
+      role="switch"
+      class="filter__switch"
+      aria-label="Schatten entfernen"
+      aria-describedby="filter-shadow-hint"
+      [class.filter__switch--on]="settings().removeShadow"
+      [attr.aria-checked]="settings().removeShadow"
+      [disabled]="isSaving()"
+      (click)="onShadowToggle()"
+    ></button>
+  </div>
 </section>
