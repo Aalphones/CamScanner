@@ -66,3 +66,5 @@ deploy.cmd          # Build + Upload nach Strato (braucht deploy.env)
    `core/`-Service kapseln (Typisierung, Testbarkeit, siehe
    `docs/conventions/angular.md`).
 4. **`deploy.env` enthält Zugangsdaten und wird nie committet.**
+5. **Offline-Fähigkeit hängt am Prefetch von `/*.js` in `ngsw-config.json`** —
+   den OpenCV-Chunk nie in eine Lazy-Gruppe verschieben.

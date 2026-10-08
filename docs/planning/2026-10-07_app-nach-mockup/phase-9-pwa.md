@@ -32,17 +32,25 @@ Ergebnis: Die App lässt sich von Strato aus auf dem Handy installieren, hat ein
 
 ## Checkliste
 
-- [ ] Icons laut Entscheidungen erzeugen; alte Icons nach Grep-Bestätigung löschen.
-- [ ] `public/manifest.webmanifest` neu laut Entscheidungen.
-- [ ] `src/index.html`: `<link rel="icon" type="image/png" href="icons/favicon-32.png">`, `<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">`.
-- [ ] `ngsw-config.json` laut Entscheidungen.
-- [ ] `ng generate service core/app-update` + Aufruf in `app.ts`.
+- [x] Icons laut Entscheidungen erzeugen; alte Icons nach Grep-Bestätigung löschen.
+- [x] `public/manifest.webmanifest` neu laut Entscheidungen.
+- [x] `src/index.html`: `<link rel="icon" type="image/png" href="icons/favicon-32.png">`, `<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">`.
+- [x] `ngsw-config.json` laut Entscheidungen.
+- [x] `ng generate service core/app-update` + Aufruf in `app.ts`.
 - [ ] Deploy (User) und Prüfung auf dem Handy laut AK.
 
 ## Doc-Updates
 
-- [ ] `docs/PROJECT.md` Meilenstein 4: „Lighthouse PWA-Checks“ ersetzen durch „Installierbarkeit laut Chrome DevTools (Application → Manifest)“.
-- [ ] `docs/code-map.md`: Core-Zeile `app-update.ts`; Zeile `public/icons/` (Quelle `icon.svg`, Erzeugung siehe README dort).
-- [ ] `AGENTS.md` Critical Rules: „Offline-Fähigkeit hängt am Prefetch von `/*.js` in `ngsw-config.json` — den OpenCV-Chunk nie in eine Lazy-Gruppe verschieben.“
+- [x] `docs/PROJECT.md` Meilenstein 4: „Lighthouse PWA-Checks“ ersetzen durch „Installierbarkeit laut Chrome DevTools (Application → Manifest)“.
+- [x] `docs/code-map.md`: Core-Zeile `app-update.ts`; Zeile `public/icons/` (Quelle `icon.svg`, Erzeugung siehe README dort).
+- [x] `AGENTS.md` Critical Rules: „Offline-Fähigkeit hängt am Prefetch von `/*.js` in `ngsw-config.json` — den OpenCV-Chunk nie in eine Lazy-Gruppe verschieben.“
 
 ## Report-Back
+
+Status: complete (Code), Geräteprüfung steht beim User aus.
+
+- Icons per Chrome headless statt Edge (Edge ist auf dieser Maschine nicht installiert); README in `public/icons/` nennt das Vorgehen.
+- `AppUpdate` injiziert `SwUpdate` optional — ohne `provideServiceWorker` (Test) gibt es keinen Provider, `app.spec.ts` blieb unverändert.
+- Zusatz aus FINDINGS: `mod_deflate`-Block in `public/.htaccess`, damit der 17-MB-OpenCV-Chunk komprimiert ausgeliefert wird. Wirkung auf Strato ungeprüft (`curl -I -H "Accept-Encoding: gzip"` auf den Chunk → `Content-Encoding: gzip`).
+- Build-Beleg: der größte Chunk (16,7 MB) steht in der `app`-Prefetch-Gruppe von `ngsw.json`.
+- Lint, `npm test` (9 grün) und Build sauber.

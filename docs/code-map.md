@@ -47,7 +47,9 @@ Komponenten/Pipes).
 | `src/styles/` | Globale Styles: Design-Tokens (`--cam-*`), Basis, Buttons, Top-/Bottombar, Toast |
 | `shared/icon/` | `cam-icon` — SVG-Icons mit festem Namens-Satz |
 | `shared/toast/` | `cam-toast` — zeigt den aktuellen Toast aus `core/toast.ts`, einmal in `app.html` eingebunden |
-| `public/.htaccess` | HTTPS-Umleitung, SPA-Fallback, Cache-Header; wird in den Build kopiert |
+| `public/.htaccess` | HTTPS-Umleitung, SPA-Fallback, Kompression, Cache-Header; wird in den Build kopiert |
+| `public/icons/` | App-Icon: Quelle `icon.svg`/`icon-maskable.svg`, PNGs daraus (Erzeugung siehe README dort) |
+| `public/manifest.webmanifest`, `ngsw-config.json` | PWA-Manifest und Service-Worker-Cache (Prefetch von `/*.js` hält den OpenCV-Chunk offline bereit) |
 | `deploy.cmd` | Build + Upload auf das Strato-Paket (Zugangsdaten aus `deploy.env`) |
 
 ## Core-Services (Meilenstein 1)
@@ -68,4 +70,5 @@ Komponenten/Pipes).
 | `core/pdf.ts` | Baut aus JPEG-Seiten ein A4-PDF (pdf-lib, lazy geladen), Qualitätsstufen verkleinern per OffscreenCanvas |
 | `core/file-save.ts` | `downloadBlob` (temporärer `<a download>`) und `sanitizePdfFileName` |
 | `core/toast.ts` | Ein Toast zur Zeit mit optionaler Aktion, Signal `current` |
+| `core/app-update.ts` | Hört auf den Service Worker und zeigt bei fertig geladener neuer Version den Toast „Neue Version verfügbar · Neu laden“ |
 | `core/camera.ts` | Kapselt `getUserMedia`/Track-Handling, Zustand als Signal |

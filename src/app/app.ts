@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
+import { AppUpdate } from './core/app-update';
 import { ToastView } from './shared/toast/toast';
 
 @Component({
@@ -9,4 +10,8 @@ import { ToastView } from './shared/toast/toast';
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App {}
+export class App {
+  constructor() {
+    inject(AppUpdate).watch();
+  }
+}

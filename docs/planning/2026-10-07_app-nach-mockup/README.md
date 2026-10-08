@@ -18,7 +18,7 @@ Dieser Plan **ersetzt** die offenen Phasen 4 und 5 des Meilenstein-1-Plans (arch
 | 6 | [Page Buffer & Seitenübersicht](phase-6-seitenuebersicht.md) | M2 | heikel | complete |
 | 7 | [Filter-Rechenwerk](phase-7-filter-rechenwerk.md) | M3 | heikel | complete |
 | 8 | [Filter-Bildschirm „Scan-Look“](phase-8-filter-bildschirm.md) | M3 | standard | complete |
-| 9 | [PWA-Härtung](phase-9-pwa.md) | M4 | standard | pending |
+| 9 | [PWA-Härtung](phase-9-pwa.md) | M4 | standard | complete |
 | 10 | [Teilen](phase-10-teilen.md) | M5 | standard | pending |
 | 11 | [KI-Schattenentfernung](phase-11-ki-schatten.md) | M6 | heikel | pending |
 

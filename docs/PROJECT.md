@@ -72,7 +72,7 @@ Detection bei jedem Kamera-Frame durchrattert.
 3. **Bildoptimierung (klassisch)** — Scan-Look-Filter: CLAHE, Sauvola/Otsu,
    Unsharp Mask, Graustufen-Modus, Background-Division gegen Schatten
 4. **PWA-Hardening** — Manifest/Icons/Service-Worker verifizieren, Offline-Test,
-   „Installierbar"-Kriterien (Lighthouse PWA-Checks)
+   „Installierbar"-Kriterien (Chrome DevTools → Application → Manifest, Abschnitt „Installability“)
 5. **Sharing** — Web Share API (Android Share Sheet) mit Download-Fallback für
    Browser ohne Support
 6. **Optional: ML-Erweiterung** — DocAligner als Fallback für die
