@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 
 import { draftSourceGuard, draftWarpedGuard, hasPagesGuard } from './core/scan-flow.guards';
 
-// Bildschirm-Fluss und Guards: docs/planning/2026-10-07_app-nach-mockup/README.md → „Bildschirm-Fluss“.
+// Bildschirm-Fluss und Guards: docs/archive/2026-10/2026-10-07_app-nach-mockup/README.md → „Bildschirm-Fluss“.
 export const routes: Routes = [
   { path: '', redirectTo: 'capture', pathMatch: 'full' },
   {

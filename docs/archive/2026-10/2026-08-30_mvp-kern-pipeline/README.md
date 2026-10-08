@@ -19,7 +19,7 @@ ihn unverändert weiterverwenden kann.
 | 4 | [Ecken-Korrektur & Begradigung](phase-4-ecken-begradigung.md) | standard | ersetzt |
 | 5 | [PDF-Export & Abschluss](phase-5-pdf-export.md) | standard | ersetzt |
 
-**Ersetzt am 2026-10-07:** Phasen 4 und 5 gehen im Plan `docs/planning/2026-10-07_app-nach-mockup/` auf (dort Phasen 3 und 4), weil inzwischen ein abgenommenes Design-Mockup vorliegt, das Zuschneiden und Export anders gestaltet als die hier freihändig festgelegten Bildschirme.
+**Ersetzt am 2026-10-07:** Phasen 4 und 5 gehen im Plan `docs/archive/2026-10/2026-10-07_app-nach-mockup/` auf (dort Phasen 3 und 4), weil inzwischen ein abgenommenes Design-Mockup vorliegt, das Zuschneiden und Export anders gestaltet als die hier freihändig festgelegten Bildschirme.
 
 ## Architektur-Entscheidungen (fallen in diesem Plan)
 

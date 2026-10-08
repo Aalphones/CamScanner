@@ -1,5 +1,7 @@
 # App nach Mockup — Meilensteine 1 (Rest) bis 6
 
+**Status:** abgeschlossen und archiviert am 2026-10-08. Alle elf Phasen sind umgesetzt; Deploy auf Strato und Smoke-Test auf dem Handy stehen noch aus (siehe „Follow-ups“).
+
 Die App wird Bildschirm für Bildschirm nach dem abgenommenen Design-Mockup gebaut und auf das Strato-Paket hochgeladen: Scannen, Zuschneiden, Filter, Seitenübersicht, Export und der Fehlerbildschirm „Kamera ist gesperrt“. Dunkles Design, Akzent Mintgrün `#3DDC97`. Ausgeliefert wird ein statischer Build per `deploy.cmd` (WinSCP), nach dem Vorbild von `C:\Users\sasch\develop\CardMaker\deploy.cmd`.
 
 Dieser Plan **ersetzt** die offenen Phasen 4 und 5 des Meilenstein-1-Plans (archiviert unter `docs/archive/2026-10/2026-08-30_mvp-kern-pipeline/`). Dessen Phasen 1–3 (OpenCV-Fundament, Kamera, Kantenerkennung) sind fertig und bleiben die Grundlage. Die freihändig geplanten Bildschirme `/crop` und `/result` von dort entfallen; es gilt das Mockup.
@@ -195,20 +197,34 @@ Oben stehen die Stellen, an denen der Planer am unsichersten war.
 
 ## Summary
 
-_(beim Archivieren füllen)_
+Die App steht komplett nach Mockup: Sucher mit Live-Rahmen und Fehlerbildschirm, Zuschneiden mit Griffen und Lupe, Scan-Look mit fünf Filtern, Reglern und KI-Schattenentfernung, Seitenübersicht mit Umsortieren, Drehen und Löschen samt Rückgängig, Export als PDF zum Teilen oder Herunterladen. Dazu PWA mit eigenem Icon, Offline-Cache und Update-Hinweis sowie Upload auf Strato per `deploy.cmd`. Build, Lint und Tests sind grün; auf dem Handy ist noch nichts geprüft.
 
 ## Files touched
 
-_(beim Archivieren füllen)_
+- `src/app/features/` — `capture` (inkl. `camera-blocked`), `crop`, `filter`, `pages`, `export`
+- `src/app/core/` — `scan-session`, `page-buffer`, `page-factory`, `perspective`, `image-filters`, `filter-settings`, `mat-scope`, `pdf`, `file-save`, `toast`, `share`, `app-update`, `scan-flow.guards`, `ml/doc-shadow`
+- `src/app/shared/` — `icon`, `toast`; `src/styles/` (Design-Tokens, Bausteine)
+- `public/` — `.htaccess`, `icons/`, `manifest.webmanifest`, `licenses/`; `ngsw-config.json`, `angular.json`
+- `deploy.cmd`, `deploy.env.example`, `scripts/fetch-models.mjs`, `scripts/convert-fp16.py`
+- `docs/decisions/004`–`007`, `docs/code-map.md`, `docs/glossary.md`, `docs/PROJECT.md`, `AGENTS.md`
 
 ## Commits
 
-_(beim Archivieren füllen)_
+`d16d199` Plan · `880999f` Phase 1 · `3453990` Phase 2 · `5a88c89` + `9dd53b0` Phase 3 · `ebe953f` Phase 4 · `680a26c` Phase 5 · `5602866` Phase 6 · `56219a5` Phase 7 · `daa8628` Phase 8 · `c91c03d` Phase 9 · `e3e1389` Phase 10 · `c1127f3` Phase 11
 
 ## Deviations from plan
 
-_(beim Archivieren füllen)_
+- **Phase 3:** `angular.json` braucht `externalDependencies` und `allowedCommonJsDependencies`, sonst baut der OpenCV-Import nicht.
+- **Phase 4:** `downloadBlob` nimmt das Dokument als Parameter; Toast-Komponente heißt `ToastView`; ein ersetzter Toast löst `onExpire` aus.
+- **Phase 5:** Live-Rahmen als SVG-Polygon mit schrägen Kanten statt gedrehtem Rechteck.
+- **Phase 6:** `createPage` nimmt optional das vorhandene Original-JPEG (kein Qualitätsverlust beim Bearbeiten); „Auto“ erkennt im Bearbeiten-Modus beim ersten Druck nach; Ziehen auf dem Handy über eigenen `touchmove`-Handler.
+- **Phase 7:** `createPage` filtert nicht selbst, `output` ist Pflichtfeld.
+- **Phase 8:** zusätzliche Fehlerzeile im Filter-Panel (nicht im Mockup).
+- **Phase 11:** Modell auf fp16 umgewandelt (62 statt 120 MB, User-Entscheidung); `DocShadow` liefert eine Verstärkungskarte statt eines fertigen Bildes; `namedChunks` an, damit der Service Worker den ORT-Chunk nicht vorab lädt.
 
 ## Follow-ups
 
-_(beim Archivieren füllen)_
+- **Deploy + Smoke-Test** (Checkliste oben) — inklusive der offenen Server-Checks aus `FINDINGS.md` (Header `crossOriginIsolated`, Größe und Typ der Modelldatei).
+- „Auto“-Nachschärfen nur auf dem Helligkeitskanal, falls „Auto“ auf dem Handy zu träge ist (FINDINGS, Phase 7).
+- Backlog: Page Buffer über Neuladen retten (IndexedDB), Auto-Auslösen, DocAligner.
+- Vault-Einträge aus `FINDINGS.md` (OpenCV/esbuild, onnxruntime-web/Service Worker) beim nächsten `session-review` überführen.
