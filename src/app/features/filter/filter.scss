@@ -56,6 +56,37 @@ $knob-size: 18px;
     }
   }
 
+  &__progress {
+    display: grid;
+    gap: 6px;
+    font-size: 0.75rem;
+  }
+
+  &__progress-track {
+    height: 4px;
+    border-radius: 4px;
+    background: var(--cam-line);
+    overflow: hidden;
+  }
+
+  &__progress-bar {
+    height: 100%;
+    background: var(--cam-accent);
+    transition: width 0.3s ease;
+  }
+
+  &__error {
+    display: grid;
+    gap: 8px;
+  }
+
+  &__error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
   &__chips {
     display: flex;
     gap: 8px;

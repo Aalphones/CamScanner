@@ -56,6 +56,45 @@ const SLIDER_NEUTRAL = DEFAULT_FILTER_SETTINGS.contrast;
 /** Modell (62 MB) plus komprimierte ORT-Laufzeit (7 MB), gerundet. */
 const SHADOW_DOWNLOAD_MB = 70;
 const SHADOW_LOAD_FAILED_MESSAGE = 'KI-Modell konnte nicht geladen werden — Internet nötig beim ersten Mal';
+const SHADOW_RUN_FAILED_MESSAGE = 'Schattenentfernung hat auf diesem Gerät nicht geklappt — ausgeschaltet';
+
+/** Lange Kante der gespeicherten Seite — rund 250 dpi auf A4, spart dem Handy Speicher und Zeit (ADR-008). */
+const SAVE_MAX_EDGE = 3000;
+
+/** Obergrenze fürs Speichern ab geladenem Modell (ADR-008). */
+const SAVE_TIMEOUT_MS = 60_000;
+
+type SaveStep = 'model' | 'shadow' | 'filter' | 'store';
+type SaveError = 'timeout' | 'shadow' | 'failed';
+
+interface SaveProgress {
+  readonly label: string;
+  readonly fraction: number;
+}
+
+const SAVE_STEP_LABELS: Record<Exclude<SaveStep, 'model'>, string> = {
+  shadow: 'Schatten berechnen',
+  filter: 'Filter anwenden',
+  store: 'Seite sichern',
+};
+
+const SAVE_ERROR_MESSAGES: Record<SaveError, string> = {
+  timeout: 'Speichern hat zu lange gedauert.',
+  shadow: 'Schattenentfernung hat auf diesem Gerät nicht geklappt.',
+  failed: 'Seite konnte nicht gespeichert werden.',
+};
+
+class SaveTimeoutError extends Error {
+  constructor() {
+    super('Speichern hat nicht rechtzeitig geantwortet.');
+    this.name = 'SaveTimeoutError';
+  }
+}
+
+// OpenCV und WASM blockieren den Hauptthread — erst malen lassen, dann rechnen.
+function nextPaint(): Promise<void> {
+  return new Promise((resolve: () => void) => requestAnimationFrame(() => setTimeout(resolve)));
+}
 
 @Component({
   selector: 'cam-filter',
@@ -79,6 +118,28 @@ export class Filter implements OnInit, OnDestroy {
   protected readonly chipUrls = signal<Partial<Record<FilterId, string>>>({});
   protected readonly isSaving = signal(false);
   protected readonly hasFailed = signal(false);
+  protected readonly saveStep = signal<SaveStep | null>(null);
+  protected readonly saveError = signal<SaveError | null>(null);
+  protected readonly saveErrorMessages = SAVE_ERROR_MESSAGES;
+
+  protected readonly saveProgress = computed((): SaveProgress | null => {
+    const step = this.saveStep();
+
+    if (step === null) {
+      return null;
+    }
+
+    if (step === 'model') {
+      const fraction = this.docShadow.loadProgress();
+
+      return { label: `KI-Modell lädt … ${Math.round(fraction * 100)} %`, fraction };
+    }
+
+    const steps: readonly Exclude<SaveStep, 'model'>[] = this.settings().removeShadow ? ['shadow', 'filter', 'store'] : ['filter', 'store'];
+    const index = steps.indexOf(step);
+
+    return { label: `Schritt ${index + 1} von ${steps.length} · ${SAVE_STEP_LABELS[step]}`, fraction: (index + 1) / steps.length };
+  });
 
   protected readonly description = computed((): string => FILTER_LABELS[this.settings().filter].description);
 
@@ -189,12 +250,34 @@ export class Filter implements OnInit, OnDestroy {
 
     clearTimeout(this.previewTimer);
     this.isSaving.set(true);
-    this.hasFailed.set(false);
+    this.saveError.set(null);
 
     try {
       const filter = this.settings();
       const editedPage = this.findEditedPage();
-      const output = await this.imageFilters.renderFiltered(warped, filter);
+      let deadline = Date.now() + SAVE_TIMEOUT_MS;
+
+      if (filter.removeShadow) {
+        try {
+          await this.setStep('model');
+          await this.docShadow.load();
+          // Der Download zählt nicht zur Zeitgrenze.
+          deadline = Date.now() + SAVE_TIMEOUT_MS;
+          await this.setStep('shadow');
+          await this.withDeadline(this.docShadow.gainMap(warped), deadline);
+        } catch (error: unknown) {
+          console.error('Schatten berechnen fehlgeschlagen', error);
+          this.docShadow.discardGainMap(warped);
+          this.saveError.set(error instanceof SaveTimeoutError ? 'timeout' : 'shadow');
+          return;
+        }
+      }
+
+      await this.setStep('filter');
+      // Die Verstärkungskarte kommt aus dem Cache.
+      const output = await this.withDeadline(this.imageFilters.renderFiltered(warped, filter, SAVE_MAX_EDGE), deadline);
+
+      await this.setStep('store');
       const page = await createPage({
         sourceFrame: frame,
         corners,
@@ -219,9 +302,42 @@ export class Filter implements OnInit, OnDestroy {
       }
     } catch (error: unknown) {
       console.error('Seite speichern fehlgeschlagen', error);
-      this.hasFailed.set(true);
+
+      const isTimeout = error instanceof SaveTimeoutError;
+
+      if (isTimeout && this.settings().removeShadow) {
+        this.docShadow.discardGainMap(warped);
+      }
+
+      this.saveError.set(isTimeout ? 'timeout' : 'failed');
     } finally {
       this.isSaving.set(false);
+      this.saveStep.set(null);
+    }
+  }
+
+  protected async onSaveWithoutShadow(): Promise<void> {
+    this.scanSession.setFilter({ ...this.settings(), removeShadow: false });
+    this.schedulePreview(0);
+    await this.onDoneClick();
+  }
+
+  private setStep(step: SaveStep): Promise<void> {
+    this.saveStep.set(step);
+
+    return nextPaint();
+  }
+
+  private async withDeadline<T>(work: Promise<T>, deadline: number): Promise<T> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const expiry = new Promise<never>((_resolve: unknown, reject: (reason: unknown) => void) => {
+      timer = setTimeout(() => reject(new SaveTimeoutError()), Math.max(0, deadline - Date.now()));
+    });
+
+    try {
+      return await Promise.race([work, expiry]);
+    } finally {
+      clearTimeout(timer);
     }
   }
 
@@ -285,6 +401,15 @@ export class Filter implements OnInit, OnDestroy {
       }
     } catch (error: unknown) {
       console.error('Vorschau fehlgeschlagen', error);
+
+      if (this.settings().removeShadow) {
+        this.scanSession.setFilter({ ...this.settings(), removeShadow: false });
+        this.toast.show(SHADOW_RUN_FAILED_MESSAGE);
+        // Die Schleife in refreshPreview rechnet dann ohne Schatten neu.
+        this.isPreviewStale = true;
+        return;
+      }
+
       this.hasFailed.set(true);
     }
   }

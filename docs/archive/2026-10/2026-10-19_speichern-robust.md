@@ -7,7 +7,7 @@
 | Phase | Inhalt | Rating | Status |
 |---|---|---|---|
 | 1 | KI-Lauf: nur WASM, Zeitgrenze für den Modelllauf, hängende Karte verwerfen; ADR-008 | standard | complete |
-| 2 | Filter-Bildschirm: Größengrenze beim Speichern, Gesamt-Zeitgrenze, Schritt-Anzeige, Fehlerblock mit zwei Knöpfen | standard | pending |
+| 2 | Filter-Bildschirm: Größengrenze beim Speichern, Gesamt-Zeitgrenze, Schritt-Anzeige, Fehlerblock mit zwei Knöpfen | standard | complete |
 
 ## Entscheidungen (fallen hier, nicht beim Umsetzen)
 
@@ -92,14 +92,14 @@ protected readonly saveProgress = computed(...);   // { label: string; fraction:
 
 ### Checkliste
 
-- [ ] Konstanten in `filter.ts`: `SAVE_MAX_EDGE = 3000` (`/** Lange Kante der gespeicherten Seite — rund 250 dpi auf A4, spart dem Handy Speicher und Zeit (ADR-008). */`), `SAVE_TIMEOUT_MS = 60_000` (`/** Obergrenze fürs Speichern ab geladenem Modell (ADR-008). */`).
-- [ ] Texte als Konstante `SAVE_STEP_LABELS: Record<Exclude<SaveStep, 'model'>, string>` = `{ shadow: 'Schatten berechnen', filter: 'Filter anwenden', store: 'Seite sichern' }` und `SAVE_ERROR_MESSAGES: Record<SaveError, string>` = `{ timeout: 'Speichern hat zu lange gedauert.', shadow: 'Schattenentfernung hat auf diesem Gerät nicht geklappt.', failed: 'Seite konnte nicht gespeichert werden.' }`; dazu `SHADOW_RUN_FAILED_MESSAGE = 'Schattenentfernung hat auf diesem Gerät nicht geklappt — ausgeschaltet'`.
-- [ ] Klasse `SaveTimeoutError extends Error` (nicht exportiert) in `filter.ts`.
-- [ ] `saveProgress = computed(...)`: `null`, wenn `saveStep()` null. Bei `'model'`: `{ label: 'KI-Modell lädt … NN %', fraction: loadProgress() }`. Sonst Schrittliste = `removeShadow ? ['shadow','filter','store'] : ['filter','store']`, Index `i` des aktuellen Schritts → `{ label: 'Schritt ${i+1} von ${n} · ${SAVE_STEP_LABELS[step]}', fraction: (i + 1) / n }`.
-- [ ] Hilfsfunktion (Modul-Ebene) `nextPaint(): Promise<void>` = `new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve)))` mit Kommentar `// OpenCV und WASM blockieren den Hauptthread — erst malen lassen, dann rechnen.`
-- [ ] Private Methode `setStep(step: SaveStep): Promise<void>` → `this.saveStep.set(step); return nextPaint();`
-- [ ] Private Methode `withDeadline<T>(work: Promise<T>, deadline: number): Promise<T>` — `Promise.race` gegen Timer mit `Math.max(0, deadline - Date.now())`, wirft `SaveTimeoutError`, Timer im `finally` lösen.
-- [ ] `onDoneClick` neu (Vorbedingungen wie bisher; `hasFailed` hier nicht mehr anfassen, stattdessen `saveError.set(null)`):
+- [x] Konstanten in `filter.ts`: `SAVE_MAX_EDGE = 3000` (`/** Lange Kante der gespeicherten Seite — rund 250 dpi auf A4, spart dem Handy Speicher und Zeit (ADR-008). */`), `SAVE_TIMEOUT_MS = 60_000` (`/** Obergrenze fürs Speichern ab geladenem Modell (ADR-008). */`).
+- [x] Texte als Konstante `SAVE_STEP_LABELS: Record<Exclude<SaveStep, 'model'>, string>` = `{ shadow: 'Schatten berechnen', filter: 'Filter anwenden', store: 'Seite sichern' }` und `SAVE_ERROR_MESSAGES: Record<SaveError, string>` = `{ timeout: 'Speichern hat zu lange gedauert.', shadow: 'Schattenentfernung hat auf diesem Gerät nicht geklappt.', failed: 'Seite konnte nicht gespeichert werden.' }`; dazu `SHADOW_RUN_FAILED_MESSAGE = 'Schattenentfernung hat auf diesem Gerät nicht geklappt — ausgeschaltet'`.
+- [x] Klasse `SaveTimeoutError extends Error` (nicht exportiert) in `filter.ts`.
+- [x] `saveProgress = computed(...)`: `null`, wenn `saveStep()` null. Bei `'model'`: `{ label: 'KI-Modell lädt … NN %', fraction: loadProgress() }`. Sonst Schrittliste = `removeShadow ? ['shadow','filter','store'] : ['filter','store']`, Index `i` des aktuellen Schritts → `{ label: 'Schritt ${i+1} von ${n} · ${SAVE_STEP_LABELS[step]}', fraction: (i + 1) / n }`.
+- [x] Hilfsfunktion (Modul-Ebene) `nextPaint(): Promise<void>` = `new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve)))` mit Kommentar `// OpenCV und WASM blockieren den Hauptthread — erst malen lassen, dann rechnen.`
+- [x] Private Methode `setStep(step: SaveStep): Promise<void>` → `this.saveStep.set(step); return nextPaint();`
+- [x] Private Methode `withDeadline<T>(work: Promise<T>, deadline: number): Promise<T>` — `Promise.race` gegen Timer mit `Math.max(0, deadline - Date.now())`, wirft `SaveTimeoutError`, Timer im `finally` lösen.
+- [x] `onDoneClick` neu (Vorbedingungen wie bisher; `hasFailed` hier nicht mehr anfassen, stattdessen `saveError.set(null)`):
   1. `isSaving.set(true)`.
   2. Wenn `filter.removeShadow`: `await this.setStep('model'); await this.docShadow.load();`
   3. `const deadline = Date.now() + SAVE_TIMEOUT_MS;`
@@ -109,22 +109,34 @@ protected readonly saveProgress = computed(...);   // { label: string; fraction:
   7. `catch`: `console.error('Seite speichern fehlgeschlagen', error)`; `saveError.set(error instanceof SaveTimeoutError ? 'timeout' : 'failed')`; bei `'timeout'` und `removeShadow` zusätzlich `discardGainMap(warped)`.
   8. `finally`: `isSaving.set(false); saveStep.set(null);`
   - Ein Fehler beim Modell-Laden in Schritt 2 ergibt `saveError = 'shadow'`.
-- [ ] `protected async onSaveWithoutShadow(): Promise<void>` → `this.scanSession.setFilter({ ...this.settings(), removeShadow: false }); this.schedulePreview(0); await this.onDoneClick();`
-- [ ] `renderPreview` `catch`: wenn `this.settings().removeShadow` → `setFilter({...removeShadow: false})`, `toast.show(SHADOW_RUN_FAILED_MESSAGE)`, `this.isPreviewStale = true` (die Schleife in `refreshPreview` rechnet dann ohne Schatten neu), return. Sonst wie bisher `hasFailed.set(true)`.
-- [ ] `filter.html`, im Panel ganz oben:
+- [x] `protected async onSaveWithoutShadow(): Promise<void>` → `this.scanSession.setFilter({ ...this.settings(), removeShadow: false }); this.schedulePreview(0); await this.onDoneClick();`
+- [x] `renderPreview` `catch`: wenn `this.settings().removeShadow` → `setFilter({...removeShadow: false})`, `toast.show(SHADOW_RUN_FAILED_MESSAGE)`, `this.isPreviewStale = true` (die Schleife in `refreshPreview` rechnet dann ohne Schatten neu), return. Sonst wie bisher `hasFailed.set(true)`.
+- [x] `filter.html`, im Panel ganz oben:
   - `@if (saveProgress(); as progress)` → `<div class="filter__progress" role="status" aria-live="polite">` mit `<span class="filter__progress-label">{{ progress.label }}</span>` und `<div class="filter__progress-track"><div class="filter__progress-bar" [style.width.%]="progress.fraction * 100"></div></div>`.
   - `@if (saveError(); as error)` → `<div class="filter__error" role="alert">` mit `<p class="filter__hint filter__hint--danger">{{ saveErrorMessages[error] }}</p>`, darunter `<div class="filter__error-actions">`: wenn `settings().removeShadow` Knopf `class="btn btn--small btn--primary"` „Ohne Schattenentfernung speichern“ → `onSaveWithoutShadow()`; immer Knopf `class="btn btn--small"` „Nochmal versuchen“ → `onDoneClick()`. (`saveErrorMessages = SAVE_ERROR_MESSAGES` als `protected readonly`.)
   - Bestehender `@if (hasFailed())`-Einzeiler bleibt, aber nur `@if (hasFailed() && saveError() === null)`.
-- [ ] `filter.scss`, Elemente in `.filter`: `&__progress` (grid, gap 6px, font-size 0.75rem); `&__progress-track` (height 4px, border-radius 4px, background `var(--cam-line)`, overflow hidden); `&__progress-bar` (height 100%, background `var(--cam-accent)`, `transition: width 0.3s ease`); `&__error` (grid, gap 8px); `&__error-actions` (flex, gap 8px, justify-content center, flex-wrap wrap).
-- [ ] `docs/code-map.md`, Zeile `filter`: „…„Fertig“ rechnet auf höchstens 3000 px, zeigt die Schritte mit Balken, bricht nach 60 s mit Fehlerblock ab (Ohne Schattenentfernung speichern / Nochmal versuchen)…“.
-- [ ] `npm run lint` und `npm run build` grün.
+- [x] `filter.scss`, Elemente in `.filter`: `&__progress` (grid, gap 6px, font-size 0.75rem); `&__progress-track` (height 4px, border-radius 4px, background `var(--cam-line)`, overflow hidden); `&__progress-bar` (height 100%, background `var(--cam-accent)`, `transition: width 0.3s ease`); `&__error` (grid, gap 8px); `&__error-actions` (flex, gap 8px, justify-content center, flex-wrap wrap).
+- [x] `docs/code-map.md`, Zeile `filter`: „…„Fertig“ rechnet auf höchstens 3000 px, zeigt die Schritte mit Balken, bricht nach 60 s mit Fehlerblock ab (Ohne Schattenentfernung speichern / Nochmal versuchen)…“.
+- [x] `npm run lint` und `npm run build` grün.
 
 ## Summary
 
+Schattenentfernung läuft nur noch auf WASM mit 30-s-Zeitgrenze pro Modelllauf; „Fertig“ speichert auf höchstens 3000 px, zeigt Schritt-Anzeige mit Balken, bricht nach 60 s (ab geladenem Modell) mit Fehlerblock ab. Schlägt die Schatten-Vorschau fehl, geht der Schalter mit Toast aus.
+
 ## Files touched
+
+- `src/app/core/ml/doc-shadow.ts`, `docs/decisions/007-*.md`, `docs/decisions/008-speichern-robust.md` (Phase 1)
+- `src/app/features/filter/filter.ts`, `filter.html`, `filter.scss`, `docs/code-map.md` (Phase 2)
 
 ## Commits
 
+Phase 1: 0cbd3ff · Phase 2: siehe `git log` (feat(filter): Speichern mit Schritt-Anzeige, Zeitgrenze, Fehlerblock)
+
 ## Deviations from plan
 
+Keine. Eine Verfeinerung: Schritt-1-Fehler (Modell laden) und Schritt-4-Fehler (Karte rechnen) teilen sich einen `try`, beide ergeben `saveError = shadow` bzw. `timeout`.
+
 ## Follow-ups
+
+- Smoke-Checkliste am POCO X6 Pro steht aus (User).
+- Ein endlos rechnender WASM-Lauf blockiert den Hauptthread und löst keine der Zeitgrenzen aus (ADR-008).

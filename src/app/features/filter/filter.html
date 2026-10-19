@@ -20,7 +20,28 @@
 </div>
 
 <section class="filter__panel">
-  @if (hasFailed()) {
+  @if (saveProgress(); as progress) {
+    <div class="filter__progress" role="status" aria-live="polite">
+      <span class="filter__progress-label">{{ progress.label }}</span>
+      <div class="filter__progress-track">
+        <div class="filter__progress-bar" [style.width.%]="progress.fraction * 100"></div>
+      </div>
+    </div>
+  }
+
+  @if (saveError(); as error) {
+    <div class="filter__error" role="alert">
+      <p class="filter__hint filter__hint--danger">{{ saveErrorMessages[error] }}</p>
+      <div class="filter__error-actions">
+        @if (settings().removeShadow) {
+          <button type="button" class="btn btn--small btn--primary" (click)="onSaveWithoutShadow()">Ohne Schattenentfernung speichern</button>
+        }
+        <button type="button" class="btn btn--small" (click)="onDoneClick()">Nochmal versuchen</button>
+      </div>
+    </div>
+  }
+
+  @if (hasFailed() && saveError() === null) {
     <p class="filter__hint filter__hint--danger" aria-live="polite">Das hat nicht geklappt — bitte nochmal versuchen</p>
   }
 
