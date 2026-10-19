@@ -68,6 +68,16 @@
 }
 
 <footer class="bottombar pages__bottombar">
+  <button
+    type="button"
+    class="icon-btn"
+    title="Alle Seiten löschen"
+    aria-label="Alle Seiten löschen und neues Dokument beginnen"
+    [disabled]="count() === 0 || isSelecting() || rotating()"
+    (click)="onClearAllClick()"
+  >
+    <cam-icon name="trash" />
+  </button>
   <button type="button" class="btn" [disabled]="!canRotate()" [attr.title]="rotateLabel()" [attr.aria-label]="rotateLabel()" (click)="onRotateClick()">
     <cam-icon name="rotate" />
     Drehen

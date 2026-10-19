@@ -40,7 +40,7 @@ const NEXT_ROTATION: Record<Rotation, Rotation> = { 0: 90, 90: 180, 180: 270, 27
 
 /**
  * Alle Seiten des aktuellen Dokuments, nur im Arbeitsspeicher (ADR-005).
- * Gibt die Vorschau-URLs frei: `replace`, `discard` und `clear` sofort, `remove` nicht — die Seite kann per Rückgängig zurückkommen.
+ * Gibt die Vorschau-URLs frei: `replace`, `discard` und `clear` sofort, `remove` und `removeAll` nicht — die Seiten können per Rückgängig zurückkommen.
  */
 @Service()
 export class PageBuffer {
@@ -116,6 +116,19 @@ export class PageBuffer {
 
       this.replace(page.id, { ...page, rotation, thumbnailUrl });
     }
+  }
+
+  /** Leert den Stapel, gibt die Vorschau-URLs aber nicht frei — die Seiten können per Rückgängig zurückkommen. */
+  removeAll(): readonly ScannedPage[] {
+    const pages = this.pagesSignal();
+
+    this.pagesSignal.set([]);
+    return pages;
+  }
+
+  /** Stellt per `removeAll` entnommene Seiten vor die inzwischen neu aufgenommenen. */
+  restoreAll(removed: readonly ScannedPage[]): void {
+    this.pagesSignal.update((pages: readonly ScannedPage[]) => [...removed, ...pages]);
   }
 
   clear(): void {

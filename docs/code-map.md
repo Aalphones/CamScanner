@@ -37,7 +37,7 @@ Komponenten/Pipes).
 | `capture` → `camera-blocked` | Fehlerbildschirm „Kamera ist gesperrt“ in drei Varianten (gesperrt, unsichere Verbindung, keine Kamera) | `features/capture/camera-blocked/` |
 | `crop` | Zuschneiden: Standbild mit erkanntem Rahmen, Eck- und Mittelgriffe zum Nachziehen, Lupe, „Auto“, Begradigen per „Übernehmen“ und weiter zu `/filter`; Bearbeiten-Modus für eine vorhandene Seite | `features/crop/` |
 | `filter` | Scan-Look: große Vorschau, fünf Filter-Chips mit Bild der eigenen Seite, Regler für Kontrast und Helligkeit, Schalter „Schatten entfernen“ (KI); „Fertig“ rechnet in voller Auflösung und legt die Seite in den Page Buffer (neu oder ersetzend) | `features/filter/` |
-| `pages` | Seitenübersicht: Raster aller Seiten, Umsortieren per Halten und Ziehen (`page-drag.ts`), Löschen mit Rückgängig, Auswahl-Modus, Drehen, Kachel antippen = Bearbeiten | `features/pages/` |
+| `pages` | Seitenübersicht: Raster aller Seiten, Umsortieren per Halten und Ziehen (`page-drag.ts`), Löschen mit Rückgängig, „Alle Seiten löschen“ (neues Dokument, zurück in den Sucher, mit Rückgängig), Auswahl-Modus, Drehen, Kachel antippen = Bearbeiten | `features/pages/` |
 | `export` | Exportieren: Seitenstapel-Vorschau, Dateiname, Qualitätsstufe, PDF vorab gebaut, Herunterladen | `features/export/` |
 
 ## Globale Bausteine & Deploy

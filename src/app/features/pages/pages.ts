@@ -159,6 +159,24 @@ export class Pages {
     });
   }
 
+  /** Neues Dokument: Stapel leeren und zurück in den Sucher; Rückgängig holt die Seiten auch von dort zurück. */
+  protected onClearAllClick(): void {
+    if (this.count() === 0) {
+      return;
+    }
+
+    this.drag.cancel();
+    const removed = this.pageBuffer.removeAll();
+    this.scanSession.reset();
+
+    this.toast.show('Alle Seiten gelöscht', {
+      actionLabel: 'Rückgängig',
+      action: () => this.pageBuffer.restoreAll(removed),
+      onExpire: () => removed.forEach((page: ScannedPage) => this.pageBuffer.discard(page)),
+    });
+    void this.router.navigate(['/capture']);
+  }
+
   protected async onRotateClick(): Promise<void> {
     if (!this.canRotate()) {
       return;
