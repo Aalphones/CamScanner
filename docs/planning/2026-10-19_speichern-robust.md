@@ -6,7 +6,7 @@
 
 | Phase | Inhalt | Rating | Status |
 |---|---|---|---|
-| 1 | KI-Lauf: nur WASM, Zeitgrenze für den Modelllauf, hängende Karte verwerfen; ADR-008 | standard | pending |
+| 1 | KI-Lauf: nur WASM, Zeitgrenze für den Modelllauf, hängende Karte verwerfen; ADR-008 | standard | complete |
 | 2 | Filter-Bildschirm: Größengrenze beim Speichern, Gesamt-Zeitgrenze, Schritt-Anzeige, Fehlerblock mit zwei Knöpfen | standard | pending |
 
 ## Entscheidungen (fallen hier, nicht beim Umsetzen)
@@ -53,16 +53,16 @@ Wackelstellen zuerst:
 
 ### Checkliste
 
-- [ ] `executionProviders()` löschen; in `createModel` `InferenceSession.create(modelBytes, { executionProviders: ['wasm'] })`. Kommentar über dem Aufruf: `// Nur WASM: WebGPU ist im echten Browser ungeprüft und hing auf einem Mali-Handy (ADR-008).`
-- [ ] Konstante `GAIN_MAP_RUN_TIMEOUT_MS = 30_000` mit Doc-Kommentar (`/** Obergrenze für einen Modelllauf ohne Download — ein hängender Lauf darf Vorschau und Speichern nicht ewig blockieren. */`).
-- [ ] Exportierte Klasse `ShadowTimeoutError extends Error` im selben File, Meldung `KI-Modell hat nicht rechtzeitig geantwortet.`, `name = 'ShadowTimeoutError'`.
-- [ ] `computeGainMap`: nach `await this.model()` den Rest (Eingabe lesen, `session.run`, Karte bilden) in eine private Methode `runModel(ort, session, warped): Promise<GainMap>` auslagern und so aufrufen: `return this.withTimeout(this.runModel(ort, session, warped), GAIN_MAP_RUN_TIMEOUT_MS);`
-- [ ] Private Methode `withTimeout<T>(work: Promise<T>, ms: number): Promise<T>` — `Promise.race` gegen ein `setTimeout`, das `new ShadowTimeoutError()` wirft; den Timer im `finally` per `clearTimeout` lösen.
-- [ ] In `runModel` die Dauer von `session.run` messen und loggen: `console.info('DocShadow: Modelllauf', Math.round(performance.now() - start), 'ms');` (Smoke-Punkt 1 braucht das).
-- [ ] Öffentliche Methode `discardGainMap(warped: Blob): void` → `this.gainMaps.delete(warped)`. Doc-Kommentar: `/** Nach Zeitüberschreitung im Aufrufer: der nächste Aufruf rechnet die Karte neu. */`
-- [ ] ADR `docs/decisions/008-speichern-robust.md` anlegen (Kontext: Hänger auf POCO X6 Pro, WebGPU ungeprüft · Optionen: WebGPU mit WASM-Rückfall / nur WASM / alles lassen + nur Zeitgrenze · Entscheidung: nur WASM, Zeitgrenzen 30 s Lauf / 60 s Speichern, Größengrenze 3000 px · Konsequenzen: langsamer auf Geräten mit funktionierendem WebGPU; synchroner WASM-Lauf blockiert den Hauptthread, die 30-s-Grenze fängt daher nur asynchrones Hängen — ein endlos rechnender WASM-Lauf würde sie nicht auslösen).
-- [ ] ADR-007 letzte Zeile ändern auf: `- Ausführung: nur WASM (geändert durch ADR-008).`
-- [ ] `docs/code-map.md`, Zeile `core/ml/doc-shadow.ts`: „…rechnet je begradigter Seite eine Verstärkungskarte (nur WASM, Zeitgrenze pro Lauf)…“.
+- [x] `executionProviders()` löschen; in `createModel` `InferenceSession.create(modelBytes, { executionProviders: ['wasm'] })`. Kommentar über dem Aufruf: `// Nur WASM: WebGPU ist im echten Browser ungeprüft und hing auf einem Mali-Handy (ADR-008).`
+- [x] Konstante `GAIN_MAP_RUN_TIMEOUT_MS = 30_000` mit Doc-Kommentar (`/** Obergrenze für einen Modelllauf ohne Download — ein hängender Lauf darf Vorschau und Speichern nicht ewig blockieren. */`).
+- [x] Exportierte Klasse `ShadowTimeoutError extends Error` im selben File, Meldung `KI-Modell hat nicht rechtzeitig geantwortet.`, `name = 'ShadowTimeoutError'`.
+- [x] `computeGainMap`: nach `await this.model()` den Rest (Eingabe lesen, `session.run`, Karte bilden) in eine private Methode `runModel(ort, session, warped): Promise<GainMap>` auslagern und so aufrufen: `return this.withTimeout(this.runModel(ort, session, warped), GAIN_MAP_RUN_TIMEOUT_MS);`
+- [x] Private Methode `withTimeout<T>(work: Promise<T>, ms: number): Promise<T>` — `Promise.race` gegen ein `setTimeout`, das `new ShadowTimeoutError()` wirft; den Timer im `finally` per `clearTimeout` lösen.
+- [x] In `runModel` die Dauer von `session.run` messen und loggen: `console.info('DocShadow: Modelllauf', Math.round(performance.now() - start), 'ms');` (Smoke-Punkt 1 braucht das).
+- [x] Öffentliche Methode `discardGainMap(warped: Blob): void` → `this.gainMaps.delete(warped)`. Doc-Kommentar: `/** Nach Zeitüberschreitung im Aufrufer: der nächste Aufruf rechnet die Karte neu. */`
+- [x] ADR `docs/decisions/008-speichern-robust.md` anlegen (Kontext: Hänger auf POCO X6 Pro, WebGPU ungeprüft · Optionen: WebGPU mit WASM-Rückfall / nur WASM / alles lassen + nur Zeitgrenze · Entscheidung: nur WASM, Zeitgrenzen 30 s Lauf / 60 s Speichern, Größengrenze 3000 px · Konsequenzen: langsamer auf Geräten mit funktionierendem WebGPU; synchroner WASM-Lauf blockiert den Hauptthread, die 30-s-Grenze fängt daher nur asynchrones Hängen — ein endlos rechnender WASM-Lauf würde sie nicht auslösen).
+- [x] ADR-007 letzte Zeile ändern auf: `- Ausführung: nur WASM (geändert durch ADR-008).`
+- [x] `docs/code-map.md`, Zeile `core/ml/doc-shadow.ts`: „…rechnet je begradigter Seite eine Verstärkungskarte (nur WASM, Zeitgrenze pro Lauf)…“.
 
 ## Phase 2 — Filter-Bildschirm: Grenzen, Schritt-Anzeige, Fehlerblock
 

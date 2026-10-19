@@ -25,4 +25,4 @@ Das Modell wird auf fp16 umgewandelt (`scripts/convert-fp16.py`, Ein- und Ausgan
 - Erstes Einschalten lädt rund 70 MB (Modell 62 MB plus WebAssembly-Laufzeit, komprimiert 7 MB). Der Service Worker hält beides danach offline vor (Asset-Gruppe `ml`, lazy); ohne Einschalten lädt die App nichts davon, auch nicht den ORT-JavaScript-Chunk.
 - Lizenz: Code und Gewichte stehen unter MIT (DocShadow-SD7K, Nick Chen; ONNX-Export, Fabio M. Sim). Der Hinweis wird unter `licenses/docshadow.txt` mit ausgeliefert.
 - `.htaccess` setzt `Cross-Origin-Opener-Policy: same-origin` und `Cross-Origin-Embedder-Policy: require-corp`, damit ORT mehrere Threads nutzen darf. Ob Strato die Header durchreicht, prüft der User nach dem Deploy (Konsole: `crossOriginIsolated`); ohne sie läuft ORT von selbst einfädig.
-- Ausführung: WebGPU, falls der Browser es anbietet, sonst WASM.
+- Ausführung: nur WASM (geändert durch ADR-008).

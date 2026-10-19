@@ -17,6 +17,17 @@ export const GAIN_MAP_SIZE = 256;
 /** Verhindert Division durch null in tiefschwarzen Pixeln — eine Stufe von 255. */
 const GAIN_EPSILON = 1 / 255;
 
+/** Obergrenze für einen Modelllauf ohne Download — ein hängender Lauf darf Vorschau und Speichern nicht ewig blockieren. */
+const GAIN_MAP_RUN_TIMEOUT_MS = 30_000;
+
+export class ShadowTimeoutError extends Error {
+  override readonly name = 'ShadowTimeoutError';
+
+  constructor() {
+    super('KI-Modell hat nicht rechtzeitig geantwortet.');
+  }
+}
+
 export type ModelLoadState = 'idle' | 'loading' | 'ready';
 
 /**
@@ -68,6 +79,11 @@ export class DocShadow {
     return gainMap;
   }
 
+  /** Nach Zeitüberschreitung im Aufrufer: der nächste Aufruf rechnet die Karte neu. */
+  discardGainMap(warped: Blob): void {
+    this.gainMaps.delete(warped);
+  }
+
   private model(): Promise<ShadowModel> {
     if (this.modelPromise === null) {
       this.modelPromise = this.createModel();
@@ -91,7 +107,8 @@ export class DocShadow {
     console.info('DocShadow: crossOriginIsolated =', globalThis.crossOriginIsolated);
 
     const modelBytes = await this.downloadModel();
-    const session = await ort.InferenceSession.create(modelBytes, { executionProviders: this.executionProviders() });
+    // Nur WASM: WebGPU ist im echten Browser ungeprüft und hing auf einem Mali-Handy (ADR-008).
+    const session = await ort.InferenceSession.create(modelBytes, { executionProviders: ['wasm'] });
 
     this.loadStateSignal.set('ready');
     return { ort, session };
@@ -133,17 +150,26 @@ export class DocShadow {
     return modelBytes;
   }
 
-  /** WebGPU zuerst; scheitert es beim Anlegen der Sitzung, nimmt ORT von selbst WASM. */
-  private executionProviders(): string[] {
-    if ('gpu' in navigator) {
-      return ['webgpu', 'wasm'];
-    }
-
-    return ['wasm'];
-  }
-
   private async computeGainMap(warped: Blob): Promise<GainMap> {
     const { ort, session } = await this.model();
+
+    return this.withTimeout(this.runModel(ort, session, warped), GAIN_MAP_RUN_TIMEOUT_MS);
+  }
+
+  private async withTimeout<T>(work: Promise<T>, ms: number): Promise<T> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<never>((_resolve: (value: never) => void, reject: (reason: unknown) => void) => {
+      timer = setTimeout(() => reject(new ShadowTimeoutError()), ms);
+    });
+
+    try {
+      return await Promise.race([work, timeout]);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  private async runModel(ort: Ort, session: InferenceSession, warped: Blob): Promise<GainMap> {
     const [inputName] = session.inputNames;
     const [outputName] = session.outputNames;
 
@@ -152,7 +178,9 @@ export class DocShadow {
     }
 
     const input = await this.readModelInput(warped);
+    const start = performance.now();
     const results = await session.run({ [inputName]: new ort.Tensor('float32', input, [1, 3, GAIN_MAP_SIZE, GAIN_MAP_SIZE]) });
+    console.info('DocShadow: Modelllauf', Math.round(performance.now() - start), 'ms');
     const output: Tensor | undefined = results[outputName];
 
     if (output === undefined) {

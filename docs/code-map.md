@@ -73,7 +73,7 @@ Komponenten/Pipes).
 | `core/share.ts` | `Share` — `canShareFiles()` und `sharePdf()` (Web Share API mit Datei); einzige Stelle, die `navigator.share` anfasst |
 | `core/app-update.ts` | Hört auf den Service Worker und zeigt bei fertig geladener neuer Version den Toast „Neue Version verfügbar · Neu laden“ |
 | `core/camera.ts` | Kapselt `getUserMedia`/Track-Handling, Zustand als Signal |
-| `core/ml/doc-shadow.ts` | KI-Schattenentfernung: lädt `onnxruntime-web` und das DocShadow-Modell erst beim ersten Einschalten (Fortschritt als Signal), rechnet je begradigter Seite eine Verstärkungskarte; angewendet in `image-filters.ts` (ADR-007) |
+| `core/ml/doc-shadow.ts` | KI-Schattenentfernung: lädt `onnxruntime-web` und das DocShadow-Modell erst beim ersten Einschalten (Fortschritt als Signal), rechnet je begradigter Seite eine Verstärkungskarte (nur WASM, Zeitgrenze pro Lauf); angewendet in `image-filters.ts` (ADR-007, ADR-008) |
 
 ## KI-Modell
 
