@@ -67,7 +67,7 @@ Komponenten/Pipes).
 | `core/edge-refinement.ts` | Zieht erkannte Ecken auf voller Auflösung auf die Blattkanten (Linienanpassung je Kante, ADR-010) |
 | `core/perspective.ts` | Begradigt das Viereck aus dem Original zum Rechteck (OpenCV-Perspektivtransformation, bikubisch), liefert JPEG 0,97 |
 | `core/filter-settings.ts` | Typen und Standardwert der Filter-Einstellung einer Seite |
-| `core/image-filters.ts` | `renderFiltered` rechnet die fünf Scan-Looks plus Kontrast/Helligkeit auf das begradigte Bild (OpenCV: Background Division, CLAHE, Otsu, Unsharp Mask), optional verkleinert für Vorschauen, liefert JPEG (ADR-006) |
+| `core/image-filters.ts` | `renderFiltered` rechnet die fünf Scan-Looks plus Kontrast/Helligkeit auf das begradigte Bild (OpenCV: Background Division, CLAHE, Sauvola, Unsharp Mask), optional verkleinert für Vorschauen, liefert JPEG (ADR-006) |
 | `core/pdf.ts` | Baut aus JPEG-Seiten ein A4-PDF (pdf-lib, lazy geladen), Qualitätsstufen verkleinern per OffscreenCanvas |
 | `core/file-save.ts` | `downloadBlob` (temporärer `<a download>`) und `sanitizePdfFileName` |
 | `core/toast.ts` | Ein Toast zur Zeit mit optionaler Aktion, Signal `current` |

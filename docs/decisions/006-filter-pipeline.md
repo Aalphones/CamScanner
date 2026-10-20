@@ -22,3 +22,4 @@ OpenCV.js auf dem Haupt-Thread, gekapselt in `core/image-filters.ts` (`renderFil
 - Während des Voll-Renderns ist die Oberfläche kurz eingefroren. Der Filter-Bildschirm zeigt deshalb einen Zustand „Speichert …“ (Phase 8).
 - Gemessen auf dem Entwicklungsrechner (Node, dieselbe WebAssembly-Datei, 4000 × 3000 px): Original ~0,1 s, Grau ~0,2 s, S/W ~0,4 s, Scan ~0,8 s, Auto ~2,1 s. Auf dem Handy entsprechend langsamer; „Auto“ ist der teuerste Look, weil er in Farbe arbeitet.
 - Der WebAssembly-Speicher wächst beim ersten Vollbild-Lauf und gibt nichts an den Browser zurück — 20 Läufe hintereinander lassen ihn danach aber nicht weiter wachsen.
+- Nachtrag: S/W trennt seit dem Plan „Scan-Qualität“ mit Sauvola (lokaler Schwellwert, Fenster 2 % der langen Kante) statt Otsu; Statistik ab 1000 px auf halber Auflösung.

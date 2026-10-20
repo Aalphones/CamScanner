@@ -39,8 +39,20 @@ const UNSHARP_SIGMA = 1.5;
 const AUTO_UNSHARP_AMOUNT = 0.5;
 const SCAN_UNSHARP_AMOUNT = 0.8;
 
-/** Vor Otsu leicht glätten — sonst zerfällt Papierrauschen in schwarze Sprenkel. */
+/** Vor dem Schwellwert leicht glätten — sonst zerfällt Papierrauschen in schwarze Sprenkel. */
 const BW_BLUR_KERNEL = 3;
+
+/** Fenster für die lokale Schwelle als Anteil der langen Kante — gleiche Wirkung in Vorschau und Vollbild. Etwa zwei Zeilenhöhen normaler Schrift. */
+const SAUVOLA_WINDOW_RATIO = 0.02;
+
+/** Wie weit die Schwelle unter das lokale Mittel rutscht: kleiner hält blasse Schrift, größer macht das Papier sauberer. */
+const SAUVOLA_K = 0.2;
+
+/** Größte erwartete Streuung bei 8 Bit (Standardwert des Verfahrens). */
+const SAUVOLA_R = 128;
+
+/** Ab dieser langen Kante Mittel und Streuung auf halber Auflösung schätzen — spart Speicher, ändert das Ergebnis nicht sichtbar. */
+const SAUVOLA_STATS_MIN_EDGE = 1000;
 
 /** Regler-Neutralwert und Abbildung auf `convertTo`: Kontrast 0..100 → Faktor 0,5 … 1,5, Helligkeit 0..100 → Versatz −60 … +60. */
 const SLIDER_NEUTRAL = 50;
@@ -132,7 +144,7 @@ export class ImageFilters {
         cv.cvtColor(image, image, cv.COLOR_RGBA2GRAY);
         this.backgroundDivide(cv, image, scope);
         cv.GaussianBlur(image, image, new cv.Size(BW_BLUR_KERNEL, BW_BLUR_KERNEL), 0);
-        cv.threshold(image, image, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU);
+        this.sauvola(cv, image, scope);
         return;
       case 'gray':
         cv.cvtColor(image, image, cv.COLOR_RGBA2GRAY);
@@ -174,6 +186,60 @@ export class ImageFilters {
     cv.resize(background, background, new cv.Size(gray.cols, gray.rows), 0, 0, cv.INTER_LINEAR);
     // Wo der Hintergrund 0 ist, liefert OpenCV 0 statt eines Fehlers — tiefschwarze Ränder bleiben schwarz.
     cv.divide(gray, background, gray, 255);
+  }
+
+  /** Lokaler Schwellwert nach Sauvola: jede Stelle wird an ihrer Umgebung gemessen, nicht am ganzen Blatt — blasse Striche bleiben schwarz. */
+  private sauvola(cv: OpenCv, gray: Mat, scope: MatScope): void {
+    const longEdge = Math.max(gray.cols, gray.rows);
+    const statsScale = longEdge >= SAUVOLA_STATS_MIN_EDGE ? 2 : 1;
+    const small = scope.track(new cv.Mat());
+    const mean = scope.track(new cv.Mat());
+    const squared = scope.track(new cv.Mat());
+    const meanSquared = scope.track(new cv.Mat());
+    const meanPow = scope.track(new cv.Mat());
+    const variance = scope.track(new cv.Mat());
+    const deviation = scope.track(new cv.Mat());
+    const factor = scope.track(new cv.Mat());
+    const limit = scope.track(new cv.Mat());
+    const full = scope.track(new cv.Mat());
+
+    if (statsScale === 2) {
+      cv.resize(gray, small, new cv.Size(Math.round(gray.cols / 2), Math.round(gray.rows / 2)), 0, 0, cv.INTER_AREA);
+    } else {
+      gray.copyTo(small);
+    }
+
+    small.convertTo(small, cv.CV_32F);
+
+    const window = this.oddAtLeast3(Math.round((longEdge * SAUVOLA_WINDOW_RATIO) / statsScale));
+    const windowSize = new cv.Size(window, window);
+    const anchor = new cv.Point(-1, -1);
+
+    cv.boxFilter(small, mean, cv.CV_32F, windowSize, anchor, true, cv.BORDER_REPLICATE);
+    cv.multiply(small, small, squared);
+    cv.boxFilter(squared, meanSquared, cv.CV_32F, windowSize, anchor, true, cv.BORDER_REPLICATE);
+
+    cv.multiply(mean, mean, meanPow);
+    cv.subtract(meanSquared, meanPow, variance);
+    // Rundungsfehler können die Varianz knapp unter 0 drücken — dann liefert die Wurzel NaN.
+    cv.threshold(variance, variance, 0, 0, cv.THRESH_TOZERO);
+    cv.sqrt(variance, deviation);
+
+    deviation.convertTo(factor, cv.CV_32F, SAUVOLA_K / SAUVOLA_R, 1 - SAUVOLA_K);
+    cv.multiply(mean, factor, limit);
+
+    if (statsScale === 2) {
+      cv.resize(limit, limit, new cv.Size(gray.cols, gray.rows), 0, 0, cv.INTER_LINEAR);
+    }
+
+    gray.convertTo(full, cv.CV_32F);
+    cv.subtract(full, limit, full);
+    cv.threshold(full, full, 0, 255, cv.THRESH_BINARY);
+    full.convertTo(gray, cv.CV_8U);
+  }
+
+  private oddAtLeast3(value: number): number {
+    return Math.max(3, value % 2 === 0 ? value + 1 : value);
   }
 
   /** Kontrastbegrenzter lokaler Histogrammausgleich auf einem Graubild. Eigenes Ziel statt an Ort und Stelle — OpenCV sichert für CLAHE kein In-place-Rechnen zu. */
