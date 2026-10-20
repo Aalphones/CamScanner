@@ -69,10 +69,20 @@ Wackelstellen zuerst:
 
 ## Summary
 
+Aufnahme als echtes Foto mit Rückfall aufs schärfste Videobild, verlustärmeres Begradigen, Ecken auf voller Auflösung nachgezogen, S/W mit Sauvola statt Otsu. Alle fünf Phasen umgesetzt; Smoke-Checkliste am Handy steht aus.
+
 ## Files touched
+
+`core/camera.ts`, `core/sharpness.ts`, `core/perspective.ts`, `core/edge-refinement.ts`, `core/document-detection.ts`, `core/image-filters.ts`; ADR-006 (Nachtrag), ADR-009, ADR-010, `docs/code-map.md`.
 
 ## Commits
 
+`29486f6`, `089d5c6`, `deca637`, `86405bb`, `047a81f`.
+
 ## Deviations from plan
 
+Keine bekannt.
+
 ## Follow-ups
+
+Smoke-Checkliste oben am Handy abarbeiten. Gewölbte Buchseiten glätten bleibt eigener Plan.
