@@ -10,7 +10,7 @@ Die Filter sind ausgereizt; die Reserven liegen davor. Die Aufnahme ist bisher e
 
 | # | Phase | Rating | Status |
 |---|---|---|---|
-| 1 | [Aufnahme als echtes Foto](phase-1-fotoaufnahme.md) | heikel | pending |
+| 1 | [Aufnahme als echtes Foto](phase-1-fotoaufnahme.md) | heikel | complete |
 | 2 | [Schärfstes Videobild als Rückfall](phase-2-schaerfe-rueckfall.md) | standard | pending |
 | 3 | [Begradigen verlustärmer](phase-3-begradigen.md) | mechanisch | pending |
 | 4 | [Ecken auf voller Auflösung nachziehen](phase-4-kanten-verfeinern.md) | heikel | pending |

@@ -1,8 +1,8 @@
 # State
 
-**Aktiver Plan:** (kein aktiver Plan) — geparkt im Backlog: `docs/planning/2026-10-19_scan-qualitaet/`
-**Phase:** —
-**Nächster Schritt:** Smoke-Checkliste KI-Eckenerkennung am Handy (`docs/archive/2026-10/2026-10-19_ki-eckenerkennung.md` → „Smoke-Checkliste“, vorher `npm run fetch-models` + `deploy.cmd`); danach `/implement` für `scan-qualitaet`.
+**Aktiver Plan:** `docs/planning/2026-10-19_scan-qualitaet/`
+**Phase:** 2/5 — Schärfstes Videobild als Rückfall (pending)
+**Nächster Schritt:** `phase-2-schaerfe-rueckfall.md` umsetzen (`core/sharpness.ts`, Rückfall in `captureFrame` = schärfstes von 5 Videobildern).
 
 Die App läuft unter `https://quantum-canvas.de/scanner/` (nicht auf einer Subdomain, siehe `FINDINGS.md` → „Deploy“ im archivierten Plan `2026-10-07_app-nach-mockup`).
 

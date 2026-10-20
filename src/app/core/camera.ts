@@ -12,6 +12,24 @@ const CAMERA_CONSTRAINTS: MediaStreamConstraints = {
   audio: false,
 };
 
+/** Obergrenze fürs Foto: die Pipeline ist auf bis zu 12 MP ausgelegt (ADR-006); mehr kostet nur Speicher. */
+const PHOTO_MAX_PIXELS = 12_000_000;
+
+/** Geräte runden die angefragte Größe; erst darüber wird nachträglich verkleinert. */
+const PHOTO_PIXEL_TOLERANCE = 1.05;
+
+/** Manche Geräte beantworten takePhoto nie — danach zählt das Videobild (ADR-009). */
+const PHOTO_TIMEOUT_MS = 5_000;
+
+function withTimeout<T>(work: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_resolve: (value: never) => void, reject: (reason: Error) => void) => {
+    timer = setTimeout(() => reject(new Error('Zeitüberschreitung')), ms);
+  });
+
+  return Promise.race([work, timeout]).finally(() => clearTimeout(timer));
+}
+
 // `torch` fehlt in den TypeScript-DOM-Typen, obwohl Chromium-Browser es melden.
 interface TorchCapabilities extends MediaTrackCapabilities {
   torch?: boolean;
@@ -77,9 +95,10 @@ export class Camera {
     }
   }
 
-  /** Standbild in voller Kamera-Auflösung, nicht in den CSS-Maßen des Video-Elements. */
-  captureFrame(video: HTMLVideoElement): Promise<ImageBitmap> {
-    return createImageBitmap(video);
+  /** Standbild für den Scan: echtes Foto in Sensor-Auflösung, wo der Browser es kann, sonst das Videobild (ADR-009). */
+  async captureFrame(video: HTMLVideoElement): Promise<ImageBitmap> {
+    const photo = await this.takePhoto();
+    return photo ?? createImageBitmap(video);
   }
 
   /**
@@ -116,6 +135,75 @@ export class Camera {
     this.torchAvailableSignal.set(false);
     this.torchOnSignal.set(false);
     this.stateSignal.set('idle');
+  }
+
+  /** `null` = kein Foto möglich oder gescheitert; der Aufrufer nimmt dann das Videobild. */
+  private async takePhoto(): Promise<ImageBitmap | null> {
+    const track = this.stream?.getVideoTracks()[0];
+
+    // Taschenlampe an → Videobild: ob takePhoto die Dauerleuchte anlässt, ist ungeprüft.
+    if (!track || typeof ImageCapture === 'undefined' || this.torchOn()) {
+      return null;
+    }
+
+    try {
+      const capture = new ImageCapture(track);
+      const settings = await this.photoSettings(capture);
+      const blob = await withTimeout(capture.takePhoto(settings), PHOTO_TIMEOUT_MS);
+      const bitmap = await createImageBitmap(blob, { imageOrientation: 'from-image' });
+      const limited = await this.limitPixels(bitmap);
+      console.info('Camera: Foto', limited.width, '×', limited.height);
+      return limited;
+    } catch (error: unknown) {
+      console.warn('Fotoaufnahme nicht möglich, nehme das Videobild', error);
+      return null;
+    }
+  }
+
+  /** Fragt die größte Foto-Auflösung an, die unter der Pixelgrenze bleibt; ohne Angaben des Geräts dessen Standard. */
+  private async photoSettings(capture: ImageCapture): Promise<PhotoSettings> {
+    let capabilities: PhotoCapabilities;
+
+    try {
+      capabilities = await capture.getPhotoCapabilities();
+    } catch {
+      return {};
+    }
+
+    const maxWidth = capabilities.imageWidth?.max;
+    const maxHeight = capabilities.imageHeight?.max;
+
+    if (maxWidth === undefined || maxHeight === undefined) {
+      return {};
+    }
+
+    if (maxWidth * maxHeight <= PHOTO_MAX_PIXELS) {
+      return { imageWidth: maxWidth, imageHeight: maxHeight };
+    }
+
+    const factor = Math.sqrt(PHOTO_MAX_PIXELS / (maxWidth * maxHeight));
+    return { imageWidth: Math.round(maxWidth * factor), imageHeight: Math.round(maxHeight * factor) };
+  }
+
+  /** Verkleinert, falls das Gerät die angefragte Größe ignoriert hat. */
+  private async limitPixels(bitmap: ImageBitmap): Promise<ImageBitmap> {
+    const { width, height } = bitmap;
+
+    if (width * height < PHOTO_MAX_PIXELS * PHOTO_PIXEL_TOLERANCE) {
+      return bitmap;
+    }
+
+    const factor = Math.sqrt(PHOTO_MAX_PIXELS / (width * height));
+
+    try {
+      return await createImageBitmap(bitmap, {
+        resizeWidth: Math.round(width * factor),
+        resizeHeight: Math.round(height * factor),
+        resizeQuality: 'high',
+      });
+    } finally {
+      bitmap.close();
+    }
   }
 
   private readTorchCapability(): boolean {

@@ -119,6 +119,7 @@ export class Capture implements OnInit, OnDestroy {
     this.liveDetection.stop();
 
     try {
+      // Vor stop(): die Fotoaufnahme braucht den laufenden Track.
       const frame = await this.camera.captureFrame(this.videoRef().nativeElement);
       this.scanSession.startNew(frame);
       this.camera.stop();
