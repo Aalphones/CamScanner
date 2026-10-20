@@ -1,15 +1,14 @@
-import { Service, signal } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
 
 import type { InferenceSession, Tensor } from 'onnxruntime-web';
+
+import { OrtRuntime, type Ort } from './ort-runtime';
 
 /** fp16-Fassung von DocShadow (SD7K), erzeugt per `npm run fetch-models` (ADR-007). */
 const MODEL_URL = 'models/docshadow.onnx';
 
 /** Erwartete Dateigröße — Fortschritt, falls der Server keine `Content-Length` schickt. */
 const MODEL_BYTES = 62_046_107;
-
-/** Ordner, in den `angular.json` die WASM-Dateien von onnxruntime-web kopiert. */
-const ORT_ASSET_DIR = 'ort/';
 
 /** Das Modell ist auf 256 × 256 trainiert; Schatten sind niederfrequent, mehr Auflösung bringt der Verstärkungskarte nichts. */
 export const GAIN_MAP_SIZE = 256;
@@ -39,8 +38,6 @@ export interface GainMap {
   readonly rgb: Float32Array;
 }
 
-type Ort = typeof import('onnxruntime-web');
-
 interface ShadowModel {
   readonly ort: Ort;
   readonly session: InferenceSession;
@@ -52,6 +49,7 @@ interface ShadowModel {
  */
 @Service()
 export class DocShadow {
+  private readonly ortRuntime = inject(OrtRuntime);
   private readonly loadStateSignal = signal<ModelLoadState>('idle');
   private readonly loadProgressSignal = signal(0);
   private modelPromise: Promise<ShadowModel> | null = null;
@@ -100,12 +98,7 @@ export class DocShadow {
     this.loadStateSignal.set('loading');
     this.loadProgressSignal.set(0);
 
-    const ort = await import('onnxruntime-web');
-    // Selbst gehostet statt CDN: offline verfügbar und kein Netzwerkzugriff außer auf die eigene Adresse.
-    ort.env.wasm.wasmPaths = new URL(ORT_ASSET_DIR, document.baseURI).href;
-    // Threads nutzt ORT nur mit Cross-Origin-Isolation, sonst läuft es von selbst einfädig.
-    console.info('DocShadow: crossOriginIsolated =', globalThis.crossOriginIsolated);
-
+    const ort = await this.ortRuntime.load();
     const modelBytes = await this.downloadModel();
     // Nur WASM: WebGPU ist im echten Browser ungeprüft und hing auf einem Mali-Handy (ADR-008).
     const session = await ort.InferenceSession.create(modelBytes, { executionProviders: ['wasm'] });
