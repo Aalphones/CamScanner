@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Camera } from '../../core/camera';
 import { DocumentDetection } from '../../core/document-detection';
 import { fitCover, mapQuad, type Point, type Quad, type Size } from '../../core/geometry';
+import { DocAligner } from '../../core/ml/doc-aligner';
 import { PageBuffer } from '../../core/page-buffer';
 import { ScanSession } from '../../core/scan-session';
 import { Icon } from '../../shared/icon/icon';
@@ -27,6 +28,7 @@ export class Capture implements OnInit, OnDestroy {
   private readonly scanSession = inject(ScanSession);
   private readonly router = inject(Router);
   private readonly pageBuffer = inject(PageBuffer);
+  private readonly docAligner = inject(DocAligner);
 
   protected readonly pageCount = this.pageBuffer.count;
 
@@ -97,6 +99,8 @@ export class Capture implements OnInit, OnDestroy {
     this.resizeObserver.observe(video);
 
     void this.camera.start(video);
+    // Vorwärmen, während der User zielt — beim Auslösen ist das Modell dann meist schon da. Fehler zeigt erst die Erkennung.
+    this.docAligner.load().catch(() => undefined);
   }
 
   ngOnDestroy(): void {

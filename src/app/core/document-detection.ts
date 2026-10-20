@@ -2,8 +2,9 @@ import { inject, Service } from '@angular/core';
 
 import type { Mat, MatVector } from '@techstark/opencv-js';
 
-import { isConvexQuad, quadArea, scaleQuad, sortQuadCorners, type Point, type Quad } from './geometry';
+import { isConvexQuad, quadArea, quadsClose, scaleQuad, sortQuadCorners, type Point, type Quad } from './geometry';
 import { MatScope } from './mat-scope';
+import { DocAligner } from './ml/doc-aligner';
 import { OpencvLoader, type OpenCv } from './opencv-loader';
 
 /**
@@ -30,9 +31,37 @@ const MIN_AREA_RATIO = 0.2;
 /** Nur die größten Konturen sind Kandidaten — der Rest ist Text, Tischkante, Schatten. */
 const CONTOUR_CANDIDATES = 5;
 
+/** Liegen KI- und OpenCV-Ecken so nah beisammen (Anteil der Diagonale), haben beide dasselbe Blatt gefunden — dann zählt das genauere OpenCV-Ergebnis. */
+const AGREEMENT_RATIO = 0.03;
+
 @Service()
 export class DocumentDetection {
   private readonly opencvLoader = inject(OpencvLoader);
+  private readonly docAligner = inject(DocAligner);
+
+  /** Erkennung fürs Standbild: KI-Modell als Hauptweg, OpenCV für die Feinlage und als Rückfall (ADR-011). */
+  async detectStill(source: ImageBitmap): Promise<Quad | null> {
+    const opencvQuad = await this.detect(source);
+    const started = performance.now();
+    let aiQuad: Quad | null;
+
+    try {
+      aiQuad = await this.docAligner.detect(source);
+    } catch (error: unknown) {
+      console.info('DocAligner: nicht verfügbar', error);
+      return opencvQuad;
+    }
+
+    const result = this.combine(opencvQuad, aiQuad, Math.hypot(source.width, source.height) * AGREEMENT_RATIO);
+    let label = 'keins';
+
+    if (result !== null) {
+      label = result === aiQuad ? 'ki' : 'opencv';
+    }
+
+    console.info(`DocAligner: ${Math.round(performance.now() - started)} ms, Ergebnis ${label}`);
+    return result;
+  }
 
   /**
    * Sucht das Dokument im Standbild und liefert seine vier Ecken in
@@ -56,6 +85,19 @@ export class DocumentDetection {
     }
 
     return scaleQuad(detectedQuad, 1 / scaleFactor);
+  }
+
+  /** Ohne KI-Ergebnis OpenCV; finden beide dasselbe Blatt, OpenCV (genauer); sonst die KI. */
+  private combine(opencvQuad: Quad | null, aiQuad: Quad | null, tolerance: number): Quad | null {
+    if (aiQuad === null) {
+      return opencvQuad;
+    }
+
+    if (opencvQuad !== null && quadsClose(opencvQuad, aiQuad, tolerance)) {
+      return opencvQuad;
+    }
+
+    return aiQuad;
   }
 
   /** Verkleinerte Arbeitskopie als `ImageData` — das ist das Format, das OpenCV.js direkt entgegennimmt. */

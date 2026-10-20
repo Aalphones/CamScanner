@@ -63,7 +63,7 @@ Komponenten/Pipes).
 | `core/page-factory.ts` | `createPage` baut eine Seite aus Entwurf, begradigtem und bereits gefiltertem Bild (`output` rechnet der Aufrufer, `filter` in `features/filter/`); `renderThumbnail` zeichnet die gedrehte Vorschau |
 | `core/geometry.ts` | `Point`/`Quad`-Typen plus reine Rechen-Funktionen: Ecken sortieren, skalieren, Zielgröße, Fläche, Konvexitätsprüfung, Startviereck, Einpassen (contain/cover), Quad auf den Bildschirm umrechnen, Ruhe-Vergleich zweier Quads, Punkt begrenzen, Kantenmitten |
 | `core/mat-scope.ts` | Sammelt OpenCV-Objekte ein und gibt sie in einem `finally` frei |
-| `core/document-detection.ts` | Findet die Blattkanten im Standbild (OpenCV: Graustufen → Canny → Konturen) und liefert vier Ecken oder `null` |
+| `core/document-detection.ts` | Findet die Blattkanten im Standbild (OpenCV: Graustufen → Canny → Konturen) und liefert vier Ecken oder `null`, `detectStill` kombiniert KI und OpenCV fürs Standbild |
 | `core/perspective.ts` | Begradigt das Viereck aus dem Original zum Rechteck (OpenCV-Perspektivtransformation), liefert JPEG |
 | `core/filter-settings.ts` | Typen und Standardwert der Filter-Einstellung einer Seite |
 | `core/image-filters.ts` | `renderFiltered` rechnet die fünf Scan-Looks plus Kontrast/Helligkeit auf das begradigte Bild (OpenCV: Background Division, CLAHE, Otsu, Unsharp Mask), optional verkleinert für Vorschauen, liefert JPEG (ADR-006) |
@@ -74,6 +74,7 @@ Komponenten/Pipes).
 | `core/app-update.ts` | Hört auf den Service Worker und zeigt bei fertig geladener neuer Version den Toast „Neue Version verfügbar · Neu laden“ |
 | `core/camera.ts` | Kapselt `getUserMedia`/Track-Handling, Zustand als Signal |
 | `core/ml/ort-runtime.ts` | Lädt `onnxruntime-web` einmal für alle Modelle (selbst gehostet unter `ort/`) |
+| `core/ml/doc-aligner.ts` | KI-Eckenerkennung (DocAligner): Heatmap → vier Ecken, nur fürs Standbild (ADR-011) |
 | `core/ml/doc-shadow.ts` | KI-Schattenentfernung: holt die Laufzeit über `OrtRuntime` und lädt das DocShadow-Modell erst beim ersten Einschalten (Fortschritt als Signal), rechnet je begradigter Seite eine Verstärkungskarte (nur WASM, Zeitgrenze pro Lauf); angewendet in `image-filters.ts` (ADR-007, ADR-008) |
 
 ## KI-Modell

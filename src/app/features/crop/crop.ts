@@ -339,7 +339,7 @@ export class Crop implements OnInit {
     let detected: Quad | null = null;
 
     try {
-      detected = await this.documentDetection.detect(frame);
+      detected = await this.documentDetection.detectStill(frame);
     } catch (error: unknown) {
       console.error('Kantenerkennung fehlgeschlagen', error);
     } finally {

@@ -41,7 +41,7 @@ statt eine App aus dem Store zu brauchen).
 | Bildverarbeitung | OpenCV.js (Kanten/Kontur/Warp), Canvas API (Filter) |
 | PDF | pdf-lib |
 | Sharing | Web Share API + Download-Fallback |
-| Optional ML | onnxruntime-web (DocAligner, DocShadow) — Opt-in, nicht im MVP |
+| ML | onnxruntime-web — DocAligner aktiv für die Standbild-Erkennung (ADR-011), DocShadow per Schalter (ADR-007) |
 | PWA | `@angular/service-worker` (Angular-PWA-Schematic) |
 | Tests | Vitest (Angular-Default) |
 | Build | Angular CLI / `@angular/build` (esbuild-basiert) |
@@ -75,9 +75,7 @@ Detection bei jedem Kamera-Frame durchrattert.
    „Installierbar"-Kriterien (Chrome DevTools → Application → Manifest, Abschnitt „Installability“)
 5. **Sharing** — Web Share API (Android Share Sheet) mit Download-Fallback für
    Browser ohne Support
-6. **Optional: ML-Erweiterung** — DocAligner als Fallback für die
-   Kantenerkennung, DocShadow für Schattenentfernung via `onnxruntime-web`,
-   nur wenn die klassische Pipeline in der Praxis nicht reicht
+6. **ML-Erweiterung** — DocAligner aktiv für die Standbild-Erkennung (ADR-011), DocShadow für Schattenentfernung via `onnxruntime-web` (ADR-007)
 
 Reihenfolge ist grobe Orientierung, kein Fixplan — Detailphasen entstehen beim
 `/plan`-Lauf pro Meilenstein.
