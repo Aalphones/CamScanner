@@ -5,7 +5,8 @@ import { MatScope } from './mat-scope';
 import { OpencvLoader } from './opencv-loader';
 
 const WARPED_IMAGE_TYPE = 'image/jpeg';
-const WARPED_IMAGE_QUALITY = 0.92;
+/** Zwischenstand vor dem Filter, der noch einmal komprimiert — hier wenig verlieren. PNG wäre rund fünfmal so groß und liegt pro Seite im Page Buffer. */
+const WARPED_IMAGE_QUALITY = 0.97;
 
 @Service()
 export class Perspective {
@@ -40,8 +41,9 @@ export class Perspective {
       );
       const transform = scope.track(cv.getPerspectiveTransform(sourcePoints, targetPoints));
 
+      // Bikubisch: Schriftkanten bleiben schärfer als linear; läuft nur einmal pro Seite.
       // BORDER_REPLICATE statt Schwarz: liegt eine Ecke genau auf dem Bildrand, entsteht sonst ein dunkler Saum.
-      cv.warpPerspective(sourceMat, warpedMat, transform, new cv.Size(target.width, target.height), cv.INTER_LINEAR, cv.BORDER_REPLICATE);
+      cv.warpPerspective(sourceMat, warpedMat, transform, new cv.Size(target.width, target.height), cv.INTER_CUBIC, cv.BORDER_REPLICATE);
 
       // Kopie, weil `warpedMat.data` auf den WebAssembly-Speicher zeigt, der im `finally` freigegeben wird.
       warpedImage = new ImageData(new Uint8ClampedArray(warpedMat.data), target.width, target.height);

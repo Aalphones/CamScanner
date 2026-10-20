@@ -22,9 +22,10 @@
 
 ## Checkliste
 
-- [ ] `perspective.ts`: `WARPED_IMAGE_QUALITY = 0.97` mit Doc-Kommentar `/** Zwischenstand vor dem Filter, der noch einmal komprimiert — hier wenig verlieren. PNG wäre rund fünfmal so groß und liegt pro Seite im Page Buffer. */`
-- [ ] `warpPerspective`-Aufruf: `cv.INTER_LINEAR` → `cv.INTER_CUBIC`; Kommentar darüber: `// Bikubisch: Schriftkanten bleiben schärfer als linear; läuft nur einmal pro Seite.`
-- [ ] `docs/code-map.md`, Zeile `core/perspective.ts`: „…(OpenCV-Perspektivtransformation, bikubisch), liefert JPEG 0,97“.
-- [ ] `npm run lint`, `npm run build`, `npm test`.
+- [x] `perspective.ts`: `WARPED_IMAGE_QUALITY = 0.97` mit Doc-Kommentar `/** Zwischenstand vor dem Filter, der noch einmal komprimiert — hier wenig verlieren. PNG wäre rund fünfmal so groß und liegt pro Seite im Page Buffer. */`
+- [x] `warpPerspective`-Aufruf: `cv.INTER_LINEAR` → `cv.INTER_CUBIC`; Kommentar darüber: `// Bikubisch: Schriftkanten bleiben schärfer als linear; läuft nur einmal pro Seite.`
+- [x] `docs/code-map.md`, Zeile `core/perspective.ts`: „…(OpenCV-Perspektivtransformation, bikubisch), liefert JPEG 0,97“.
+- [x] `npm run lint`, `npm run build`, `npm test`.
 
 ## Report-Back
+Umgesetzt wie geplant: INTER_CUBIC, JPEG 0,97, code-map nachgezogen. Lint, Build, 9 Tests grün. Keine Findings für spätere Phasen.

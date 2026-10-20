@@ -1,8 +1,8 @@
 # State
 
 **Aktiver Plan:** `docs/planning/2026-10-19_scan-qualitaet/`
-**Phase:** 3/5 — Begradigen verlustärmer (pending)
-**Nächster Schritt:** `phase-3-begradigen.md` umsetzen (`core/perspective.ts`, JPEG 0,97 statt 0,92).
+**Phase:** 4/5 — Ecken auf voller Auflösung nachziehen (pending)
+**Nächster Schritt:** `phase-4-kanten-verfeinern.md` umsetzen (`core/edge-refinement.ts`, `DocumentDetection.refine`, ADR-010). Rating heikel → `/model opusplan`.
 
 Die App läuft unter `https://quantum-canvas.de/scanner/` (nicht auf einer Subdomain, siehe `FINDINGS.md` → „Deploy“ im archivierten Plan `2026-10-07_app-nach-mockup`).
 
