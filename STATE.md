@@ -1,8 +1,8 @@
 # State
 
 **Aktiver Plan:** `docs/planning/2026-10-19_scan-qualitaet/`
-**Phase:** 2/5 — Schärfstes Videobild als Rückfall (pending)
-**Nächster Schritt:** `phase-2-schaerfe-rueckfall.md` umsetzen (`core/sharpness.ts`, Rückfall in `captureFrame` = schärfstes von 5 Videobildern).
+**Phase:** 3/5 — Begradigen verlustärmer (pending)
+**Nächster Schritt:** `phase-3-begradigen.md` umsetzen (`core/perspective.ts`, JPEG 0,97 statt 0,92).
 
 Die App läuft unter `https://quantum-canvas.de/scanner/` (nicht auf einer Subdomain, siehe `FINDINGS.md` → „Deploy“ im archivierten Plan `2026-10-07_app-nach-mockup`).
 

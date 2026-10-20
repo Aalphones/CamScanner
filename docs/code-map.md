@@ -72,7 +72,8 @@ Komponenten/Pipes).
 | `core/toast.ts` | Ein Toast zur Zeit mit optionaler Aktion, Signal `current` |
 | `core/share.ts` | `Share` — `canShareFiles()` und `sharePdf()` (Web Share API mit Datei); einzige Stelle, die `navigator.share` anfasst |
 | `core/app-update.ts` | Hört auf den Service Worker und zeigt bei fertig geladener neuer Version den Toast „Neue Version verfügbar · Neu laden“ |
-| `core/camera.ts` | Kapselt `getUserMedia`/Track-Handling, Zustand als Signal; Standbild per `ImageCapture.takePhoto` mit Rückfall aufs Videobild (ADR-009) |
+| `core/camera.ts` | Kapselt `getUserMedia`/Track-Handling, Zustand als Signal; Standbild per `ImageCapture.takePhoto` mit Rückfall aufs schärfste von fünf Videobildern (ADR-009) |
+| `core/sharpness.ts` | Schärfemaß eines Bildes (Varianz des Laplace-Bilds der Bildmitte), nur relativ; wählt im Rückfall der Aufnahme das schärfste Videobild |
 | `core/ml/ort-runtime.ts` | Lädt `onnxruntime-web` einmal für alle Modelle (selbst gehostet unter `ort/`) |
 | `core/ml/doc-aligner.ts` | KI-Eckenerkennung (DocAligner): Heatmap → vier Ecken, nur fürs Standbild (ADR-011) |
 | `core/ml/doc-shadow.ts` | KI-Schattenentfernung: holt die Laufzeit über `OrtRuntime` und lädt das DocShadow-Modell erst beim ersten Einschalten (Fortschritt als Signal), rechnet je begradigter Seite eine Verstärkungskarte (nur WASM, Zeitgrenze pro Lauf); angewendet in `image-filters.ts` (ADR-007, ADR-008) |

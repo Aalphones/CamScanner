@@ -1,4 +1,6 @@
-import { Service, signal } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
+
+import { Sharpness } from './sharpness';
 
 export const CAMERA_STATES = ['idle', 'starting', 'running', 'denied', 'insecure', 'unavailable'] as const;
 export type CameraState = (typeof CAMERA_STATES)[number];
@@ -21,6 +23,14 @@ const PHOTO_PIXEL_TOLERANCE = 1.05;
 /** Manche Geräte beantworten takePhoto nie — danach zählt das Videobild (ADR-009). */
 const PHOTO_TIMEOUT_MS = 5_000;
 
+/** Rückfall ohne Foto: mehrere Videobilder greifen und das schärfste nehmen — gegen Verwacklung beim Antippen. 60 ms > ein Bildintervall bei 30 fps (ADR-009). */
+const FALLBACK_FRAME_COUNT = 5;
+const FALLBACK_FRAME_GAP_MS = 60;
+
+function delay(ms: number): Promise<void> {
+  return new Promise<void>((resolve: () => void) => setTimeout(resolve, ms));
+}
+
 function withTimeout<T>(work: Promise<T>, ms: number): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<never>((_resolve: (value: never) => void, reject: (reason: Error) => void) => {
@@ -41,6 +51,8 @@ interface TorchConstraintSet extends MediaTrackConstraintSet {
 
 @Service()
 export class Camera {
+  private readonly sharpness = inject(Sharpness);
+
   private readonly stateSignal = signal<CameraState>('idle');
   readonly state = this.stateSignal.asReadonly();
 
@@ -98,7 +110,7 @@ export class Camera {
   /** Standbild für den Scan: echtes Foto in Sensor-Auflösung, wo der Browser es kann, sonst das Videobild (ADR-009). */
   async captureFrame(video: HTMLVideoElement): Promise<ImageBitmap> {
     const photo = await this.takePhoto();
-    return photo ?? createImageBitmap(video);
+    return photo ?? this.sharpestVideoFrame(video);
   }
 
   /**
@@ -135,6 +147,41 @@ export class Camera {
     this.torchAvailableSignal.set(false);
     this.torchOnSignal.set(false);
     this.stateSignal.set('idle');
+  }
+
+  /** Greift mehrere Videobilder und behält das schärfste; scheitert die Messung, gilt das zuletzt gegriffene Bild. */
+  private async sharpestVideoFrame(video: HTMLVideoElement): Promise<ImageBitmap> {
+    let best: { bitmap: ImageBitmap; score: number } | null = null;
+
+    for (let index = 0; index < FALLBACK_FRAME_COUNT; index += 1) {
+      if (index > 0) {
+        await delay(FALLBACK_FRAME_GAP_MS);
+      }
+
+      const bitmap = await createImageBitmap(video);
+      let score: number;
+
+      try {
+        score = await this.sharpness.score(bitmap);
+      } catch (error: unknown) {
+        console.warn('Schärfemessung fehlgeschlagen', error);
+        best?.bitmap.close();
+        return bitmap;
+      }
+
+      if (best === null || score > best.score) {
+        best?.bitmap.close();
+        best = { bitmap, score };
+      } else {
+        bitmap.close();
+      }
+    }
+
+    if (best === null) {
+      throw new Error('Kein Videobild gegriffen');
+    }
+
+    return best.bitmap;
   }
 
   /** `null` = kein Foto möglich oder gescheitert; der Aufrufer nimmt dann das Videobild. */

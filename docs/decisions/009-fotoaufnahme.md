@@ -15,7 +15,7 @@ Der Auslöser hält bisher ein Bild aus dem laufenden Videostream fest (`createI
 
 ## Entscheidung
 
-`ImageCapture.takePhoto` mit der größten Foto-Auflösung bis 12 MP (`PHOTO_MAX_PIXELS`); meldet das Gerät mehr, wird kleiner angefragt, und ignoriert es die Anfrage, wird nach dem Dekodieren verkleinert (Toleranz 5 % für gerundete Größen). Antwortet `takePhoto` nicht binnen 5 s, zählt das Videobild; ein spät eintreffendes Foto wird verworfen. Bei eingeschalteter Taschenlampe gilt immer das Videobild — ob `takePhoto` die Dauerleuchte anlässt, ist ungeprüft. Das Foto wird gemäß EXIF aufrecht gedreht.
+`ImageCapture.takePhoto` mit der größten Foto-Auflösung bis 12 MP (`PHOTO_MAX_PIXELS`); meldet das Gerät mehr, wird kleiner angefragt, und ignoriert es die Anfrage, wird nach dem Dekodieren verkleinert (Toleranz 5 % für gerundete Größen). Antwortet `takePhoto` nicht binnen 5 s, zählt das Videobild; ein spät eintreffendes Foto wird verworfen. Bei eingeschalteter Taschenlampe gilt immer das Videobild — ob `takePhoto` die Dauerleuchte anlässt, ist ungeprüft. Das Foto wird gemäß EXIF aufrecht gedreht. Rückfall: fünf Videobilder im Abstand von 60 ms, das schärfste nach Varianz des Laplace-Bilds der Bildmitte (`core/sharpness.ts`).
 
 ## Konsequenzen
 

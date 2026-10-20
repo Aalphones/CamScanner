@@ -22,11 +22,11 @@
 
 ## Checkliste
 
-- [ ] Neue Datei `src/app/core/sharpness.ts`, `@Service()` `Sharpness` mit `inject(OpencvLoader)`. Konstanten mit Doc-Kommentar: `SHARPNESS_MAX_EDGE = 640` (`/** Schärfe auf einer kleinen Kopie messen — Verwacklung sieht man dort genauso, die Rechnung bleibt billig. */`), `SHARPNESS_CENTER_RATIO = 0.5` (`/** Nur die Bildmitte: dort liegt das Dokument, der Tisch drumherum soll nicht mitentscheiden. */`).
-- [ ] `async score(frame: ImageBitmap): Promise<number>`: OpenCV laden; verkleinerte Kopie der Bildmitte als `ImageData` zeichnen — `OffscreenCanvas` der verkleinerten Größe, `context.drawImage(frame, sx, sy, sw, sh, 0, 0, w, h)` mit `sw = frame.width * 0.5`, `sx = frame.width * 0.25` (analog y) und `w/h` so, dass die lange Kante höchstens 640 ist. Dann mit `MatScope`: `matFromImageData` → `cvtColor(RGBA2GRAY)` → `cv.Laplacian(gray, lap, cv.CV_64F)` → `cv.meanStdDev(lap, mean, stddev)` → Rückgabe `stddev.data64F[0] ** 2`. Doc-Kommentar: `/** Varianz des Laplace-Bilds: scharfe Kanten geben große Ausschläge, Verwacklung glättet sie weg. Nur zum Vergleichen zweier Bilder derselben Szene. */`
-- [ ] `camera.ts`: `inject(Sharpness)`; Konstanten `FALLBACK_FRAME_COUNT = 5`, `FALLBACK_FRAME_GAP_MS = 60` mit Doc-Kommentar (`/** Rückfall ohne Foto: mehrere Videobilder greifen und das schärfste nehmen — gegen Verwacklung beim Antippen. 60 ms > ein Bildintervall bei 30 fps (ADR-009). */`).
-- [ ] `captureFrame`: `return photo ?? this.sharpestVideoFrame(video);`
-- [ ] Private `async sharpestVideoFrame(video: HTMLVideoElement): Promise<ImageBitmap>`:
+- [x] Neue Datei `src/app/core/sharpness.ts`, `@Service()` `Sharpness` mit `inject(OpencvLoader)`. Konstanten mit Doc-Kommentar: `SHARPNESS_MAX_EDGE = 640` (`/** Schärfe auf einer kleinen Kopie messen — Verwacklung sieht man dort genauso, die Rechnung bleibt billig. */`), `SHARPNESS_CENTER_RATIO = 0.5` (`/** Nur die Bildmitte: dort liegt das Dokument, der Tisch drumherum soll nicht mitentscheiden. */`).
+- [x] `async score(frame: ImageBitmap): Promise<number>`: OpenCV laden; verkleinerte Kopie der Bildmitte als `ImageData` zeichnen — `OffscreenCanvas` der verkleinerten Größe, `context.drawImage(frame, sx, sy, sw, sh, 0, 0, w, h)` mit `sw = frame.width * 0.5`, `sx = frame.width * 0.25` (analog y) und `w/h` so, dass die lange Kante höchstens 640 ist. Dann mit `MatScope`: `matFromImageData` → `cvtColor(RGBA2GRAY)` → `cv.Laplacian(gray, lap, cv.CV_64F)` → `cv.meanStdDev(lap, mean, stddev)` → Rückgabe `stddev.data64F[0] ** 2`. Doc-Kommentar: `/** Varianz des Laplace-Bilds: scharfe Kanten geben große Ausschläge, Verwacklung glättet sie weg. Nur zum Vergleichen zweier Bilder derselben Szene. */`
+- [x] `camera.ts`: `inject(Sharpness)`; Konstanten `FALLBACK_FRAME_COUNT = 5`, `FALLBACK_FRAME_GAP_MS = 60` mit Doc-Kommentar (`/** Rückfall ohne Foto: mehrere Videobilder greifen und das schärfste nehmen — gegen Verwacklung beim Antippen. 60 ms > ein Bildintervall bei 30 fps (ADR-009). */`).
+- [x] `captureFrame`: `return photo ?? this.sharpestVideoFrame(video);`
+- [x] Private `async sharpestVideoFrame(video: HTMLVideoElement): Promise<ImageBitmap>`:
   ```ts
   let best: { bitmap: ImageBitmap; score: number } | null = null;
   for (let index = 0; index < FALLBACK_FRAME_COUNT; index += 1) {
@@ -41,8 +41,10 @@
   return best!.bitmap;   // Schleife läuft mindestens einmal — statt `!` ein `if (best === null) throw new Error(...)` gemäß typescript.md
   ```
   Modul-Funktion `delay(ms: number): Promise<void>` = `new Promise((resolve) => setTimeout(resolve, ms))`.
-- [ ] ADR-009, Abschnitt Entscheidung: Satz zum Rückfall ergänzen („Rückfall: fünf Videobilder im Abstand von 60 ms, das schärfste nach Varianz des Laplace-Bilds der Bildmitte“).
-- [ ] `docs/code-map.md`: Zeile `core/sharpness.ts` — „Schärfemaß eines Bildes (Varianz des Laplace-Bilds der Bildmitte), nur relativ; wählt im Rückfall der Aufnahme das schärfste Videobild“.
-- [ ] `npm run lint`, `npm run build`, `npm test`.
+- [x] ADR-009, Abschnitt Entscheidung: Satz zum Rückfall ergänzen („Rückfall: fünf Videobilder im Abstand von 60 ms, das schärfste nach Varianz des Laplace-Bilds der Bildmitte“).
+- [x] `docs/code-map.md`: Zeile `core/sharpness.ts` — „Schärfemaß eines Bildes (Varianz des Laplace-Bilds der Bildmitte), nur relativ; wählt im Rückfall der Aufnahme das schärfste Videobild“.
+- [x] `npm run lint`, `npm run build`, `npm test`.
 
 ## Report-Back
+
+Umgesetzt wie geplant. Lint, Build, bestehende Tests grün. Wacklig: `Sharpness.score` und der Rückfallpfad sind nur am Gerät prüfbar (Taschenlampe an oder iPhone) — Konsole bei Fehlschlag: `Schärfemessung fehlgeschlagen`.
