@@ -63,7 +63,8 @@ Komponenten/Pipes).
 | `core/page-factory.ts` | `createPage` baut eine Seite aus Entwurf, begradigtem und bereits gefiltertem Bild (`output` rechnet der Aufrufer, `filter` in `features/filter/`); `renderThumbnail` zeichnet die gedrehte Vorschau |
 | `core/geometry.ts` | `Point`/`Quad`-Typen plus reine Rechen-Funktionen: Ecken sortieren, skalieren, Zielgröße, Fläche, Konvexitätsprüfung, Startviereck, Einpassen (contain/cover), Quad auf den Bildschirm umrechnen, Ruhe-Vergleich zweier Quads, Punkt begrenzen, Kantenmitten |
 | `core/mat-scope.ts` | Sammelt OpenCV-Objekte ein und gibt sie in einem `finally` frei |
-| `core/document-detection.ts` | Findet die Blattkanten im Standbild (OpenCV: Graustufen → Canny → Konturen) und liefert vier Ecken oder `null`, `detectStill` kombiniert KI und OpenCV fürs Standbild |
+| `core/document-detection.ts` | Findet die Blattkanten im Standbild (OpenCV: Graustufen → Canny → Konturen) und liefert vier Ecken oder `null`, `detectStill` kombiniert KI und OpenCV fürs Standbild, `refine` zieht die Ecken auf voller Auflösung nach |
+| `core/edge-refinement.ts` | Zieht erkannte Ecken auf voller Auflösung auf die Blattkanten (Linienanpassung je Kante, ADR-010) |
 | `core/perspective.ts` | Begradigt das Viereck aus dem Original zum Rechteck (OpenCV-Perspektivtransformation, bikubisch), liefert JPEG 0,97 |
 | `core/filter-settings.ts` | Typen und Standardwert der Filter-Einstellung einer Seite |
 | `core/image-filters.ts` | `renderFiltered` rechnet die fünf Scan-Looks plus Kontrast/Helligkeit auf das begradigte Bild (OpenCV: Background Division, CLAHE, Otsu, Unsharp Mask), optional verkleinert für Vorschauen, liefert JPEG (ADR-006) |

@@ -13,7 +13,7 @@ Die Filter sind ausgereizt; die Reserven liegen davor. Die Aufnahme ist bisher e
 | 1 | [Aufnahme als echtes Foto](phase-1-fotoaufnahme.md) | heikel | complete |
 | 2 | [Schärfstes Videobild als Rückfall](phase-2-schaerfe-rueckfall.md) | standard | complete |
 | 3 | [Begradigen verlustärmer](phase-3-begradigen.md) | mechanisch | complete |
-| 4 | [Ecken auf voller Auflösung nachziehen](phase-4-kanten-verfeinern.md) | heikel | pending |
+| 4 | [Ecken auf voller Auflösung nachziehen](phase-4-kanten-verfeinern.md) | heikel | complete |
 | 5 | [S/W mit lokalem Schwellwert (Sauvola)](phase-5-sauvola.md) | standard | pending |
 
 Profil `private`: keine neuen automatisierten Tests. Nach jeder Phase `npm run lint`, `npm run build` und `npm test` (bestehende Tests) grün.
@@ -42,6 +42,7 @@ export function refineQuad(image: ImageData, quad: Quad, searchRadius: number): 
 
 // core/document-detection.ts  (Phase 4, neue öffentliche Methode)
 refine(source: ImageBitmap, quad: Quad): Quad
+// detectStill ruft refine selbst, nur wenn das OpenCV-Ergebnis gewinnt; crop.ts unverändert
 
 // core/perspective.ts  (Phase 3)
 warp(source: ImageBitmap, corners: Quad): Promise<Blob>   // image/jpeg 0.97 statt 0.92
@@ -60,7 +61,7 @@ warp(source: ImageBitmap, corners: Quad): Promise<Blob>   // image/jpeg 0.97 sta
 Wackelstellen zuerst:
 
 1. **Fotoaufnahme am Gerät (Phase 1):** Seite scannen, auf dem Zuschneiden-Bildschirm per Remote-Debugging (PC-Chrome `chrome://inspect`) die Konsole lesen: `Camera: Foto W × H` muss erscheinen, nicht `Fotoaufnahme nicht möglich`. Dauer Auslöser → Zuschneiden notieren; über 2 s fühlbar → melden. Bildausschnitt: das Foto zeigt oft mehr als der Sucher (4:3 statt 16:9) — stört das beim Zuschneiden?
-2. **Ecken nachgezogen (Phase 4):** weißes Blatt auf dunklem Tisch, schräg. Nach „Übernehmen“: Seitenränder ohne dunklen Saum? Gegenprobe: Blatt auf hellem, gemustertem Untergrund — Ecken dürfen nicht ins Muster springen (sonst Konsole `Kanten: verworfen` erwartet, Ecken wie vorher).
+2. **Ecken nachgezogen (Phase 4):** weißes Blatt auf dunklem Tisch, schräg. Konsole muss `DocAligner: … Ergebnis opencv` zeigen — nur dann wird nachgezogen (bei `ki` nicht, ADR-010). Nach „Übernehmen“: Seitenränder ohne dunklen Saum? Gegenprobe: Blatt auf hellem, gemustertem Untergrund — Ecken dürfen nicht ins Muster springen (sonst Konsole `Kanten: verworfen` erwartet, Ecken wie vorher).
 3. **S/W (Phase 5):** Bleistiftnotiz und Kassenbon im Look S/W — Schrift vollständig, Papier sauber weiß? Vergleich mit einem Foto des alten Stands.
 4. **Taschenlampe an:** Aufnahme klappt, Bild hell (Videobild-Pfad).
 5. **iPhone/Safari, falls zur Hand:** Aufnahme klappt, Bild scharf.

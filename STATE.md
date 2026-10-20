@@ -1,8 +1,8 @@
 # State
 
 **Aktiver Plan:** `docs/planning/2026-10-19_scan-qualitaet/`
-**Phase:** 4/5 — Ecken auf voller Auflösung nachziehen (pending)
-**Nächster Schritt:** `phase-4-kanten-verfeinern.md` umsetzen (`core/edge-refinement.ts`, `DocumentDetection.refine`, ADR-010). Rating heikel → `/model opusplan`.
+**Phase:** 5/5 — S/W mit lokalem Schwellwert (Sauvola) (pending)
+**Nächster Schritt:** `phase-5-sauvola.md` umsetzen (`core/image-filters.ts`, Nachtrag in ADR-006). Rating standard → `/model sonnet`. Danach Plan-Ende: Smoke-Checkliste aus der Plan-README an Sascha, Doc-Abgleich, archivieren.
 
 Die App läuft unter `https://quantum-canvas.de/scanner/` (nicht auf einer Subdomain, siehe `FINDINGS.md` → „Deploy“ im archivierten Plan `2026-10-07_app-nach-mockup`).
 

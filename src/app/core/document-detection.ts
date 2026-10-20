@@ -4,6 +4,7 @@ import type { Mat, MatVector } from '@techstark/opencv-js';
 
 import { isConvexQuad, quadArea, quadsClose, scaleQuad, sortQuadCorners, type Point, type Quad } from './geometry';
 import { MatScope } from './mat-scope';
+import { refineQuad } from './edge-refinement';
 import { DocAligner } from './ml/doc-aligner';
 import { OpencvLoader, type OpenCv } from './opencv-loader';
 
@@ -34,6 +35,10 @@ const CONTOUR_CANDIDATES = 5;
 /** Liegen KI- und OpenCV-Ecken so nah beisammen (Anteil der Diagonale), haben beide dasselbe Blatt gefunden — dann zählt das genauere OpenCV-Ergebnis. */
 const AGREEMENT_RATIO = 0.03;
 
+/** Suchbreite beim Nachziehen, in Pixeln der Arbeitskopie: deckt Rundung und die Dilatation ab. */
+const REFINE_RADIUS_WORKING_PX = 3;
+const REFINE_MIN_RADIUS = 6;
+
 @Service()
 export class DocumentDetection {
   private readonly opencvLoader = inject(OpencvLoader);
@@ -49,7 +54,7 @@ export class DocumentDetection {
       aiQuad = await this.docAligner.detect(source);
     } catch (error: unknown) {
       console.info('DocAligner: nicht verfügbar', error);
-      return opencvQuad;
+      return this.refineSafely(source, opencvQuad);
     }
 
     const result = this.combine(opencvQuad, aiQuad, Math.hypot(source.width, source.height) * AGREEMENT_RATIO);
@@ -60,7 +65,26 @@ export class DocumentDetection {
     }
 
     console.info(`DocAligner: ${Math.round(performance.now() - started)} ms, Ergebnis ${label}`);
+
+    // Die Suchbreite ist auf den Versatz der OpenCV-Kontur bemessen; KI-Ecken weichen weiter ab und blieben fast immer im Sicherheitsnetz hängen.
+    if (result === opencvQuad) {
+      return this.refineSafely(source, result);
+    }
+
     return result;
+  }
+
+  /** Zieht erkannte Ecken auf voller Auflösung auf die Blattkanten (ADR-010). */
+  refine(source: ImageBitmap, quad: Quad): Quad {
+    const image = this.drawScaled(source, 1);
+
+    if (image === null) {
+      return quad;
+    }
+
+    const radius = Math.max(REFINE_MIN_RADIUS, Math.ceil((REFINE_RADIUS_WORKING_PX * Math.max(source.width, source.height)) / DETECTION_MAX_EDGE));
+
+    return refineQuad(image, quad, radius);
   }
 
   /**
@@ -85,6 +109,20 @@ export class DocumentDetection {
     }
 
     return scaleQuad(detectedQuad, 1 / scaleFactor);
+  }
+
+  /** Ein Fehler beim Nachziehen lässt das unverfeinerte Ergebnis stehen. */
+  private refineSafely(source: ImageBitmap, quad: Quad | null): Quad | null {
+    if (quad === null) {
+      return null;
+    }
+
+    try {
+      return this.refine(source, quad);
+    } catch (error: unknown) {
+      console.error('Kanten nachziehen fehlgeschlagen', error);
+      return quad;
+    }
   }
 
   /** Ohne KI-Ergebnis OpenCV; finden beide dasselbe Blatt, OpenCV (genauer); sonst die KI. */
