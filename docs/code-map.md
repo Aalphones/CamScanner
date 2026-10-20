@@ -73,12 +73,14 @@ Komponenten/Pipes).
 | `core/share.ts` | `Share` — `canShareFiles()` und `sharePdf()` (Web Share API mit Datei); einzige Stelle, die `navigator.share` anfasst |
 | `core/app-update.ts` | Hört auf den Service Worker und zeigt bei fertig geladener neuer Version den Toast „Neue Version verfügbar · Neu laden“ |
 | `core/camera.ts` | Kapselt `getUserMedia`/Track-Handling, Zustand als Signal |
-| `core/ml/doc-shadow.ts` | KI-Schattenentfernung: lädt `onnxruntime-web` und das DocShadow-Modell erst beim ersten Einschalten (Fortschritt als Signal), rechnet je begradigter Seite eine Verstärkungskarte (nur WASM, Zeitgrenze pro Lauf); angewendet in `image-filters.ts` (ADR-007, ADR-008) |
+| `core/ml/ort-runtime.ts` | Lädt `onnxruntime-web` einmal für alle Modelle (selbst gehostet unter `ort/`) |
+| `core/ml/doc-shadow.ts` | KI-Schattenentfernung: holt die Laufzeit über `OrtRuntime` und lädt das DocShadow-Modell erst beim ersten Einschalten (Fortschritt als Signal), rechnet je begradigter Seite eine Verstärkungskarte (nur WASM, Zeitgrenze pro Lauf); angewendet in `image-filters.ts` (ADR-007, ADR-008) |
 
 ## KI-Modell
 
 | Pfad | Zweck |
 |---|---|
-| `public/models/` | DocShadow als fp16 — **nicht im Git**, erzeugt per `npm run fetch-models` |
-| `scripts/fetch-models.mjs`, `scripts/convert-fp16.py` | Modell holen, Prüfsumme prüfen, per `uv` auf fp16 umwandeln |
+| `public/models/` | DocShadow als fp16 und DocAligner (fp32) — **nicht im Git**, erzeugt per `npm run fetch-models` |
+| `scripts/fetch-models.mjs`, `scripts/convert-fp16.py` | Modelle holen, Prüfsummen prüfen, DocShadow per `uv` auf fp16 umwandeln, DocAligner direkt, ohne Umwandlung |
 | `public/licenses/docshadow.txt` | MIT-Hinweis des Modells, wird mit ausgeliefert |
+| `public/licenses/docaligner.txt` | Apache-2.0-Hinweis des Erkennungsmodells |

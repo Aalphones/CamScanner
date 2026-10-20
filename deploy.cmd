@@ -60,6 +60,12 @@ echo          Fingerabdruck in deploy.env eintragen.
 goto :fail
 
 :protocolOk
+if exist "public\models\docaligner.onnx" goto :alignerFound
+echo [FEHLER] Das KI-Modell fehlt: public\models\docaligner.onnx
+echo          Einmal "npm run fetch-models" ausfuehren, dann erneut hochladen.
+goto :fail
+
+:alignerFound
 if exist "public\models\docshadow.onnx" goto :modelFound
 echo [FEHLER] Das KI-Modell fehlt: public\models\docshadow.onnx
 echo          Einmal "npm run fetch-models" ausfuehren, dann erneut hochladen.
