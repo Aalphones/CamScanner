@@ -153,11 +153,27 @@ Wackelstellen zuerst:
 
 ## Summary
 
+DocAligner `lcnet100` läuft fürs Standbild auf dem Zuschneiden-Bildschirm, kombiniert mit OpenCV (3 %-Regel); die Laufzeit teilt es sich mit DocShadow. Live-Vorschau unverändert OpenCV. Smoke am Handy steht aus.
+
 ## Files touched
+
+- `src/app/core/ml/ort-runtime.ts` (neu), `src/app/core/ml/doc-shadow.ts`
+- `src/app/core/ml/doc-aligner.ts` (neu), `src/app/core/document-detection.ts`
+- `src/app/features/crop/crop.ts`, `src/app/features/capture/capture.ts`
+- `scripts/fetch-models.mjs`, `deploy.cmd`, `public/licenses/docaligner.txt` (neu)
+- `docs/decisions/011-ki-eckenerkennung.md` (neu), `docs/code-map.md`, `docs/PROJECT.md`
 
 ## Commits
 
+- `dd01c82` refactor(ml): KI-Laufzeit in OrtRuntime auslagern
+- `57813e1` feat(ml): DocAligner-Modell bereitstellen
+- `eb90e07` feat(detection): KI-Eckenerkennung mit DocAligner fürs Standbild
+
 ## Deviations from plan
+
+- Der verschachtelte Ternär aus `detectStill` steht als private Methode `combine` mit `if`-Zweigen (gleiche Logik, Code-Stil des Projekts).
+- Lokaler Browser-Test (`npm start`) nicht ausgeführt; stattdessen das Modell in Node mit `onnxruntime-web` an einem synthetischen, schiefen Blatt geprüft: Ein-/Ausgang `img` / `heatmap [1, 4, 128, 128]` bestätigt, die Heatmap-Auswertung trifft alle vier Ecken auf unter 1 Pixel (im 256er-Eingang), Lauf 125 ms auf dem Entwicklungsrechner.
+- „Nicht verfügbar“ wird je Standbild geloggt, nicht nur beim ersten Mal — die Sitzung versucht nach einem Fehler beim nächsten Scan neu zu laden, und jeder Versuch meldet sein Scheitern.
 
 ## Follow-ups
 
